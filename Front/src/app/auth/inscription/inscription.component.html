@@ -1,0 +1,50 @@
+<div class="row">
+  <form [formGroup]="userForm" (ngSubmit)="onSubmit()" class="col s12">
+    <div class="row">
+      <input type="hidden" name="id" formControlName="userId">
+      <div class="input-field col s6">
+        <label>
+          Prénom :
+          <input type="text" id="firsName" formControlName="userFirstname" class="valid">
+          <!-- <span class="helper-text" data-error="wrong" data-success="right">Helper text</span> -->
+        </label>
+      </div>
+    </div>
+    <div class="row">
+      <div class="input-field col s6">
+        <label>
+          Nom :
+          <input type="text" id="lastName" formControlName="userLastname" class="valid">
+        </label>
+      </div>
+    </div>
+    <div class="row">
+      <div class="input-field col s6">
+        <Label>
+          Mot de passe
+          <input type="password" name="password" formControlName="userPassword" class="valid">
+        </Label>
+      </div>
+    </div>
+    <div class="row">
+      <div class="input-field col s6">
+        <label>
+          Login :
+          <input type="text" id="login" formControlName="userLogin" class="valid">
+        </label>
+      </div>
+    </div>
+    <div class="row">
+      <div class="input-field col s6 row">
+        <label>
+          E-mail :
+          <input type="text" id="email" formControlName="userEmail" class="valid">
+        </label>
+      </div>
+    </div>
+      <input type="hidden" name="right" id="right" formControlName="userRight" />
+    <div class="input-field col s6 row">
+      <button type="submit" [disabled]="!userForm.valid">Submit</button>
+    </div>
+  </form>
+</div>

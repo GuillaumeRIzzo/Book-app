@@ -1,0 +1,26 @@
+<div *ngIf="author" class="row">
+  <div class="col s12">
+    <div class="horizontal">
+      <div class="card-image">
+        <img [src]="book.bookImageLink" style="max-height: 300px">
+      </div>
+      <div class="infos">
+        <div class="title">
+          <h1 class="center">{{ book.bookTitle }}</h1>
+          <a (click)="goToAuthor(book.authorId)"> {{author.authorName}} </a>
+          <div style="display: flex; align-items: center;">
+            <app-rating (rated)="onRated($event)" (rated)="book.bookAverageRating"></app-rating>
+            {{book.bookAverageRating}} / 5
+          </div>
+          <p>Nombre de vote: {{book.bookRatingCount}} </p>
+        </div>
+        <div class="card-action">
+          <!-- <a (click)="goBack()">Retour</a> -->
+          <!-- <a (click)="goToEditPokemon(pokemon)">Éditer</a>
+        <a (click)="deletPokemon(pokemon)">Supprimer</a> -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- <h4 *ngIf='!pokemon' class="center"><app-loader></app-loader></h4> -->

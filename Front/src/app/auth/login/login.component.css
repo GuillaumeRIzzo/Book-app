@@ -1,0 +1,4 @@
+form > div:not(:first-child) {
+  margin-top: 5rem;
+  margin-bottom: 5rem;
+}

@@ -1,0 +1,5 @@
+<div class="rating">
+  <span class="star" *ngFor="let star of stars; let i = index" (click)="rate(i + 1)" [ngClass]="{'filled': i < selected}">
+    &#9733; <!-- Unicode for a star -->
+  </span>
+</div>

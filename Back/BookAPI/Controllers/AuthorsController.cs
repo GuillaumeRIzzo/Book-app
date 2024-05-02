@@ -1,0 +1,141 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using BookAPI.Models;
+using BookAPI.Models;
+using Microsoft.AspNetCore.Authorization;
+
+namespace BookAPI.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class AuthorsController : ControllerBase
+    {
+        private readonly BookDbContext _context;
+
+        public AuthorsController(BookDbContext context)
+        {
+            _context = context;
+        }
+
+        // GET: api/Authors
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<ModelViewAuthor>>> GetAuthors()
+        {
+            var authors = await _context.Authors.ToListAsync();
+
+            if (authors.Count >= 1)
+            {
+                var model = authors.Select(x => new ModelViewAuthor()
+                {
+                    AuthorId = x.AuthorId,
+                    AuthorName = x.AuthorName
+
+                }).ToList();
+                return model;
+            }
+            return NoContent();
+        }
+
+        // GET: api/Authors/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<ModelViewAuthor>> GetAuthor(int id)
+        {
+            var author = await _context.Authors.FindAsync(id);
+
+            if (author == null)
+            {
+                return NotFound();
+            }
+
+            var model = new ModelViewAuthor()
+            {
+                AuthorId = author.AuthorId,
+                AuthorName = author.AuthorName
+            };
+
+            return model;
+        }
+
+        // PUT: api/Authors/5
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Authorize(Policy = IdentityData.UserPolicyName)]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutAuthor(int id, ModelViewAuthor model)
+        {
+            if (id != model.AuthorId)
+            {
+                return BadRequest();
+            }
+
+            var author = new ModelViewAuthor()
+            {
+                AuthorId = model.AuthorId,
+                AuthorName = model.AuthorName
+            };
+
+            _context.Entry(author).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!AuthorExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
+        }
+
+        // POST: api/Authors
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Authorize(Policy = IdentityData.UserPolicyName)]
+        [HttpPost]
+        public async Task<ActionResult<ModelViewAuthor>> PostAuthor(ModelViewAuthor model)
+        {
+            if (model == null)
+            {
+                return NoContent();
+            }
+
+            var author = new Author()
+            {
+                AuthorName = model.AuthorName
+            };
+
+            _context.Authors.Add(author);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetAuthor", new { id = model.AuthorId }, model);
+        }
+
+        // DELETE: api/Authors/5
+        [Authorize(Policy = IdentityData.UserPolicyName)]
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteAuthor(int id)
+        {
+            var author = await _context.Authors.FindAsync(id);
+            if (author == null)
+            {
+                return NotFound();
+            }
+
+            _context.Authors.Remove(author);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        private bool AuthorExists(int id)
+        {
+            return _context.Authors.Any(e => e.AuthorId == id);
+        }
+    }
+}

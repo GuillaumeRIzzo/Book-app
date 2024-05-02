@@ -1,0 +1,18 @@
+<div class="row">
+  <form [formGroup]="publisherForm" (ngSubmit)="onSubmit()" class="col s12">
+    <div class="row">
+      <input type="hidden" name="id" formControlName="publisherId">
+      <div class="input-field col s6">
+        <label>
+          Nom :
+          <input type="text" id="name" formControlName="publisherName" class="valid">
+        </label>
+      </div>
+    </div>
+    <div class="row">
+      <div class="input-field col s6">
+        <button type="submit" [disabled]="!publisherForm.valid">Submit</button>
+      </div>
+    </div>
+  </form>
+</div>

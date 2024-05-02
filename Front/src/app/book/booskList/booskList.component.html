@@ -1,0 +1,10 @@
+<a *ngIf="right" routerLink="/addbook">Add</a>
+<div class="container">
+        <div class="row">
+            <div class="col m4 s6">
+                <mat-card class="card" *ngFor="let book of bookList" (click)="detail(book)">
+                    <img mat-card-image [src]="book.bookImageLink" alt="">
+                  </mat-card>
+            </div>
+        </div>
+</div>
