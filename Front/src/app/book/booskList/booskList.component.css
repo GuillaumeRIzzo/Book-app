@@ -1,4 +1,10 @@
 .card {
-  max-width: 100px;
-  max-height: 150px;
+  max-width: 150px;
+  max-height: 245px;
+  margin-left: 2vw;
+  margin-right: 2vw;
+}
+
+img {
+  min-height: 245px;
 }

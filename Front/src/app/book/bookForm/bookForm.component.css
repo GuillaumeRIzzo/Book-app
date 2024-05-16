@@ -1,0 +1,105 @@
+* {
+  color: white;
+}
+
+form > div:not(:first-child) {
+  margin-top: 6rem;
+  margin-bottom: 6rem;
+}
+
+.example-form {
+  min-width: 150px;
+  max-width: 500px;
+  width: 100%;
+}
+
+.example-full-width {
+  width: 100%;
+}
+
+/* Stepper */
+.mat-horizontal-stepper-header-container {
+  justify-content: space-between;
+}
+
+.mat-step-header {
+  flex: 1;
+}
+
+/* Autocomplete Options */
+.autocomplete-options {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  border: 1px solid #ccc;
+  border-top: none;
+  max-height: 200px; /* Adjust the max height as needed */
+  overflow-y: auto;
+  position: absolute;
+  background-color: #fff; /* Set a background color to cover the text behind */
+  z-index: 1000; /* Set a high z-index to ensure it appears above other elements */
+}
+
+.autocomplete-options li {
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+.autocomplete-options li:hover {
+  background-color: #f0f0f0;
+}
+
+/* Input fields */
+.mat-form-field {
+  width: 100%;
+}
+
+.example-form {
+  font-size: 14px;
+}
+
+.input-field {
+  position: relative; /* Ensure the input field doesn't interfere with the dropdown list */
+  z-index: auto; /* Reset the z-index to auto */
+}
+
+.step2 input[type="text"] {
+  border: none !important;
+}
+
+.step2 input[type="text"]:focus {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.row {
+  margin-right: -15px;
+  margin-left: -15px;
+}
+
+.step2 {
+  margin-bottom: 10rem;
+}
+
+.col {
+  flex-basis: 0;
+  flex-grow: 1;
+  max-width: 100%;
+  position: relative;
+  width: 100%;
+  padding-right: 15px;
+  padding-left: 15px;
+}
+
+.s6 {
+  flex: 0 0 50%;
+  max-width: 50%;
+}
+
+button {
+  margin-right: 10px;
+}
+
+.example-chip-list {
+  width: 100%;
+}

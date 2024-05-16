@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators, ValidatorFn, AbstractControl } from '@angular/forms';
 import { AuthService } from '../authService.service';
 import { Router } from '@angular/router';
@@ -9,6 +9,8 @@ import { Router } from '@angular/router';
   styleUrl: './login.component.css',
 })
 export class LoginComponent implements OnInit {
+  @ViewChild('identifierInput') identifierInput: ElementRef;
+
   userForm = new FormGroup({
     userIdentifier: new FormControl('', [Validators.required, this.emailOrLoginValidator()]),
     userPassword: new FormControl('', [Validators.required]),
@@ -19,8 +21,13 @@ export class LoginComponent implements OnInit {
     private router: Router
   ) { }
 
+  ngAfterViewInit() {
+    this.identifierInput.nativeElement.focus();
+  }
+
   ngOnInit(): void {
   }
+
   emailOrLoginValidator(): ValidatorFn {
     return (control: AbstractControl): { [key: string]: any } | null => {
       const value: string = control.value;

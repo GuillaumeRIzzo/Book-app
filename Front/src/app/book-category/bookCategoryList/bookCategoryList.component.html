@@ -1,0 +1,34 @@
+<table mat-table [dataSource]="bookCategoryList" class="mat-elevation-z8">
+  <ng-container *ngIf="right" matColumnDef="bookCategoId">
+      <th mat-header-cell *matHeaderCellDef> No. </th>
+      <td mat-cell *matCellDef="let element"> {{element.bookCategoId}} </td>
+  </ng-container>
+  
+  <ng-container matColumnDef="bookCategoName">
+      <th mat-header-cell *matHeaderCellDef> Nom </th>
+      <td mat-cell *matCellDef="let element"><a (click)="goToBookCategory(element)">{{element.bookCategoName}}</a></td>
+  </ng-container>
+  
+  <ng-container matColumnDef="bookCategoDescription">
+      <th mat-header-cell *matHeaderCellDef> Description </th>
+      <td mat-cell *matCellDef="let element"> {{element.bookCategoDescription}} </td>
+  </ng-container>
+  
+  <div *ngIf="right">
+    <ng-container matColumnDef="Actions">
+      <th mat-header-cell *matHeaderCellDef> Actions </th>
+      <td mat-cell *matCellDef="let element">
+        <a (click)="modifyBookCategory(element)">Modify</a>
+        <a (click)="openDialog(element)"> / Delete</a>
+      </td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </div>
+  
+  <div *ngIf="!right">
+    <tr mat-header-row *matHeaderRowDef="displayedColumn"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumn;"></tr>
+  </div>
+</table>
+<a *ngIf="right" routerLink="/bookcategory/add">Add</a>

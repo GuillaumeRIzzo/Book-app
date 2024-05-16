@@ -2,17 +2,26 @@
     <div class="nav-wrapper">
       <ul>
         <li><a routerLink="books" class="left hide-on-med-and-down">Liste des Livres</a></li>
+        <li><a routerLink="bookscategories">Liste des catégories</a></li>
         <li><a routerLink="authors">Auteurs</a></li>
         <li><a routerLink="publishers">Éditeurs</a></li>
-        <li>
-        </li>
       </ul>
       <ul *ngIf="!log" id="nav-mobile" class="right hide-on-med-and-down">
         <li><a routerLink="singin">Inscription</a></li>
         <li><a routerLink="login">Connexion</a></li>
       </ul>
       <ul *ngIf="log" id="nav-mobile" class="right hide-on-med-and-down">
+        <li>Connecté en tant que: {{login}} </li>
+        <li *ngIf="right"><a routerLink="users">Liste des users</a></li>
+        <li><a [routerLink]="'user/'+userId">Profile</a></li>
         <li><a (click)="logout()">Déconnexion</a></li>
+        <!-- <div class="parent-menu" #menuTriger (mouseenter)="profile.openMenu()" (mouseleave)="closeMenu()">
+          <button  mat-button [matMenuTriggerFor]="profile">Profile</button>
+          <mat-menu #profile="matMenu">
+            <a mat-menu-item [routerLink]="'user/'+userId">Informations personnels</a>
+            <a mat-menu-item (click)="logout()">Déconnexion</a>
+          </mat-menu>
+        </div> -->
       </ul>
     </div>
   </nav>

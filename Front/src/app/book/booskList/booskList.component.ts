@@ -1,6 +1,5 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable } from 'rxjs';
 
 import { BookService } from '../book.service';
 import { Book } from '../book';
@@ -14,6 +13,7 @@ import { AuthService } from '../../auth/authService.service';
 export class BooskListComponent implements OnInit {
   bookList: Book[];
   right: boolean;
+  log: boolean;
 
   constructor(
     private router: Router,
@@ -24,7 +24,8 @@ export class BooskListComponent implements OnInit {
   ngOnInit(): void {
     this.bookService.getBooks()
       .then(books => this.bookList = books);
-      this.right = this.authServie.hasPermission("Admin" || "Super Admin");
+      this.right = this.authServie.hasPermission(["Super Admin", "Admin"]);
+      this.authServie.log$.subscribe(log => this.log = log);
   }
 
   detail(book: Book) {

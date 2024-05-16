@@ -1,18 +1,31 @@
-<div *ngIf="author" class="row">
+<a *ngIf="right" (click)="goToEditBook(book)">Edit</a>
+<div *ngIf="publisher" class="row">
   <div class="col s12">
     <div class="horizontal">
       <div class="card-image">
         <img [src]="book.bookImageLink" style="max-height: 300px">
       </div>
       <div class="infos">
-        <div class="title">
-          <h1 class="center">{{ book.bookTitle }}</h1>
-          <a (click)="goToAuthor(book.authorId)"> {{author.authorName}} </a>
-          <div style="display: flex; align-items: center;">
-            <app-rating (rated)="onRated($event)" (rated)="book.bookAverageRating"></app-rating>
-            {{book.bookAverageRating}} / 5
+        <div class="main-content">
+          <div class="title">
+            <h1>{{ book.bookTitle }}</h1>
+            <p>Auteur:  <a (click)="goToAuthor(book.authorId)"> {{author.authorName}} </a></p>
+            <p>Éditeur: <a (click)="goToPublisher(book.publisherId)"> {{publisher.publisherName}} </a></p>
           </div>
-          <p>Nombre de vote: {{book.bookRatingCount}} </p>
+          <div class="rating">
+            <div>
+              <app-rating (rated)="onRated($event)" (rated)="book.bookAverageRating"></app-rating>
+              <p> {{book.bookAverageRating}} / 5 </p>
+            </div>
+            <p>Nombre de vote: {{book.bookRatingCount}} </p>
+          </div>
+          <p> {{book.bookDescription}} </p>
+          <div class="categories">
+            <p>Catégories: </p>
+            <a *ngFor="let categorie of book.categories" (click)="goToCatego(categorie.bookCategoId)"> {{categorie.bookCategoName}} </a>
+          </div>
+          <p> {{book.bookPageCount}} pages</p>
+          <p>Publié le : {{book.bookPublishDate | date:"dd MMM YYYY" }} </p>
         </div>
         <div class="card-action">
           <!-- <a (click)="goBack()">Retour</a> -->

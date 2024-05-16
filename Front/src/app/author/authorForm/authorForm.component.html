@@ -1,0 +1,18 @@
+<div class="row">
+  <form [formGroup]="authorForm" (ngSubmit)="onSubmit()" class="col s12">
+    <div class="row">
+      <input type="hidden" name="id" formControlName="authorId">
+      <div class="input-field col s6">
+        <label>
+          Nom :
+          <input type="text" id="name" formControlName="authorName" class="valid">
+        </label>
+      </div>
+    </div>
+    <div class="row">
+      <div class="input-field col s6">
+        <button type="submit" [disabled]="!authorForm.valid">Submit</button>
+      </div>
+    </div>
+  </form>
+</div>

@@ -1,15 +1,30 @@
-<table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
-    <ng-container matColumnDef="authorId">
-        <th mat-header-cell *matHeaderCellDef> No. </th>
-        <td mat-cell *matCellDef="let element"> {{element.authorId}} </td>
+<table mat-table [dataSource]="authorList" class="mat-elevation-z8">
+  <ng-container *ngIf="right" matColumnDef="authorId">
+    <th mat-header-cell *matHeaderCellDef> No. </th>
+    <td mat-cell *matCellDef="let element"> {{element.authorId}} </td>
+  </ng-container>
+
+  <ng-container matColumnDef="authorName">
+    <th mat-header-cell *matHeaderCellDef> Nom </th>
+    <td mat-cell *matCellDef="let element"> <a (click)="goToAuthor(element)">{{element.authorName}} </a></td>
+  </ng-container>
+
+  <div *ngIf="right">
+    <ng-container matColumnDef="Actions">
+      <th mat-header-cell *matHeaderCellDef> Actions </th>
+      <td mat-cell *matCellDef="let element">
+        <a (click)="modifyAuthor(element)">Modify</a>
+        <a (click)="openDialog(element)"> / Delete</a>
+      </td>
     </ng-container>
-    
-    <ng-container matColumnDef="authorName">
-        <th mat-header-cell *matHeaderCellDef> Nom </th>
-        <td mat-cell *matCellDef="let element"> {{element.authorName}} </td>
-    </ng-container>
-    
+
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </div>
+
+  <div *ngIf="!right">
+    <tr mat-header-row *matHeaderRowDef="displayedColumn"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumn;"></tr>
+  </div>
 </table>
-<a *ngIf="right" routerLink="/addauthor">Add</a>
+<a *ngIf="right" routerLink="/author/add">Add</a>

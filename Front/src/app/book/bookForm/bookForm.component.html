@@ -1,0 +1,162 @@
+<mat-stepper #stepper [orientation]="(stepperOrientation | async)!" [linear]="isAddForm">
+  <!-- Step 1: Book Information -->
+  <mat-step [stepControl]="bookCategoName">
+    <form [formGroup]="bookForm" class="col s12">
+      <ng-template matStepLabel>Informations</ng-template>
+      <div class="row">
+        <input type="hidden" name="id" formControlName="bookId">
+        <div class="input-field col s6">
+          <label>
+            Titre :
+            <input type="text" id="title" formControlName="bookTitle" class="valid">
+          </label>
+        </div>
+      </div>
+      <div class="row">
+        <div class="input-field col s6">
+          <label>
+            Description :
+            <textarea cols="100" rows="10" wrap="soft" id="description" formControlName="bookDescription"
+              class="valid"></textarea>
+          </label>
+        </div>
+      </div>
+      <div class="row">
+        <div class="input-field col s6">
+          <label>
+            Date de publication
+            <input type="date" name="date" class="valid" value="{{bookForm.value.bookPublishDate | date:'yyyy-MM-dd'}}">
+          </label>
+        </div>
+      </div>
+      <div class="row">
+        <div class="input-field col s6">
+          <label>
+            Nombre de page :
+            <input type="number" id="pages" formControlName="bookPageCount" class="valid">
+          </label>
+        </div>
+      </div>
+      <div class="row">
+        <div class="input-field col s6 row">
+          <label>
+            Lien de l'image du livre :
+            <input type="text" id="image" formControlName="bookImageLink" class="valid">
+          </label>
+        </div>
+      </div>
+      <div class="row">
+        <div class="input-field col s6 row">
+          <label>
+            Langue :
+            <input type="text" id="langue" formControlName="bookLanguage" class="valid">
+          </label>
+        </div>
+      </div>
+      <div class="input-field col s6 row">
+        <button mat-flat-button color="accent" matStepperNext
+          [disabled]="!bookForm.valid && bookForm.controls.categories.valid">Next</button>
+      </div>
+    </form>
+  </mat-step>
+
+  <!-- Step 2: Publisher and Author -->
+  <mat-step [stepControl]="bookCategoName">
+    <ng-template matStepLabel>Auteurs, éditeurs et catégories</ng-template>
+
+    <div class="row step2">
+      <div class="input-field col s6">
+        <mat-form-field class="example-form">
+          <label>Publisher:</label>
+          <input type="text" matInput [formControl]="publisherName"
+          [matAutocomplete]="publiAuto">
+        </mat-form-field>
+        <mat-autocomplete #publiAuto="matAutocomplete">
+          @for (publisher of filteredPublisherOptions | async; track publishers) {
+            <mat-option  [value]="publisher.publisherName">{{publisher.publisherName}}</mat-option>
+          }
+        </mat-autocomplete>
+        <!-- <ul *ngIf="showPublisherOptions" class="autocomplete-options">
+          <li *ngFor="let publisher of filteredPublisherOptions | async" (mousedown)="onPublisherSelected(publisher)">
+            {{ publisher.publisherName }}
+          </li>
+        </ul> -->
+      </div>
+    </div>
+    <div class="row step2">
+      <div class="input-field col s6">
+        <mat-form-field class="example-form">
+          <label>Author:</label>
+          <input type="text" matInput [formControl]="authorName" 
+          [matAutocomplete]="authAuto">
+          <mat-autocomplete #authAuto="matAutocomplete">
+            @for (author of filteredAuthorOptions | async; track authors) {
+              <mat-option  [value]="author.authorName">{{author.authorName}}</mat-option>
+            }
+          </mat-autocomplete>
+        </mat-form-field>
+        <!-- <ul *ngIf="showAuthorOptions" class="autocomplete-options">
+          <li *ngFor="let author of filteredAuthorOptions | async" (mousedown)="onAuthorSelected(author)">
+            {{ author.authorName }}
+          </li>
+        </ul> -->
+      </div>
+    </div>
+    <div class="row step2">
+      <div class="input-field col s6">
+        <form [formGroup]="bookForm">
+          <mat-form-field class="example-chip-list">
+            <label>Catégorie(s):</label>
+            <mat-chip-grid #chipGrid aria-label="Categos selection">
+              @for (catego of categos; track catego) {
+              <mat-chip-row (removed)="remove(catego)">
+                {{catego.bookCategoName}}
+                <button matChipRemove [attr.aria-label]="'remove ' + catego.bookCategoName">
+                  <mat-icon>cancel</mat-icon>
+                </button>
+              </mat-chip-row>
+              }
+            </mat-chip-grid>
+            <input type="text" placeholder="Nouvelle catégorie..." #categoInput [matChipInputFor]="chipGrid"
+              [matChipInputSeparatorKeyCodes]="separatorKeysCodes" (matChipInputTokenEnd)="add($event)"
+              [formControl]="bookCategoName"[matAutocomplete]="auto" />
+            <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
+              @for (catego of filteredCategosOptions | async; track categos) {
+              <mat-option [value]="catego">{{catego.bookCategoName}}</mat-option>
+              }
+            </mat-autocomplete>
+          </mat-form-field>
+        </form>
+      </div>
+    </div>
+    <div class="input-field col s6 row">
+      <button mat-flat-button color="accent" matStepperPrevious >Back</button>
+      <button mat-flat-button color="accent" matStepperNext [disabled]="!bookForm.valid">Next</button>
+    </div>
+  </mat-step>
+
+  <!-- Step 3: Confirmation -->
+  <mat-step [stepControl]="bookCategoName" label="Récapitulatif">
+    <div class="row">
+      <div class="input-field col s6">
+        <p>Titre: {{ bookForm.value.bookTitle }}</p>
+        <p>Description: {{ bookForm.value.bookDescription }}</p>
+        <p>Date de publication: {{ bookForm.value.bookPublishDate | date:"dd MMM YYYY" }}</p>
+        <p>Nombre de page: {{ bookForm.value.bookPageCount }}</p>
+        <p>Image du livre: <img [src]="bookForm.value.bookImageLink" alt=""></p>
+        <p>Langue: {{ bookForm.value.bookLanguage }}</p>
+        <p>Éditeur: {{ publisherName.value }}</p>
+        <p>Auteur: {{ authorName.value }}</p>
+        <p>Catégorie(s):
+          <span *ngFor="let catego of categos">
+            {{ catego.bookCategoName }},
+          </span>
+        </p>
+      </div>
+    </div>
+    <div class="input-field col s6 row">
+      <button mat-flat-button color="accent" matStepperPrevious>Back</button>
+      <button mat-flat-button color="accent" [disabled]="!bookForm.valid" (click)="onSubmit()">Submit</button>
+    </div>
+  </mat-step>
+</mat-stepper>

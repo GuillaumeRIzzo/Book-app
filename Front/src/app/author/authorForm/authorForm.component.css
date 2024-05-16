@@ -1,0 +1,7 @@
+.row:last-child {
+  margin-top: 6em;
+}
+a,
+button {
+  cursor: pointer;
+}

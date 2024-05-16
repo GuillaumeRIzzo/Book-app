@@ -1,3 +1,7 @@
+a {
+  cursor: pointer;
+}
+
 .card-image {
   margin-left: 10rem;
   margin-top: 6rem;
@@ -7,8 +11,12 @@ div {
   display: flex;
 }
 
-image {
-  max-height: 400px;
+p {
+  margin: 5px 0;
+}
+img {
+  max-height: 450px !important;
+  width: 300px !important;
 }
 
 .infos {
@@ -17,7 +25,36 @@ image {
   text-align: center;
 }
 
-.title {
+.main-content {
   flex-direction: column;
   text-align: start;
+}
+
+.title {
+  flex-direction: column;
+}
+
+.rating {
+  flex-direction: column;
+  align-items: start;
+}
+
+.rating div {
+  align-items: end;
+}
+
+.main-content > p {
+  width: 50vw;
+}
+
+.categories {
+  align-items: center;
+}
+
+.categories > p{
+  margin-right: 1vw;
+}
+
+.categories > a{
+  margin: 0px 0.5rem;
 }

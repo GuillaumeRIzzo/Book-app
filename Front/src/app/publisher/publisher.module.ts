@@ -7,16 +7,24 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
 import { AddPublisherComponent } from './addPublisher/addPublisher.component';
 import { authGuard } from '../auth/auth.guard';
+import { EditPublisherComponent } from './editPublisher/editPublisher.component';
+import { PublisherDetailsComponent } from './publisherDetails/publisherDetails.component';
+import { PublisherFormComponent } from './publisherForm/publisherForm.component';
 
 const publisherRoute: Routes = [
+  { path: "edit/publisher/:id", component: EditPublisherComponent, canActivate: [authGuard], data: { requiredPermission: ["Super Admin", "Admin"] } },
+  { path: "publisher/add", component: AddPublisherComponent, canActivate: [authGuard], data: { requiredPermission: ["Super Admin", "Admin"] } },
   { path: "publishers", component: PublisherListComponent },
-  { path: "addpublisher", component: AddPublisherComponent, canActivate: [authGuard], data: { requiredPermission: "Admin" || "Super Admin" } },
+  { path: "publisher/:id", component: PublisherDetailsComponent },
 ];
 
 @NgModule({
   declarations: [
     PublisherListComponent,
-    AddPublisherComponent
+    PublisherFormComponent,
+    AddPublisherComponent,
+    EditPublisherComponent,
+    PublisherDetailsComponent
   ],
   imports: [
     CommonModule,

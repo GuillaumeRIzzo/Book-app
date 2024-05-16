@@ -1,0 +1,26 @@
+<div class="row">
+  <form [formGroup]="bookCategoForm" (ngSubmit)="onSubmit()" class="col s12">
+    <div class="row">
+      <input type="hidden" name="id" formControlName="bookCategoId">
+      <div class="input-field col s6">
+        <label>
+          Nom :
+          <input type="text" id="name" formControlName="bookCategoName" class="valid">
+        </label>
+      </div>
+    </div>
+    <div class="row">
+      <div class="input-field col s6">
+        <label>
+          Description :
+          <input type="text" id="description" formControlName="bookCategoDescription" class="valid">
+        </label>
+      </div>
+    </div>
+    <div class="row">
+      <div class="input-field col s6">
+        <button type="submit" [disabled]="!bookCategoForm.valid">Submit</button>
+      </div>
+    </div>
+  </form>
+</div>

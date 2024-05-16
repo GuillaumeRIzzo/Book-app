@@ -1,7 +1,7 @@
-<a *ngIf="right" routerLink="/addbook">Add</a>
+<a *ngIf="log && right" routerLink="/book/add">Add</a>
 <div class="container">
         <div class="row">
-            <div class="col m4 s6">
+            <div style="display: flex;">
                 <mat-card class="card" *ngFor="let book of bookList" (click)="detail(book)">
                     <img mat-card-image [src]="book.bookImageLink" alt="">
                   </mat-card>
