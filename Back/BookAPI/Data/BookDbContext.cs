@@ -29,6 +29,8 @@ public partial class BookDbContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
+    public DbSet<CategoryList> CategoryLists { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.UseSqlServer("Name=ConnectionStrings:DevConnection");
 
@@ -85,6 +87,7 @@ public partial class BookDbContext : DbContext
                 .HasConstraintName("FK_BOOK_PUBLISHER");
         });
 
+
         modelBuilder.Entity<BookAction>(entity =>
         {
             entity.HasKey(e => new { e.BookId, e.UserId });
@@ -126,26 +129,8 @@ public partial class BookDbContext : DbContext
                 .HasMaxLength(100)
                 .IsUnicode(false)
                 .HasColumnName("bookCategoName");
-
-            entity.HasMany(d => d.Books).WithMany(p => p.BookCategos)
-                .UsingEntity<Dictionary<string, object>>(
-                    "CategorieList",
-                    r => r.HasOne<Book>().WithMany()
-                        .HasForeignKey("BookId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK_CATEGORIE_LIST_BOOK0"),
-                    l => l.HasOne<BookCategory>().WithMany()
-                        .HasForeignKey("BookCategoId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK_CATEGORIE_LIST_BOOK_CATEGORIES"),
-                    j =>
-                    {
-                        j.HasKey("BookCategoId", "BookId");
-                        j.ToTable("CATEGORIE_LIST");
-                        j.IndexerProperty<int>("BookCategoId").HasColumnName("bookCategoID");
-                        j.IndexerProperty<int>("BookId").HasColumnName("bookID");
-                    });
         });
+
 
         modelBuilder.Entity<Modify>(entity =>
         {
@@ -239,6 +224,22 @@ public partial class BookDbContext : DbContext
                 .HasColumnName("userRight");
             entity.HasCheckConstraint("CHK_Users_UserRight", "[userRight] IN ('Super Admin', 'Admin', 'User')");
         });
+
+        modelBuilder.Entity<CategoryList>(entity =>
+        {
+            entity.HasKey(cl => new { cl.BookId, cl.BookCategoId });
+
+            entity.ToTable("CATEGORIE_LIST");
+
+            entity.HasOne(cl => cl.Book)
+                .WithMany(b => b.CategorieLists)
+                .HasForeignKey(cl => cl.BookId);
+
+            entity.HasOne(cl => cl.BookCategory)
+                .WithMany(bc => bc.CategorieLists)
+                .HasForeignKey(cl => cl.BookCategoId);
+        });
+
 
 
         OnModelCreatingPartial(modelBuilder);

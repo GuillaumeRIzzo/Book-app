@@ -16,9 +16,6 @@ namespace BookAPI.Controllers
             _context = context;
         }
 
-        //public UsersController()
-        //{
-        //}
 
         // GET: api/Users
         [HttpGet]
@@ -79,7 +76,7 @@ namespace BookAPI.Controllers
 
         // PUT: api/Users/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [Authorize]
+        [Authorize(Policy = IdentityData.UserPolicyName)]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutUser(int id, ModelViewUser model)
         {
@@ -87,19 +84,42 @@ namespace BookAPI.Controllers
             {
                 return BadRequest();
             }
+            var oldHashResult = await GetUser(id, null);
 
-            var user = new User()
+            var oldHash = oldHashResult.Value;
+
+            if (oldHash != null)
             {
-                UserId = model.UserId,
-                UserFirstname = model.UserFirstname,
-                UserLastname = model.UserLastname,
-                UserPassword = model.UserPassword,
-                UserLogin = model.UserLogin,
-                UserEmail = model.UserEmail,
-                UserRight = model.UserRight
-            };
+                var check = VerifyPassword(model.UserPassword, oldHash.UserPassword);
 
-            _context.Entry(user).State = EntityState.Modified;
+                if (check)
+                {
+                    return BadRequest();
+                }
+
+                var pass = (model.UserPassword == oldHash.UserPassword) ? oldHash.UserPassword : HashPassword(model.UserPassword);
+
+                var user = new User()
+                {
+                    UserId = model.UserId,
+                    UserFirstname = model.UserFirstname,
+                    UserLastname = model.UserLastname,
+                    UserPassword = pass,
+                    UserLogin = model.UserLogin,
+                    UserEmail = model.UserEmail,
+                    UserRight = model.UserRight
+                };
+
+                // Detach the existing entity with the same key from the context
+                var existingUser = _context.Users.Local.FirstOrDefault(e => e.UserId == model.UserId);
+                if (existingUser != null)
+                {
+                    _context.Entry(existingUser).State = EntityState.Detached;
+                }
+
+                // Attach the modified entity
+                _context.Entry(user).State = EntityState.Modified;
+            }
 
             try
             {
@@ -129,6 +149,7 @@ namespace BookAPI.Controllers
             {
                 return NoContent();
             }
+
             if (!IsUserRightValid(model.UserRight))
             {
                 // Handle the case where the userRight parameter is invalid
@@ -139,7 +160,7 @@ namespace BookAPI.Controllers
             {
                 UserFirstname = model.UserFirstname,
                 UserLastname = model.UserLastname,
-                UserPassword = model.UserPassword,
+                UserPassword = HashPassword(model.UserPassword),
                 UserLogin = model.UserLogin,
                 UserEmail = model.UserEmail,
                 UserRight = model.UserRight
@@ -176,6 +197,23 @@ namespace BookAPI.Controllers
         {
             // Check if the userRight parameter is within the allowed values
             return userRight == "Super Admin" || userRight == "Admin" || userRight == "User";
+        }
+
+        private string HashPassword(string password)
+        {
+            // Generate a random salt
+            string salt = BCrypt.Net.BCrypt.GenerateSalt();
+
+            // Hash the password using the salt
+            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(password, salt);
+
+            return hashedPassword;
+        }
+
+        private bool VerifyPassword(string password, string hashedPassword)
+        {
+            // Check if the provided password matches the hashed password
+            return BCrypt.Net.BCrypt.Verify(password, hashedPassword);
         }
     }
 }

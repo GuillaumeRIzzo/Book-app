@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace BookAPI.Models;
+﻿namespace BookAPI.Models;
 
 public partial class Book
 {
@@ -35,5 +32,5 @@ public partial class Book
 
     public virtual ICollection<Readlist> Readlists { get; set; } = new List<Readlist>();
 
-    public virtual ICollection<BookCategory> BookCategos { get; set; } = new List<BookCategory>();
+    public virtual ICollection<CategoryList> CategorieLists { get; set; } = new List<CategoryList>();
 }

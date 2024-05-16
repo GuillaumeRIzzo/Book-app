@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BookAPI.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BookAPI.Controllers
 {
@@ -61,6 +62,7 @@ namespace BookAPI.Controllers
 
         // PUT: api/Publishers/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Authorize]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutPublisher(int id, ModelViewPublisher model)
         {
@@ -98,6 +100,7 @@ namespace BookAPI.Controllers
 
         // POST: api/Publishers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult<ModelViewPublisher>> PostPublisher(ModelViewPublisher model)
         {
@@ -118,6 +121,7 @@ namespace BookAPI.Controllers
         }
 
         // DELETE: api/Publishers/5
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePublisher(int id)
         {

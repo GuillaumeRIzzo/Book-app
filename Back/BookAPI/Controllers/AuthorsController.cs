@@ -67,7 +67,7 @@ namespace BookAPI.Controllers
                 return BadRequest();
             }
 
-            var author = new ModelViewAuthor()
+            var author = new Author()
             {
                 AuthorId = model.AuthorId,
                 AuthorName = model.AuthorName
