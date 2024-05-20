@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
 import { UserService } from './user.service';
 import { InscriptionComponent } from '../auth/inscription/inscription.component';
@@ -11,6 +11,12 @@ import { UserListComponent } from './userList/userList.component';
 import { authGuard } from '../auth/auth.guard';
 import { UserEditComponent } from './userEdit/userEdit.component';
 import { UserFormComponent } from './userForm/userForm.component';
+import { MatIcon, MatIconModule } from '@angular/material/icon';
+import { MatFormField, MatFormFieldModule, MatLabel } from '@angular/material/form-field';
+import { MatCardModule } from '@angular/material/card';
+import { MatInputModule } from '@angular/material/input';
+import { MatAutocompleteModule, MatOption } from '@angular/material/autocomplete';
+import { MatButtonModule } from '@angular/material/button';
 
 const userRoute: Routes = [
   { path: "singin", component: InscriptionComponent },
@@ -30,7 +36,14 @@ const userRoute: Routes = [
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    MatCardModule,
     MatTableModule,
+    FormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatIconModule,
+    MatButtonModule,
+    MatOption,
     RouterModule.forChild(userRoute)
   ],
   providers: [UserService, AuthService]

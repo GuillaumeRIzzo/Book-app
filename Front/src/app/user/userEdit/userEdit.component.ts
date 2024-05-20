@@ -9,7 +9,7 @@ import { AuthService } from '../../auth/authService.service';
   styleUrl: './userEdit.component.css',
 })
 export class UserEditComponent implements OnInit {
-
+  
   constructor(
     private router: Router,
     private route: ActivatedRoute,

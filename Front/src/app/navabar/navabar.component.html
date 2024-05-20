@@ -1,27 +1,86 @@
 <nav>
-    <div class="nav-wrapper">
-      <ul>
-        <li><a routerLink="books" class="left hide-on-med-and-down">Liste des Livres</a></li>
-        <li><a routerLink="bookscategories">Liste des catégories</a></li>
-        <li><a routerLink="authors">Auteurs</a></li>
-        <li><a routerLink="publishers">Éditeurs</a></li>
-      </ul>
-      <ul *ngIf="!log" id="nav-mobile" class="right hide-on-med-and-down">
-        <li><a routerLink="singin">Inscription</a></li>
-        <li><a routerLink="login">Connexion</a></li>
-      </ul>
-      <ul *ngIf="log" id="nav-mobile" class="right hide-on-med-and-down">
-        <li>Connecté en tant que: {{login}} </li>
-        <li *ngIf="right"><a routerLink="users">Liste des users</a></li>
-        <li><a [routerLink]="'user/'+userId">Profile</a></li>
-        <li><a (click)="logout()">Déconnexion</a></li>
-        <!-- <div class="parent-menu" #menuTriger (mouseenter)="profile.openMenu()" (mouseleave)="closeMenu()">
-          <button  mat-button [matMenuTriggerFor]="profile">Profile</button>
-          <mat-menu #profile="matMenu">
-            <a mat-menu-item [routerLink]="'user/'+userId">Informations personnels</a>
+  <div class="nav-wrapper">
+    <a routerLink="" class="brand-logo center">Accueil</a>
+    <ul class="left hide-on-med-and-down">
+      <li>
+        <div [matMenuTriggerFor]="books" #bookMenuTrigger="matMenuTrigger" (mouseenter)="mouseEnter(bookMenuTrigger)"
+          (mouseleave)="mouseLeave(bookMenuTrigger)">
+          <button mat-button>Livres</button>
+          <ng-content select="[trigger]"></ng-content>
+        </div>
+        <mat-menu #books="matMenu" [hasBackdrop]="false">
+          <div (mouseenter)="mouseEnter(bookMenuTrigger)" (mouseleave)="mouseLeave(bookMenuTrigger)">
+            <ng-content sellect="[content]"></ng-content>
+            <a mat-menu-item routerLink="books">Liste des livres</a>
+            <a mat-menu-item *ngIf="right" routerLink="/book/add">Ajout</a>
+          </div>
+        </mat-menu>
+      </li>
+      <li>
+        <div [matMenuTriggerFor]="categos" #categoMenuTrigger="matMenuTrigger"
+          (mouseenter)="mouseEnter(categoMenuTrigger)" (mouseleave)="mouseLeave(categoMenuTrigger)">
+          <button mat-button>Catégories</button>
+          <ng-content select="[trigger]"></ng-content>
+        </div>
+        <mat-menu #categos="matMenu" [hasBackdrop]="false">
+          <div (mouseenter)="mouseEnter(categoMenuTrigger)" (mouseleave)="mouseLeave(categoMenuTrigger)">
+            <ng-content sellect="[content]"></ng-content>
+            <a mat-menu-item routerLink="bookscategories">Liste des Catégories</a>
+            <a mat-menu-item *ngIf="right" routerLink="/bookcategory/add">Ajout</a>
+          </div>
+        </mat-menu>
+      </li>
+      <li>
+        <div [matMenuTriggerFor]="authors" #authorMenuTrigger="matMenuTrigger"
+          (mouseenter)="mouseEnter(authorMenuTrigger)" (mouseleave)="mouseLeave(authorMenuTrigger)">
+          <button mat-button>Auteurs</button>
+          <ng-content select="[trigger]"></ng-content>
+        </div>
+        <mat-menu #authors="matMenu" [hasBackdrop]="false">
+          <div (mouseenter)="mouseEnter(authorMenuTrigger)" (mouseleave)="mouseLeave(authorMenuTrigger)">
+            <ng-content sellect="[content]"></ng-content>
+            <a mat-menu-item routerLink="authors">Liste des auteurs</a>
+            <a mat-menu-item *ngIf="right" routerLink="/author/add">Ajout</a>
+          </div>
+        </mat-menu>
+      </li>
+      <li>
+        <div [matMenuTriggerFor]="publishers" #publisherMenuTrigger="matMenuTrigger"
+          (mouseenter)="mouseEnter(publisherMenuTrigger)" (mouseleave)="mouseLeave(publisherMenuTrigger)">
+          <button mat-button>Éditeurs</button>
+          <ng-content select="[trigger]"></ng-content>
+        </div>
+        <mat-menu #publishers="matMenu" [hasBackdrop]="false">
+          <div (mouseenter)="mouseEnter(publisherMenuTrigger)" (mouseleave)="mouseLeave(publisherMenuTrigger)">
+            <ng-content sellect="[content]"></ng-content>
+            <a mat-menu-item routerLink="publishers">Liste des éditeurs</a>
+            <a mat-menu-item *ngIf="right" routerLink="/publisher/add">Ajout</a>
+          </div>
+        </mat-menu>
+      </li>
+    </ul>
+
+    <ul *ngIf="!log" id="nav-mobile" class="right hide-on-med-and-down">
+      <li><a routerLink="singin">Inscription</a></li>
+      <li><a routerLink="login">Connexion</a></li>
+    </ul>
+    <ul *ngIf="log" id="nav-mobile" class="right hide-on-med-and-down">
+      <li>Connecté en tant que: {{login}} </li>
+      <li *ngIf="right"><a routerLink="users">Liste des users</a></li>
+      <li>
+        <div [matMenuTriggerFor]="profile" #profileMenuTrigger="matMenuTrigger"
+          (mouseenter)="mouseEnter(profileMenuTrigger)" (mouseleave)="mouseLeave(profileMenuTrigger)">
+          <button mat-button>Profile</button>
+          <ng-content select="[trigger]"></ng-content>
+        </div>
+        <mat-menu #profile="matMenu" [hasBackdrop]="false">
+          <div (mouseenter)="mouseEnter(profileMenuTrigger)" (mouseleave)="mouseLeave(profileMenuTrigger)">
+            <ng-content sellect="[content]"></ng-content>
+            <a mat-menu-item [routerLink]="'user/' + userId">Informations personnelles</a>
             <a mat-menu-item (click)="logout()">Déconnexion</a>
-          </mat-menu>
-        </div> -->
-      </ul>
-    </div>
-  </nav>
+          </div>
+        </mat-menu>
+      </li>
+    </ul>
+  </div>
+</nav>

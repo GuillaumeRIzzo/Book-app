@@ -6,7 +6,6 @@ import { MatCardModule } from '@angular/material/card';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatInputModule } from '@angular/material/input';
 import { RouterModule, Routes } from '@angular/router';
-import { BooskListComponent } from './booskList/booskList.component';
 import { BookService } from './book.service';
 import { authGuard } from '../auth/auth.guard';
 import { AddBookComponent } from './addBook/addBook.component';
@@ -19,23 +18,26 @@ import { MatIconModule } from '@angular/material/icon';
 import { BookFormComponent } from './bookForm/bookForm.component';
 import { EditBookComponent } from './editBook/editBook.component';
 import { MatButtonModule } from '@angular/material/button';
+import { SearchComponent } from '../search/search.component';
+import { BooksListComponent } from './booksList/booksList.component';
 
 
 const bookRoute: Routes = [
   { path: "edit/book/:id", component: EditBookComponent,  canActivate: [authGuard], data: { requiredPermission: ["Super Admin", "Admin"] } },
   { path: "book/add", component: AddBookComponent,  canActivate: [authGuard], data: { requiredPermission: ["Super Admin", "Admin"] } },
-  { path: "books", component: BooskListComponent },
+  { path: "books", component: BooksListComponent },
   { path: "book/:id", component: BookDetailComponent },
 ];
 
 @NgModule({
   declarations: [
-    BooskListComponent,
+    BooksListComponent,
     BookDetailComponent,
     BookFormComponent,
     AddBookComponent,
     EditBookComponent,
-    RatingComponent
+    RatingComponent,
+    SearchComponent
   ],
   imports: [
     CommonModule,

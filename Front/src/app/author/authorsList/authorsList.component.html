@@ -13,8 +13,8 @@
     <ng-container matColumnDef="Actions">
       <th mat-header-cell *matHeaderCellDef> Actions </th>
       <td mat-cell *matCellDef="let element">
-        <a (click)="modifyAuthor(element)">Modify</a>
-        <a (click)="openDialog(element)"> / Delete</a>
+        <a (click)="modifyAuthor(element)"><i class="material-icons">create</i></a>
+        <a (click)="openDialog(element)"> / <i class="material-icons">delete</i></a>
       </td>
     </ng-container>
 

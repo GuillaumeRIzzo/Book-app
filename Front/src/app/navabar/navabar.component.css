@@ -1,15 +1,3 @@
-/* Your component's CSS */
-.parent-menu {
-  position: relative; /* Necessary for positioning the menu */
-}
-
-.mat-menu-panel {
-  display: none; /* Hide the menu by default */
-  position: absolute;
-  top: 100%;
-  left: 0;
-}
-
-.parent-menu:hover .mat-menu-panel {
-  display: block; /* Show the menu when parent is hovered */
+button {
+  color: white !important;
 }

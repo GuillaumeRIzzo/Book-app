@@ -16,7 +16,7 @@ export class UserService {
       // Do something before request is sent
       const token = authService.getToken();
         if (!token) {
-          throw new Error('Token not available');
+          // throw new Error('Token not available');
         }
         config.headers.setAuthorization(`Bearer ${token}`);
       return config;

@@ -1,25 +1,24 @@
-import { Component, ViewChild, type OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { AuthService } from '../auth/authService.service';
 import { Router } from '@angular/router';
-import { MatMenuTrigger } from '@angular/material/menu';
 
 @Component({
   selector: 'app-navabar',
   templateUrl: './navabar.component.html',
-  styleUrl: './navabar.component.css',
+  styleUrls: ['./navabar.component.css'],
 })
-export class NavabarComponent implements OnInit {
-  @ViewChild(MatMenuTrigger) trigger: MatMenuTrigger;
-  
+export class NavabarComponent {
   log: boolean;
   right: boolean;
   login: string;
   userId: string;
+  timedOutCloser: any;
   
   constructor(
     private authService: AuthService,
     private router: Router) { }
 
+  
   ngOnInit(): void {
     this.authService.log$.subscribe(log => {
       this.log = log;
@@ -29,6 +28,19 @@ export class NavabarComponent implements OnInit {
     });
   }
 
+  mouseEnter(trigger: { openMenu: () => void; }) {
+    if (this.timedOutCloser) {
+      clearTimeout(this.timedOutCloser);
+    }
+    trigger.openMenu();
+  }
+
+  mouseLeave(trigger: { closeMenu: () => void; }) {
+    this.timedOutCloser = setTimeout(() => {
+      trigger.closeMenu();
+    }, 50);
+  }
+  
   logout() {
     this.authService.setToken("");
     this.authService.setLog();

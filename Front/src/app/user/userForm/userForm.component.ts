@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild, type OnInit } from '@angular/core';
+import { Component, ElementRef, Input, ViewChild, type OnInit } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { AuthService } from '../../auth/authService.service';
@@ -12,13 +12,14 @@ import { User } from '../user';
 })
 export class UserFormComponent implements OnInit {
   @ViewChild('firstInput') firstInput: ElementRef;
+  @Input() userId: string;
 
   right: boolean;
   sa: boolean;
   canChangePassword: boolean;
-  userId: string;
   isUser: boolean;
   badRequest: boolean;
+  hide = true;
 
   userForm = new FormGroup({
     userId: new FormControl(0, [Validators.required]),

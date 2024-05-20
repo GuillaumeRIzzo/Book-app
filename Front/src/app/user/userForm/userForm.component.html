@@ -3,178 +3,171 @@
     <form [formGroup]="userForm" (ngSubmit)="onSubmit()" class="col s12">
       <p *ngIf="isUser">Modifications d'informations personnels</p>
       <p *ngIf="!isUser">Informations personnels</p>
+
       <div class="row">
         <div class="col s6">
-          <label>
-            Prénom :
-            <br>
-            <span *ngIf="userForm.get('userFirstname')?.invalid && (userForm.get('userFirstname')?.dirty || userForm.get('userFirstname')?.touched)">
-              <span *ngIf="userForm.get('userFirstname')?.hasError('required')" class="error-message">Ce champs est requis </span>
-            </span>
-          </label>
-          <input #firstInput type="text" id="firsName" formControlName="userFirstname" class="valid">
+          <mat-form-field appearance="outline">
+            <mat-label>Prénom :</mat-label>
+            <input matInput #firstInput type="text" id="firsName" formControlName="userFirstname">
+            <mat-error *ngIf="userForm.get('userFirstname')?.invalid && (userForm.get('userFirstname')?.dirty || userForm.get('userFirstname')?.touched)">
+              <span *ngIf="userForm.get('userFirstname')?.hasError('required')" class="error-message">Ce champs est requis</span>
+            </mat-error>
+          </mat-form-field>
         </div>
       </div>
+
       <div class="row">
         <div class="col s6">
-          <label>
-            Nom :
-            <br>
-            <span *ngIf="userForm.get('userLastname')?.invalid && (userForm.get('userLastname')?.dirty || userForm.get('userLastname')?.touched)">
-              <span *ngIf="userForm.get('userLastname')?.hasError('required')" class="error-message">Ce champs est requis </span>
-            </span>
-          </label>
-          <input type="text" id="lastName" formControlName="userLastname" class="valid">
+          <mat-form-field appearance="outline">
+            <mat-label>Nom :</mat-label>
+            <input matInput type="text" id="lastName" formControlName="userLastname">
+            <mat-error *ngIf="userForm.get('userLastname')?.invalid && (userForm.get('userLastname')?.dirty || userForm.get('userLastname')?.touched)">
+              <span *ngIf="userForm.get('userLastname')?.hasError('required')" class="error-message">Ce champs est requis</span>
+            </mat-error>
+          </mat-form-field>
         </div>
       </div>
+
       <div class="row">
         <div class="col s6">
-          <label>
-            Login :
-            <br>
+          <mat-form-field appearance="outline">
+            <mat-label>Login :</mat-label>
+            <input matInput type="text" id="login" formControlName="userLogin">
+            <mat-error *ngIf="userForm.get('userLogin')?.invalid && (userForm.get('userLogin')?.dirty || userForm.get('userLogin')?.touched)">
+              <span *ngIf="userForm.get('userLogin')?.hasError('required')" class="error-message">Ce champs est requis</span>
+              <span *ngIf="userForm.get('userLogin')?.hasError('invalidLogin')" class="error-message">Login invalide</span>
+            </mat-error>
             <span>Ne doit pas contenir de &#64;</span>
-            <br>
-            <span *ngIf="userForm.get('userLogin')?.invalid && (userForm.get('userLogin')?.dirty || userForm.get('userLogin')?.touched)">
-              <span *ngIf="userForm.get('userLogin')?.hasError('required')" class="error-message">Ce champs est requis </span>
-              <br>
-              <span *ngIf="userForm.get('userLogin')?.hasError('invalidLogin')" class="error-message"> Login invalide</span>
-            </span>
-          </label>
-          <input type="text" id="login" formControlName="userLogin" class="valid">
+          </mat-form-field>
         </div>
       </div>
+
       <div class="row">
         <div class="col s6">
-          <label>
-            E-mail :
-            <br>
-            <span *ngIf="userForm.get('userEmail')?.invalid && (userForm.get('userEmail')?.dirty || userForm.get('userEmail')?.touched)">
-              <span *ngIf="userForm.get('userEmail')?.hasError('required')" class="error-message">Ce champs est requis </span>
-              <br>
-              <span *ngIf="userForm.get('userEmail')?.hasError('invalidEmail')" class="error-message"> E-mail invalide</span>
-            </span>
-          </label>
-          <input type="text" id="email" formControlName="userEmail" class="valid">
+          <mat-form-field appearance="outline">
+            <mat-label>E-mail :</mat-label>
+            <input matInput type="text" id="email" formControlName="userEmail">
+            <mat-error *ngIf="userForm.get('userEmail')?.invalid && (userForm.get('userEmail')?.dirty || userForm.get('userEmail')?.touched)">
+              <span *ngIf="userForm.get('userEmail')?.hasError('required')" class="error-message">Ce champs est requis</span>
+              <span *ngIf="userForm.get('userEmail')?.hasError('invalidEmail')" class="error-message">E-mail invalide</span>
+            </mat-error>
+          </mat-form-field>
         </div>
       </div>
+
       <div *ngIf="right && !sa" class="row">
         <div class="col s6">
-          <label>
-            <select name="right" id="right" formControlName="userRight">
-              <option value="Admin">Admin</option>
-              <option value="User">User</option>
-            </select>
-          </label>
+          <mat-form-field appearance="outline">
+            <mat-label>Droit :</mat-label>
+            <mat-select formControlName="userRight">
+              <mat-option value="Admin">Admin</mat-option>
+              <mat-option value="User">User</mat-option>
+            </mat-select>
+          </mat-form-field>
         </div>
       </div>
-        <div *ngIf="!isUser" class="row" [formGroup]="passwordForm">
-          <div class="col s6">
-            <label>
-              Nouveau mot de passe :
+
+      <div *ngIf="!isUser" class="row" [formGroup]="passwordForm">
+        <div class="col s6">
+          <mat-form-field appearance="outline">
+            <mat-label>Nouveau mot de passe :</mat-label>
+            <input matInput [type]="hide ? 'password' : 'text'" formControlName="newPassword">
+            <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide" type="button">
+              <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+            </button>
               <span class="criteria">
                 <span class="criterion" [class.invalid]="passwordForm.get('newPassword')?.errors?.['minLength']">
-                  <span class="valid-mark" *ngIf="isCriterionValid('minLength')">✓</span>
-                  Au moins 8 caractères
+                  <span class="valid-mark" *ngIf="isCriterionValid('minLength')">✓</span> Au moins 8 caractères
                 </span>
                 <span class="criterion" [class.invalid]="passwordForm.get('newPassword')?.errors?.['missingUppercase']">
-                  <span class="valid-mark" *ngIf="isCriterionValid('missingUppercase')">✓</span>
-                  Majuscule
+                  <span class="valid-mark" *ngIf="isCriterionValid('missingUppercase')">✓</span> Majuscule
                 </span>
                 <span class="criterion" [class.invalid]="passwordForm.get('newPassword')?.errors?.['missingLowercase']">
-                  <span class="valid-mark" *ngIf="isCriterionValid('missingLowercase')">✓</span>
-                  Minuscule
+                  <span class="valid-mark" *ngIf="isCriterionValid('missingLowercase')">✓</span> Minuscule
                 </span>
                 <span class="criterion" [class.invalid]="passwordForm.get('newPassword')?.errors?.['missingNumber']">
-                  <span class="valid-mark" *ngIf="isCriterionValid('missingNumber')">✓</span>
-                  Nombre
+                  <span class="valid-mark" *ngIf="isCriterionValid('missingNumber')">✓</span> Nombre
                 </span>
                 <span class="criterion" [class.invalid]="passwordForm.get('newPassword')?.errors?.['missingSpecialChar']">
-                  <span class="valid-mark" *ngIf="isCriterionValid('missingSpecialChar')">✓</span>
-                  Caractère spécial
+                  <span class="valid-mark" *ngIf="isCriterionValid('missingSpecialChar')">✓</span> Caractère spécial
                 </span>
               </span>
-            </label>
-            <input type="password" formControlName="newPassword" class="valid">
-          </div>
+            <mat-error *ngIf="passwordForm.get('newPassword')?.invalid && (passwordForm.get('newPassword')?.dirty || passwordForm.get('newPassword')?.touched)">
+              <span *ngIf="passwordForm.get('newPassword')?.hasError('required')" class="error-message">Ce champs est requis</span>
+            </mat-error>
+          </mat-form-field>
         </div>
-        
-        <div *ngIf="!isUser" class="row" [formGroup]="passwordForm">
-          <div class="col s6">
-            <label>
-              Confirmation mot de passe :
-              <br>
-              <span *ngIf="passwordForm.get('confirmNewPassword')?.invalid && (passwordForm.get('confirmNewPassword')?.dirty || passwordForm.get('confirmNewPassword')?.touched)">
-                <span *ngIf="passwordForm.get('confirmNewPassword')?.hasError('required')" class="error-message">Ce champs est requis </span>
-                <br>
-                <span *ngIf="passwordForm.get('confirmNewPassword')?.hasError('invalidMatched')" class="error-message">
-                  Le mot de passe ne correspond pas.
-                </span>
-              </span>
-            </label>
-            <input type="password" formControlName="confirmNewPassword" class="valid">
-          </div>
+      </div>
+
+      <div *ngIf="!isUser" class="row" [formGroup]="passwordForm">
+        <div class="col s6">
+          <mat-form-field appearance="outline">
+            <mat-label>Confirmation mot de passe :</mat-label>
+            <input matInput type="password" formControlName="confirmNewPassword">
+            <mat-error *ngIf="passwordForm.get('confirmNewPassword')?.invalid && (passwordForm.get('confirmNewPassword')?.dirty || passwordForm.get('confirmNewPassword')?.touched)">
+              <span *ngIf="passwordForm.get('confirmNewPassword')?.hasError('required')" class="error-message">Ce champs est requis</span>
+              <span *ngIf="passwordForm.get('confirmNewPassword')?.hasError('invalidMatched')" class="error-message">Le mot de passe ne correspond pas.</span>
+            </mat-error>
+          </mat-form-field>
         </div>
-        <div class="col s6 row">
-          <button *ngIf="isUser" type="submit" [disabled]="!userForm.valid">Submit</button>
-          <button *ngIf="!isUser" type="submit" [disabled]="!userForm.valid || (!passwordForm.valid && !isUser)">Submit</button>
-        </div>
+      </div>
+
+      <div class="col s6 row">
+        <button *ngIf="isUser" type="submit" [disabled]="!userForm.valid">Submit</button>
+        <button *ngIf="!isUser" type="submit" [disabled]="!userForm.valid || (!passwordForm.valid && !isUser)">Submit</button>
+      </div>
     </form>
   </div>
 
   <div *ngIf="canChangePassword">
     <form [formGroup]="passwordForm" (ngSubmit)="passwordSubmit()" class="col s12">
-        <p>Modification du mot de passe</p>
-        <div class="row">
-          <div class="col s6">
-            <label>
-              Nouveau mot de passe :
+      <p>Modification du mot de passe</p>
+      <div class="row">
+        <div class="col s6">
+          <mat-form-field appearance="outline">
+            <mat-label>Nouveau mot de passe :</mat-label>
+            <input matInput type="password" formControlName="newPassword">
               <span class="criteria">
                 <span class="criterion" [class.invalid]="passwordForm.get('newPassword')?.errors?.['minLength']">
-                  <span class="valid-mark" *ngIf="isCriterionValid('minLength')">✓</span>
-                  Au moins 8 caractères
+                  <span class="valid-mark" *ngIf="isCriterionValid('minLength')">✓</span> Au moins 8 caractères
                 </span>
                 <span class="criterion" [class.invalid]="passwordForm.get('newPassword')?.errors?.['missingUppercase']">
-                  <span class="valid-mark" *ngIf="isCriterionValid('missingUppercase')">✓</span>
-                  Majuscule
+                  <span class="valid-mark" *ngIf="isCriterionValid('missingUppercase')">✓</span> Majuscule
                 </span>
                 <span class="criterion" [class.invalid]="passwordForm.get('newPassword')?.errors?.['missingLowercase']">
-                  <span class="valid-mark" *ngIf="isCriterionValid('missingLowercase')">✓</span>
-                  Minuscule
+                  <span class="valid-mark" *ngIf="isCriterionValid('missingLowercase')">✓</span> Minuscule
                 </span>
                 <span class="criterion" [class.invalid]="passwordForm.get('newPassword')?.errors?.['missingNumber']">
-                  <span class="valid-mark" *ngIf="isCriterionValid('missingNumber')">✓</span>
-                  Nombre
+                  <span class="valid-mark" *ngIf="isCriterionValid('missingNumber')">✓</span> Nombre
                 </span>
                 <span class="criterion" [class.invalid]="passwordForm.get('newPassword')?.errors?.['missingSpecialChar']">
-                  <span class="valid-mark" *ngIf="isCriterionValid('missingSpecialChar')">✓</span>
-                  Caractère spécial
+                  <span class="valid-mark" *ngIf="isCriterionValid('missingSpecialChar')">✓</span> Caractère spécial
                 </span>
               </span>
-            </label>
-            <input type="password" formControlName="newPassword" class="valid">
-          </div>
+            <mat-error *ngIf="passwordForm.get('newPassword')?.invalid && (passwordForm.get('newPassword')?.dirty || passwordForm.get('newPassword')?.touched)">
+              <span *ngIf="passwordForm.get('newPassword')?.hasError('required')" class="error-message">Ce champs est requis</span>
+            </mat-error>
+          </mat-form-field>
         </div>
-        
-        <div class="row">
-          <div class="col s6">
-            <label>
-              Confirmation mot de passe :
-              <br>
-              <span *ngIf="passwordForm.get('confirmNewPassword')?.invalid && (passwordForm.get('confirmNewPassword')?.dirty || passwordForm.get('confirmNewPassword')?.touched)">
-              <span *ngIf="passwordForm.get('confirmNewPassword')?.hasError('required')" class="error-message">Ce champs est requis </span>
-              <br>
-                <span *ngIf="passwordForm.get('confirmNewPassword')?.hasError('invalidMatched')" class="error-message">
-                  Le mot de passe ne correspond pas.
-                </span>
-              </span>
-            </label>
-            <input type="password" formControlName="confirmNewPassword" class="valid">
-          </div>
+      </div>
+
+      <div class="row">
+        <div class="col s6">
+          <mat-form-field appearance="outline">
+            <mat-label>Confirmation mot de passe :</mat-label>
+            <input matInput type="password" formControlName="confirmNewPassword">
+            <mat-error *ngIf="passwordForm.get('confirmNewPassword')?.invalid && (passwordForm.get('confirmNewPassword')?.dirty || passwordForm.get('confirmNewPassword')?.touched)">
+              <span *ngIf="passwordForm.get('confirmNewPassword')?.hasError('required')" class="error-message">Ce champs est requis</span>
+              <span *ngIf="passwordForm.get('confirmNewPassword')?.hasError('invalidMatched')" class="error-message">Le mot de passe ne correspond pas.</span>
+            </mat-error>
+          </mat-form-field>
         </div>
-        <span *ngIf="badRequest" class="row error-message">Le mot de passe ne peut pas être le même que le précédent</span> <br>
-        <div class="col s6 row">
-          <button type="submit" [disabled]="!passwordForm.valid || passwordForm.value.newPassword !== passwordForm.value.confirmNewPassword">Submit</button>
-        </div>
+      </div>
+
+      <span *ngIf="badRequest" class="row error-message">Le mot de passe ne peut pas être le même que le précédent</span>
+      <div class="col s6 row">
+        <button type="submit" [disabled]="!passwordForm.valid || passwordForm.value.newPassword !== passwordForm.value.confirmNewPassword">Submit</button>
+      </div>
     </form>
   </div>
 </section>
