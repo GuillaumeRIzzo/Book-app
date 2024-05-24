@@ -9,3 +9,18 @@
 img {
   min-height: 245px;
 }
+
+.container {
+  margin-top: 5vh;
+  display: flex;
+  flex-wrap: wrap;
+
+  div {
+    display: flex;
+    flex-direction: row;
+
+    @media (max-width: 600px) {
+      flex-direction: column;
+    }
+  }
+}

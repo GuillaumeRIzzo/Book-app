@@ -10,6 +10,8 @@ import { authGuard } from '../auth/auth.guard';
 import { EditPublisherComponent } from './editPublisher/editPublisher.component';
 import { PublisherDetailsComponent } from './publisherDetails/publisherDetails.component';
 import { PublisherFormComponent } from './publisherForm/publisherForm.component';
+import { MatInputModule, MatLabel } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
 
 const publisherRoute: Routes = [
   { path: "edit/publisher/:id", component: EditPublisherComponent, canActivate: [authGuard], data: { requiredPermission: ["Super Admin", "Admin"] } },
@@ -30,6 +32,9 @@ const publisherRoute: Routes = [
     CommonModule,
     ReactiveFormsModule,
     MatTableModule,
+    MatInputModule,
+    MatLabel,
+    MatButtonModule,
     RouterModule.forChild(publisherRoute),
   ],
   providers: [PublisherService]

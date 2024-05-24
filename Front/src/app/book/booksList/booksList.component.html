@@ -1,18 +1,10 @@
 <!-- <a *ngIf="log && right" routerLink="/book/add">Add</a> -->
 <div class="container">
   <div class="row">
-    <app-search [books]="bookList" [authors]="authors" [publishers]="publishers" [categories]="categos"></app-search>
-    <div style="display: flex;" *ngIf="(searchedBook$ | async)?.length; else originalBooks">
-      <mat-card class="card" *ngFor="let book of searchedBook$ | async" (click)="detail(book)">
-        <img mat-card-image [src]="book.bookImageLink" alt="">
-      </mat-card>
-    </div>
-    <ng-template #originalBooks>
-      <div style="display: flex;">
+    <div>
         <mat-card class="card" *ngFor="let book of bookList" (click)="detail(book)">
           <img mat-card-image [src]="book.bookImageLink" alt="">
         </mat-card>
       </div>
-    </ng-template>
   </div>
 </div>

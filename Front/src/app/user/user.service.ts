@@ -95,14 +95,14 @@ export class UserService {
     return response.request.status;
   }
   
-  async deleteUser(user: User) {
+  async deleteUser(userId: number) {
     const token = this.authService.getToken();
     if (!token) {
       throw new Error('Token not available');
     }
 
     try {
-      const response = await axios.delete(`${this.authService.apiUrl}Users/${user.userId}`, {
+      const response = await axios.delete(`${this.authService.apiUrl}Users/${userId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 

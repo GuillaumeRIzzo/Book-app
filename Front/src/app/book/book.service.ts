@@ -52,7 +52,7 @@ export class BookService {
     }
   }
 
-  async uppdateBook(book: Book) {
+  async updateBook(book: Book) {
     const token = this.authService.getToken();
     if (!token) {
       throw new Error('Token not available');

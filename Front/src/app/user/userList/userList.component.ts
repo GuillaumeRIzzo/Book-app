@@ -48,12 +48,12 @@ export class UserListComponent implements OnInit {
     });
   
     dialogRef.componentInstance.actionClicked.subscribe(() => {
-      this.deletUser(user);
+      this.deletUser(user.userId.toString());
     });
   }
 
-  async deletUser(user: User) {
-    const result = await this.userService.deleteUser(user);
+  async deletUser(userId: string) {
+    const result = await this.userService.deleteUser(+userId);
     this.dialog.closeAll();
 
     if (result == 204) {

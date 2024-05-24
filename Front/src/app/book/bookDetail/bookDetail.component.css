@@ -1,60 +1,99 @@
-a {
-  cursor: pointer;
-}
-
-.card-image {
-  margin-left: 10rem;
-  margin-top: 6rem;
-}
-
-div {
+.book-container {
   display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  height: 100vh;
 }
 
-p {
+.book-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 80%;
+  max-width: 1200px;
+}
+
+.book-image {
+  max-width: 300px; /* Max width for the image */
+  max-height: 400px; /* Max height for the image */
+  overflow: hidden; /* Hide overflow */
+}
+
+.book-image img {
+  width: 100%; /* Make sure the image fills its container */
+  height: 40vh; /* Make sure the image fills its container */
+  object-fit: cover; /* Scale the image to cover the container */
+  object-position: center; /* Center the image within the container */
+  margin-bottom: 20px;
+}
+
+.book-details {
+  width: 100%;
+}
+
+.book-details h1 {
+  margin-top: 0;
+}
+
+.book-details p {
   margin: 5px 0;
 }
-img {
-  max-height: 450px !important;
-  width: 300px !important;
+
+.book-details .author,
+.book-details .publisher {
+  margin-bottom: 10px;
 }
 
-.infos {
-  display: flex;
-  margin-left: 5rem;
-  text-align: center;
+.book-details .categories {
+  margin-top: 10px;
 }
 
-.main-content {
-  flex-direction: column;
-  text-align: start;
+.book-details .categories p {
+  margin-right: 10px;
 }
 
-.title {
-  flex-direction: column;
+.book-details .categories a {
+  margin-right: 10px;
 }
 
-.rating {
-  flex-direction: column;
-  align-items: start;
+.edit-button {
+  margin-top: 20px;
 }
 
-.rating div {
-  align-items: end;
+.edit-button a {
+  cursor: pointer;
+  background-color: #007bff;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 5px;
+  text-decoration: none;
 }
 
-.main-content > p {
-  width: 50vw;
+.edit-button a:hover {
+  background-color: #0056b3;
 }
 
-.categories {
-  align-items: center;
-}
-
-.categories > p{
-  margin-right: 1vw;
-}
-
-.categories > a{
-  margin: 0px 0.5rem;
+/* Responsive layout */
+@media screen and (min-width: 768px) {
+  .book-info {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .book-image {
+    max-width: 45%;
+    max-height: none;
+    margin-bottom: 0;
+  }
+  
+  .book-image img {
+    width: 100%;
+    /* height: auto; */
+  }
+  
+  .book-details {
+    width: 50%;
+  }
 }

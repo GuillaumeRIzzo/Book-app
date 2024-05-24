@@ -1,19 +1,49 @@
-form > div:not(:first-child) {
-  margin-top: 6rem;
-  margin-bottom: 6rem;
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
 }
 
-.example-form {
-  min-width: 150px;
-  max-width: 500px;
+.form-title {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.form-container {
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.full-width {
   width: 100%;
 }
 
-.example-full-width {
+.input-field {
+  margin-bottom: 20px;
+}
+
+button[mat-raised-button] {
   width: 100%;
 }
 
-a,
-button {
-  cursor: pointer;
+input[type="text"],
+input[type="text"]:focus {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+textarea {
+  padding: 10px;
+  box-sizing: border-box;
+  height: fit-content;
+  min-width: 30vw;
+  max-width: 30vw;
+  overflow-y: auto;
+}
+
+.materialize-textarea::-webkit-scrollbar {
+  display: none;
 }

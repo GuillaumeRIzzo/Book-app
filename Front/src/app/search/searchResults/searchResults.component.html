@@ -1,0 +1,14 @@
+<div class="search-results">
+  <p class="search-query">Résultats pour la recherche de "<span>{{query}}</span>"</p>
+  <mat-action-list class="book-list">
+    @for (book of result; track book.bookId) {
+      <a [routerLink]="'/book/'+book.bookId" class="book-item">
+        <img class="book-image" [src]="book.bookImageLink" alt="Book Cover">
+        <div class="book-details">
+          <h3 class="book-title">{{book.bookTitle}}</h3>
+          <p class="book-description">{{book.bookDescription}}</p>
+        </div>
+      </a>
+    }
+  </mat-action-list>
+</div>

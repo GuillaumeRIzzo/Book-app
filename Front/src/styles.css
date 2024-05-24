@@ -10,3 +10,7 @@ body {
   margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
+
+.mat-typography h3 {
+  margin: 0;
+}

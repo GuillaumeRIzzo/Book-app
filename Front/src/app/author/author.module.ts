@@ -10,6 +10,9 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { AuthorDetailsComponent } from './authorDetails/authorDetails.component';
 import { AuthorFormComponent } from './authorForm/authorForm.component';
 import { EditAuthorComponent } from './editAuthor/editAuthor.component';
+import { MatFormField, MatFormFieldModule, MatLabel } from '@angular/material/form-field';
+import { MatInput, MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
 
 const authRoute: Routes = [
   { path: "edit/author/:id", component: EditAuthorComponent, canActivate: [authGuard], data: { requiredPermission: ["Super Admin", "Admin"] } },
@@ -30,6 +33,10 @@ const authRoute: Routes = [
     CommonModule,
     ReactiveFormsModule,
     MatTableModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatLabel,
+    MatButtonModule,
     RouterModule.forChild(authRoute)
   ],
   providers: [AuthorService]

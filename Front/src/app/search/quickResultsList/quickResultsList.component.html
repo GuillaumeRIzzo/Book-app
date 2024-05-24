@@ -1,0 +1,16 @@
+<!-- quickResultsList.component.html -->
+<mat-action-list #quickResults>
+  <ng-container *ngFor="let book of topResults(); trackBy: trackByBook">
+    <mat-list-item tabindex="0" (click)="goToBook(book.bookId)" [attr.data-book-id]="book.bookId">
+      <img width="50" [src]="book.bookImageLink" matListItemAvatar />
+      <h3 matListItemTitle class="book-title">{{ book.bookTitle }}</h3>
+      <p matListItemLine [innerHTML]="book.bookDescription | truncate: 50"></p>
+    </mat-list-item>
+  </ng-container>
+  <mat-divider />
+  <mat-list-item tabindex="0" (click)="goToSearch(searchTerm())">
+    <mat-icon matListItemIcon>search</mat-icon>
+    <h3 matListItemTitle class="search-title">Tous les résultats de recherche pour "{{ searchTerm() }}"</h3>
+    <span matListItemMeta>Appuyer sur ENTRER</span>
+  </mat-list-item>
+</mat-action-list>

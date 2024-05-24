@@ -1,5 +1,5 @@
 import { Component, type OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { BookService } from '../book.service';
 import { Book } from '../book';
 import { AuthorService } from '../../author/author.service';
@@ -18,10 +18,11 @@ export class BookDetailComponent implements OnInit {
   author: Author;
   publisher: Publisher;
   right: boolean;
+  bookId: string;
   
   constructor(
-    private route: ActivatedRoute,
     private router: Router,
+    private route: ActivatedRoute,
     private bookService: BookService,
     private authorService: AuthorService,
     private publisherService: PublisherService,
@@ -29,13 +30,16 @@ export class BookDetailComponent implements OnInit {
   ) { }
 
  async ngOnInit() {
-    const bookId: string | null = this.route.snapshot.paramMap.get('id');
-    if (bookId) {
-     this.book = await this.bookService.getBook(+bookId);
-     this.author = await this.authorService.getAuthor(this.book.authorId);
-     this.publisher = await this.publisherService.getPublisher(this.book.publisherId);
-    }
-    this.right = this.authService.hasPermission(["Super Admin", "Admin"]);
+    this.route.params.subscribe(async (params: Params) => {
+      this.bookId = params['id'];
+      
+      if (this.bookId) {
+        this.book = await this.bookService.getBook(+this.bookId);
+        this.author = await this.authorService.getAuthor(this.book.authorId);
+        this.publisher = await this.publisherService.getPublisher(this.book.publisherId);
+      }
+      this.right = this.authService.hasPermission(["Super Admin", "Admin"]);
+    })
   }
 
   onRated(rating: number) {

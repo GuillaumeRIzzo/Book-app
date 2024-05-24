@@ -1,26 +1,30 @@
-<div class="row">
-  <form [formGroup]="bookCategoForm" (ngSubmit)="onSubmit()" class="col s12">
-    <div class="row">
-      <input type="hidden" name="id" formControlName="bookCategoId">
-      <div class="input-field col s6">
-        <label>
-          Nom :
-          <input type="text" id="name" formControlName="bookCategoName" class="valid">
-        </label>
-      </div>
+<div class="container">
+  <div class="row">
+    <div class="col s12">
+      <h2 class="form-title">Ajout d'une Catégorie</h2>
     </div>
-    <div class="row">
-      <div class="input-field col s6">
-        <label>
-          Description :
-          <input type="text" id="description" formControlName="bookCategoDescription" class="valid">
-        </label>
+    <form [formGroup]="bookCategoForm" (ngSubmit)="onSubmit()" class="col s12 form-container">
+      <div class="row">
+        <div class="s12 m6">
+          <mat-form-field appearance="fill" class="full-width">
+            <mat-label>Nom :</mat-label>
+            <input matInput type="text" id="name" formControlName="bookCategoName">
+          </mat-form-field>
+        </div>
       </div>
-    </div>
-    <div class="row">
-      <div class="input-field col s6">
-        <button type="submit" [disabled]="!bookCategoForm.valid">Submit</button>
+      <div class="row">
+        <div class="s12 m6">
+          <mat-form-field appearance="fill" class="full-width">
+            <mat-label>Description :</mat-label>
+            <textarea matInput id="description" formControlName="bookCategoDescription" class="materialize-textarea"></textarea>
+          </mat-form-field>
+        </div>
       </div>
-    </div>
-  </form>
+      <div class="row">
+        <div class="s12 m6">
+          <button mat-raised-button color="primary" type="submit" [disabled]="!bookCategoForm.valid">Valider</button>
+        </div>
+      </div>
+    </form>
+  </div>
 </div>

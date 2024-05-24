@@ -37,7 +37,6 @@ const bookRoute: Routes = [
     AddBookComponent,
     EditBookComponent,
     RatingComponent,
-    SearchComponent
   ],
   imports: [
     CommonModule,

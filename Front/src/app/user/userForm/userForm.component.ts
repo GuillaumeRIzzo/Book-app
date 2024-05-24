@@ -4,6 +4,8 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 import { AuthService } from '../../auth/authService.service';
 import { UserService } from '../user.service';
 import { User } from '../user';
+import { MatDialog } from '@angular/material/dialog';
+import { DialogComponent } from '../../dialog/dialog.component';
 
 @Component({
   selector: 'app-user-form',
@@ -16,7 +18,7 @@ export class UserFormComponent implements OnInit {
 
   right: boolean;
   sa: boolean;
-  canChangePassword: boolean;
+  canChange: boolean;
   isUser: boolean;
   badRequest: boolean;
   hide = true;
@@ -37,14 +39,15 @@ export class UserFormComponent implements OnInit {
   });
 
   ngAfterViewInit() {
-    this.firstInput.nativeElement.focus();
+    Promise.resolve().then(() => this.firstInput.nativeElement.focus());
   }
 
   constructor(
     private router: Router,
     private route: ActivatedRoute,
     private authService: AuthService,
-    private userService: UserService) { }
+    private userService: UserService,
+    public dialog: MatDialog) { }
 
   async ngOnInit() {
     this.isUser = this.route.snapshot.url.join('/').includes("user");
@@ -66,7 +69,7 @@ export class UserFormComponent implements OnInit {
         } else if (this.authService.hasPermission(["Admin"]) && this.userForm.controls.userRight.value == "User") {
           this.right = true;
         }
-        this.canChangePassword = this.userId == localStorage.getItem("id");
+        this.canChange = this.userId == localStorage.getItem("id");
       }
       })
     }
@@ -182,6 +185,26 @@ export class UserFormComponent implements OnInit {
 
     if (result == 400) {
       this.badRequest = true;
+    }
+  }
+
+  openDialog(): void {
+    const dialogRef = this.dialog.open(DialogComponent, {
+      width: '250px',
+      data: { title: 'Suppression de votre compte', message: `Voulez vous vraiment supprimer votre compte ?` }
+    });
+  
+    dialogRef.componentInstance.actionClicked.subscribe(() => {
+      this.deletUser(this.userId);
+    });
+  }
+
+  async deletUser(userId: string) {
+    const result = await this.userService.deleteUser(+userId);
+    this.dialog.closeAll();
+
+    if (result == 204) {
+
     }
   }
 }

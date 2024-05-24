@@ -1,18 +1,22 @@
-<div class="row">
-  <form [formGroup]="publisherForm" (ngSubmit)="onSubmit()" class="col s12">
-    <div class="row">
-      <input type="hidden" name="id" formControlName="publisherId">
-      <div class="input-field col s6">
-        <label>
-          Nom :
-          <input type="text" id="name" formControlName="publisherName" class="valid">
-        </label>
-      </div>
+<div class="container">
+  <div class="row">
+    <div class="col s12">
+      <h2 class="form-title">Ajout d'un Éditeur</h2>
     </div>
-    <div class="row">
-      <div class="input-field col s6">
-        <button type="submit" [disabled]="!publisherForm.valid">Submit</button>
+    <form [formGroup]="publisherForm" (ngSubmit)="onSubmit()" class="col s12 form-container">
+      <div class="row">
+        <div class="input-field s12 m6">
+          <mat-form-field appearance="fill" class="full-width">
+            <mat-label>Nom :</mat-label>
+            <input matInput type="text" id="name" formControlName="publisherName">
+          </mat-form-field>
+        </div>
       </div>
-    </div>
-  </form>
+      <div class="row">
+        <div class="input-field s12 m6">
+          <button mat-raised-button color="primary" type="submit" [disabled]="!publisherForm.valid">Valider</button>
+        </div>
+      </div>
+    </form>
+  </div>
 </div>
