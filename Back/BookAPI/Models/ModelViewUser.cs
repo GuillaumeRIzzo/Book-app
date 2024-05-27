@@ -4,6 +4,14 @@ namespace BookAPI.Models
 {
     public class ModelViewUser
     {
+        private User user;
+
+        public ModelViewUser() { }
+        public ModelViewUser(User user)
+        {
+            this.user = user;
+        }
+
         public int UserId { get; set; }
         [Required]
         public string UserFirstname { get; set; } = null!;
