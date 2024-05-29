@@ -12,7 +12,7 @@
 
         public int BookPageCount { get; set; }
 
-        public int BookAverageRating { get; set; }
+        public double BookAverageRating { get; set; }
 
         public int BookRatingCount { get; set; }
 

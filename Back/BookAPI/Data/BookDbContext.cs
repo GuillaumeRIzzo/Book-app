@@ -29,7 +29,7 @@ public partial class BookDbContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
-    public DbSet<CategoryList> CategoryLists { get; set; }
+    public virtual DbSet<CategoryList> CategoryLists { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.UseSqlServer("Name=ConnectionStrings:DevConnection");

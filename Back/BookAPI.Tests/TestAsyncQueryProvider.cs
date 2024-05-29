@@ -10,11 +10,11 @@ namespace BookAPI.Tests
 {
     public class TestAsyncQueryProvider<TEntity> : IAsyncQueryProvider
     {
-        private readonly IQueryProvider _innerQueryProvider;
+        private readonly IQueryProvider _inner;
 
-        public TestAsyncQueryProvider(IQueryProvider innerQueryProvider)
+        internal TestAsyncQueryProvider(IQueryProvider inner)
         {
-            _innerQueryProvider = innerQueryProvider;
+            _inner = inner;
         }
 
         public IQueryable CreateQuery(Expression expression)
@@ -29,22 +29,27 @@ namespace BookAPI.Tests
 
         public object Execute(Expression expression)
         {
-            return _innerQueryProvider.Execute(expression);
+            return _inner.Execute(expression);
         }
 
         public TResult Execute<TResult>(Expression expression)
         {
-            return _innerQueryProvider.Execute<TResult>(expression);
+            return _inner.Execute<TResult>(expression);
         }
 
-        public TResult ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken = default)
+        public IAsyncEnumerable<TResult> ExecuteAsync<TResult>(Expression expression)
         {
-            return (TResult)Execute(expression);
+            return new TestAsyncEnumerable<TResult>(expression);
         }
 
-        TResult IAsyncQueryProvider.ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken)
+        public TResult ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken)
         {
-            return (TResult)Execute(expression);
+            var expectedResultType = typeof(TResult).GetGenericArguments().Single();
+            var executionResult = _inner.Execute(expression);
+
+            return (TResult)typeof(Task).GetMethod(nameof(Task.FromResult))?
+                .MakeGenericMethod(expectedResultType)
+                .Invoke(null, new[] { executionResult });
         }
     }
 }

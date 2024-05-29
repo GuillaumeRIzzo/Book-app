@@ -8,24 +8,27 @@ namespace BookAPI.Tests
 {
     public class TestAsyncEnumerator<T> : IAsyncEnumerator<T>
     {
-        private readonly IEnumerator<T> _innerEnumerator;
+        private readonly IEnumerator<T> _inner;
 
-        public TestAsyncEnumerator(IEnumerator<T> innerEnumerator)
+        public TestAsyncEnumerator(IEnumerator<T> inner)
         {
-            _innerEnumerator = innerEnumerator;
+            _inner = inner;
         }
-
-        public T Current => _innerEnumerator.Current;
 
         public ValueTask DisposeAsync()
         {
-            _innerEnumerator.Dispose();
+            _inner.Dispose();
             return new ValueTask();
         }
 
         public ValueTask<bool> MoveNextAsync()
         {
-            return new ValueTask<bool>(_innerEnumerator.MoveNext());
+            return new ValueTask<bool>(_inner.MoveNext());
+        }
+
+        public T Current
+        {
+            get { return _inner.Current; }
         }
     }
 }

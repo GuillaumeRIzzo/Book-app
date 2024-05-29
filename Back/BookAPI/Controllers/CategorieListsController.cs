@@ -58,12 +58,22 @@ namespace BookAPI.Controllers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [Authorize(Policy = IdentityData.UserPolicyName)]
         [HttpPut("{id}")]
-        public async Task PutCategoryList(int bookId, IEnumerable<ModelViewBookCategory> categories)
+        public async Task<IActionResult> PutCategoryList(int bookId, IEnumerable<ModelViewBookCategory> categories)
         {
+            if (categories == null)
+            {
+                return BadRequest("Categories cannot be null");
+            }
+
             // Get existing categories associated with the book
             var existingCategories = await _context.CategoryLists
-                .Where(cl => cl.BookId == bookId)
-                .ToListAsync();
+             .Where(cl => cl.BookId == bookId)
+             .ToListAsync();
+
+            if (existingCategories == null)
+            {
+                return NotFound();
+            }
 
             // Get list of category IDs associated with the book
             var existingCategoryIds = existingCategories.Select(cl => cl.BookCategoId).ToList();
@@ -87,8 +97,30 @@ namespace BookAPI.Controllers
 
             _context.CategoryLists.AddRange(categoriesToAdd);
 
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!CategoryListExists(bookId))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
         }
+
+        private bool CategoryListExists(int bookId)
+        {
+            return _context.CategoryLists.Any(e => e.BookId == bookId);
+        }
+
         // POST: api/CategoryLists
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [Authorize(Policy = IdentityData.UserPolicyName)]
@@ -131,7 +163,7 @@ namespace BookAPI.Controllers
                 }
             }
 
-            return CreatedAtAction("GetCategorieList", models);
+            return CreatedAtAction("GetCategoryList", models);
         }
 
         // DELETE: api/CategoryLists/5

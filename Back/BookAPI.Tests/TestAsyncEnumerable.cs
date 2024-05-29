@@ -23,6 +23,9 @@ namespace BookAPI.Tests
             return new TestAsyncEnumerator<T>(this.AsEnumerable().GetEnumerator());
         }
 
-        IQueryProvider IQueryable.Provider => new TestAsyncQueryProvider<T>(this);
+        IQueryProvider IQueryable.Provider
+        {
+            get { return new TestAsyncQueryProvider<T>(this); }
+        }
     }
 }

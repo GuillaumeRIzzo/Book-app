@@ -12,10 +12,10 @@ namespace BookAPI.Controllers
         private readonly BookDbContext _context;
         private readonly CategoryListsController _categoryListsController;
 
-        public BooksController(BookDbContext context)
+        public BooksController(BookDbContext context, CategoryListsController categoryListsController)
         {
             _context = context;
-            _categoryListsController = new CategoryListsController(_context);
+            _categoryListsController = categoryListsController ?? throw new ArgumentNullException(nameof(categoryListsController));
         }
 
         [HttpGet]
@@ -68,8 +68,6 @@ namespace BookAPI.Controllers
 
             return NoContent();
         }
-
-
 
         // GET: api/Books/5
         [HttpGet("{id}")]
@@ -124,22 +122,24 @@ namespace BookAPI.Controllers
                 return BadRequest();
             }
 
-            var book = new Book()
-            {
-                BookId = model.BookId,
-                BookTitle = model.BookTitle,
-                BookDescription = model.BookDescription,
-                BookPublishDate = model.BookPublishDate,
-                BookPageCount = model.BookPageCount,
-                BookAverageRating = model.BookAverageRating,
-                BookRatingCount = model.BookRatingCount,
-                BookImageLink = model.BookImageLink,
-                BookLanguage = model.BookLanguage,
-                PublisherId = model.PublisherId,
-                AuthorId = model.AuthorId
-            };
+            var book = await _context.Books.FindAsync(id);
 
-            _context.Entry(book).State = EntityState.Modified;
+            if (book == null)
+            {
+                return NotFound();
+            }
+
+            book.BookId = model.BookId;
+            book.BookTitle = model.BookTitle;
+            book.BookDescription = model.BookDescription;
+            book.BookPublishDate = model.BookPublishDate;
+            book.BookPageCount = model.BookPageCount;
+            book.BookAverageRating = model.BookAverageRating;
+            book.BookRatingCount = model.BookRatingCount;
+            book.BookImageLink = model.BookImageLink;
+            book.BookLanguage = model.BookLanguage;
+            book.PublisherId = model.PublisherId;
+            book.AuthorId = model.AuthorId;
 
             try
             {

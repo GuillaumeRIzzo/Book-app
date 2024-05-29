@@ -3,11 +3,6 @@ using BookAPI.Controllers;
 using Moq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Xunit;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 
 namespace BookAPI.Tests
 {
@@ -20,17 +15,6 @@ namespace BookAPI.Tests
         {
             _mockContext = new Mock<BookDbContext>();
             _controller = new UsersController(_mockContext.Object);
-        }
-
-        private string HashPassword(string password)
-        {
-            // Generate a random salt
-            string salt = BCrypt.Net.BCrypt.GenerateSalt();
-
-            // Hash the password using the salt
-            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(password, salt);
-
-            return hashedPassword;
         }
 
         [Fact]
@@ -77,6 +61,58 @@ namespace BookAPI.Tests
             var actionResult = Assert.IsType<ActionResult<ModelViewUser>>(result);
             var returnValue = Assert.IsType<ModelViewUser>(actionResult.Value);
             Assert.Equal(user.UserId, returnValue.UserId);
+        }
+
+        [Fact]
+        public async Task GetUser_ReturnsUser_WhenIdentifierIsProvided()
+        {
+            // Arrange
+            var user = new User { UserId = 1, UserLogin = "test", UserEmail = "test@example.com" };
+
+            var users = new List<User> { user }.AsQueryable();
+            var mockSet = new Mock<DbSet<User>>();
+
+            // Setup mock for IQueryable<User>
+            mockSet.As<IAsyncEnumerable<User>>()
+                   .Setup(m => m.GetAsyncEnumerator(default))
+                   .Returns(new TestAsyncEnumerator<User>(users.GetEnumerator()));
+            mockSet.As<IQueryable<User>>()
+                   .Setup(m => m.Provider)
+                   .Returns(new TestAsyncQueryProvider<User>(users.Provider));
+            mockSet.As<IQueryable<User>>()
+                   .Setup(m => m.Expression)
+                   .Returns(users.Expression);
+            mockSet.As<IQueryable<User>>()
+                   .Setup(m => m.ElementType)
+                   .Returns(users.ElementType);
+            mockSet.As<IQueryable<User>>()
+                   .Setup(m => m.GetEnumerator())
+                   .Returns(users.GetEnumerator());
+
+            // Setup FirstOrDefaultAsync to return the user based on the predicate
+            _mockContext.Setup(c => c.Users).Returns(mockSet.Object);
+
+            // Act
+            var result = await _controller.GetUser(0, "test@example.com");
+
+            // Assert
+            var okResult = Assert.IsType<ActionResult<ModelViewUser>>(result);
+            var returnValue = Assert.IsType<ModelViewUser>(okResult.Value);
+            Assert.Equal("test", returnValue.UserLogin);
+        }
+
+        [Fact]
+        public async Task GetUser_ReturnsNotFound_WhenUserDoesNotExist()
+        {
+            // Arrange
+            var mockDbSet = new Mock<DbSet<User>>();
+            _mockContext.Setup(m => m.Users).Returns(mockDbSet.Object);
+
+            // Act
+            var result = await _controller.GetUser(1, null);
+
+            // Assert
+            Assert.IsType<NotFoundResult>(result.Result);
         }
 
         [Fact]
@@ -147,7 +183,6 @@ namespace BookAPI.Tests
             var returnValue = Assert.IsType<string>(actionResult.Value);
             Assert.Contains("Email already exists", returnValue); // Checking for email exists error message
         }
-
 
         [Fact]
         public async Task PutUser_ReturnsBadRequest_WhenLoginExists()
@@ -220,7 +255,6 @@ namespace BookAPI.Tests
             Assert.Contains("Invalid", returnValue); // Checking for any validation error message
 
         }
-
 
         [Fact]
         public async Task PostUser_ReturnsBadRequest_WhenEmailExists()
@@ -316,6 +350,5 @@ namespace BookAPI.Tests
             var actionResult = Assert.IsType<NotFoundResult>(result);
             _mockContext.Verify(m => m.SaveChangesAsync(default), Times.Never()); // Since no user is deleted, SaveChangesAsync should not be called
         }
-
     }
 }

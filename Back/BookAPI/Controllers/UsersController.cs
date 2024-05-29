@@ -22,7 +22,6 @@ namespace BookAPI.Controllers
             _context = context;
         }
 
-
         // GET: api/Users
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ModelViewUser>>> GetUsers()
@@ -50,7 +49,7 @@ namespace BookAPI.Controllers
         // GET: api/Users/5
         [Authorize]
         [HttpGet("{id}")]
-        public async Task<ActionResult<ModelViewUser>> GetUser(int id, string? identifier)
+        public virtual async Task<ActionResult<ModelViewUser>> GetUser(int id, string? identifier)
         {
             var user = new User();
 

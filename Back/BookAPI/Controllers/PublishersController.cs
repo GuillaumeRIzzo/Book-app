@@ -71,13 +71,19 @@ namespace BookAPI.Controllers
                 return BadRequest();
             }
 
-            var publisher = new Publisher()
+            if (PublisherNameExists(model.PublisherName, id))
             {
-                PublisherId = model.PublisherId,
-                PublisherName = model.PublisherName
-            };
+                return BadRequest("Name already exists");
+            }
 
-            _context.Entry(publisher).State = EntityState.Modified;
+            var publisher = await _context.Publishers.FindAsync(id);
+
+            if (publisher != null)
+            {
+                publisher.PublisherId = model.PublisherId;
+                publisher.PublisherName = model.PublisherName;
+                
+            }
 
             try
             {
@@ -107,6 +113,11 @@ namespace BookAPI.Controllers
             if (model == null)
             {
                 return NoContent();
+            }
+
+            if (PublisherNameExists(model.PublisherName, 0))
+            {
+                return BadRequest("Name already exists");
             }
 
             var publisher = new Publisher()
@@ -140,6 +151,11 @@ namespace BookAPI.Controllers
         private bool PublisherExists(int id)
         {
             return _context.Publishers.Any(e => e.PublisherId == id);
+        }
+
+        private bool PublisherNameExists(string name, int id)
+        {
+            return _context.Publishers.Any(p => p.PublisherName == name && p.PublisherId != id);
         }
     }
 }

@@ -68,14 +68,19 @@ namespace BookAPI.Controllers
                 return BadRequest();
             }
 
-            var bookCategory = new BookCategory()
+            if (BookCategoryNameExists(model.BookCategoName, id))
             {
-                BookCategoId = model.BookCategoId,
-                BookCategoName = model.BookCategoName,
-                BookCategoDescription= model.BookCategoDescription
-            };
+                return BadRequest("Name already exists");
+            }
 
-            _context.Entry(bookCategory).State = EntityState.Modified;
+            var bookCategory = await _context.BookCategories.FindAsync(id);
+            if (bookCategory != null)
+            {
+                bookCategory.BookCategoId = model.BookCategoId;
+                bookCategory.BookCategoName = model.BookCategoName;
+                bookCategory.BookCategoDescription = model.BookCategoDescription;
+                
+            }
 
             try
             {
@@ -107,6 +112,11 @@ namespace BookAPI.Controllers
                 return NoContent();
             }
 
+            if (BookCategoryNameExists(model.BookCategoName, 0))
+            {
+                return BadRequest("Name already exists");
+            }
+
             var bookCategory = new BookCategory()
             {
                 BookCategoName = model.BookCategoName,
@@ -116,7 +126,7 @@ namespace BookAPI.Controllers
             _context.BookCategories.Add(bookCategory);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetBookCategory", new { id = bookCategory.BookCategoId }, bookCategory);
+            return CreatedAtAction("GetBookCategory", new { id = bookCategory.BookCategoId }, model);
         }
 
         // DELETE: api/BookCategories/5
@@ -139,6 +149,11 @@ namespace BookAPI.Controllers
         private bool BookCategoryExists(int id)
         {
             return _context.BookCategories.Any(e => e.BookCategoId == id);
+        }
+
+        private bool BookCategoryNameExists(string name, int id)
+        {
+            return _context.BookCategories.Any(bc => bc.BookCategoName == name && bc.BookCategoId != id);
         }
     }
 }

@@ -4,6 +4,5 @@
     {
         public int BookCategoId { get; set; }
         public int BookId { get; set; }
-
     }
 }
