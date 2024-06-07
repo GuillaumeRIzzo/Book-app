@@ -1,19 +1,10 @@
-form > div:nth-of-type(1) {
-  margin-top: 0px;
+/* Ensure all mat-form-fields have the same styling */
+mat-form-field {
+  width: 100%;
+  margin-bottom: 1.5rem;
 }
 
-section div {
-  width: 40vw;
-}
-
-section {
-  display: flex;
-  justify-content: space-evenly;
-  align-items: flex-start;
-  position: relative;
-  top: 10rem;
-}
-
+/* Align the form to the center and add some padding and border */
 form {
   padding: 20px;
   border: 1px solid #ccc;
@@ -21,58 +12,65 @@ form {
   background-color: #f9f9f9;
 }
 
+/* Style the form headers */
 form p {
-  font-size: 1.2em;
+  font-size: 1.5em;
   font-weight: bold;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
   text-align: center;
 }
 
-.input-field {
-  width: 100%;
-}
-
-label {
-  font-weight: bold;
-}
-
-input[type="text"],
-input[type="password"] {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  box-sizing: border-box;
-}
-
+/* General row styling for responsive design */
 .row {
   display: flex;
-  justify-content: center;
+  flex-wrap: wrap;
+  margin-left: -15px;
+  margin-right: -15px;
+}
+
+.row .col {
+  padding-left: 15px;
+  padding-right: 15px;
 }
 
 .row .col.s6 {
-  margin-left: 0px;
+  flex: 0 0 50%;
+  max-width: 50%;
 }
 
+/* Button styling */
 button[type="submit"] {
   padding: 10px 20px;
   background-color: #007bff;
-  color: #fff;
   border: none;
   border-radius: 5px;
+  color: white;
   cursor: pointer;
+  font-size: 1em;
+  transition: background-color 0.3s;
+  display: block;
+  width: 100%;
+  max-width: 200px;
+  margin: 20px auto 0;
 }
 
 button[type="submit"]:disabled,
 button[type="submit"]:hover:disabled {
   background-color: grey;
-  cursor: auto;
+  cursor: not-allowed;
 }
 
 button[type="submit"]:hover {
   background-color: #0056b3;
 }
 
+/* Error message styling */
 .error-message {
   color: red;
+  font-size: 0.9em;
+  margin-top: 5px;
+}
+
+.row .col.s6 {
+  margin: auto;
 }

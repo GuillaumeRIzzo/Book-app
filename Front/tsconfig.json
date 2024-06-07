@@ -30,5 +30,8 @@
     "strictInputAccessModifiers": true,
     "strictTemplates": true
   },
-  "suppressImplicitAnyIndexErrors": true
+  "suppressImplicitAnyIndexErrors": true,
+  "exclude": [
+    "src/environments"
+  ]
 }

@@ -1,7 +1,7 @@
 <div *ngIf="publisher" class="book-container">
   <div class="book-info">
     <div class="book-image">
-      <img [src]="book.bookImageLink">
+      <img [src]="book.bookImageLink" [alt]="book.bookTitle">
     </div>
     <div class="book-details">
       <h1>{{ book.bookTitle }}</h1>

@@ -1,31 +1,30 @@
 <section>
   <div>
     <form [formGroup]="userForm" (ngSubmit)="login()" class="col s12">
+      <p>Connexion</p>
       <div class="row">
         <div class="col s6">
-          <label>
-            Login ou E-mail :
-            <br>
-            <span *ngIf="userForm.get('userIdentifier')?.invalid && (userForm.get('userIdentifier')?.dirty || userForm.get('userIdentifier')?.touched)">
+          <mat-form-field appearance="outline">
+            <mat-label>Login ou E-mail :</mat-label>
+            <input matInput #identifierInput type="text" id="identifier" formControlName="userIdentifier">
+            <mat-error *ngIf="userForm.get('userIdentifier')?.invalid && (userForm.get('userIdentifier')?.dirty || userForm.get('userIdentifier')?.touched)">
               <span *ngIf="userForm.get('userIdentifier')?.hasError('required')" class="error-message">Ce champs est requis</span>
               <br>
               <span *ngIf="userForm.get('userIdentifier')?.hasError('invalidEmailOrUsername')" class="error-message">E-mail ou login invalid</span>
-            </span>
-          </label>
-          <input #identifierInput type="text" id="identifier" formControlName="userIdentifier" class="valid">
+            </mat-error>
+          </mat-form-field>
         </div>
       </div>
       <div class="row">
         <div class="col s6">
-          <Label>
-            Mot de passe
-            <br>
-            <span *ngIf="userForm.get('userPassword')?.dirty || userForm.get('userPassword')?.touched">
-              <span *ngIf="userForm.get('userPassword')?.hasError('required')" class="error-message">Ce champs est requis</span>
-            </span>
-          </Label>
-          <input type="password" name="password" formControlName="userPassword" class="valid">
-        </div>
+          <mat-form-field appearance="outline">
+            <mat-label>Mot de passe</mat-label>
+              <input matInput type="password" name="password" formControlName="userPassword">
+              <mat-error *ngIf="userForm.get('userPassword')?.dirty || userForm.get('userPassword')?.touched">
+                <span *ngIf="userForm.get('userPassword')?.hasError('required')" class="error-message">Ce champs est requis</span>
+              </mat-error>
+          </mat-form-field>
+          </div>
       </div>
       <div class="col s6 row">
         <button type="submit" [disabled]="!userForm.valid">Submit</button>

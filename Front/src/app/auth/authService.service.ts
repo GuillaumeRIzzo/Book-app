@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import axios from 'axios';
 import { BehaviorSubject } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  public apiUrl = 'https://localhost:7197/api/';
+  public apiUrl = environment.API_BASE_URL;
 
   private token = new BehaviorSubject<string | null>(null);
   token$ = this.token.asObservable();

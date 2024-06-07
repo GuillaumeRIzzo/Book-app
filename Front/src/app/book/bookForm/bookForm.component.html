@@ -1,6 +1,6 @@
 <mat-stepper #stepper [orientation]="(stepperOrientation | async)!" [linear]="isAddForm">
   <!-- Step 1: Book Information -->
-  <mat-step [stepControl]="bookCategoName">
+  <mat-step [stepControl]="bookForm">
     <form [formGroup]="bookForm" class="col s12">
       <ng-template matStepLabel>Informations</ng-template>
       <div class="input-field-container">
@@ -46,7 +46,7 @@
         </label>
       </div>
       <div class="button-next-first">
-        <button mat-fab color="accent" matStepperNext [disabled]="!bookForm.valid && bookForm.controls.categories.valid">
+        <button mat-fab color="accent" matStepperNext [disabled]="!bookForm.valid">
           <mat-icon>arrow_forward</mat-icon>
         </button>
       </div>
@@ -54,7 +54,7 @@
   </mat-step>
 
   <!-- Step 2: Publisher and Author -->
-  <mat-step [stepControl]="bookCategoName">
+  <mat-step [stepControl]="bookForm">
     <form>
       <ng-template matStepLabel>Auteurs, éditeurs et catégories</ng-template>
       <div class="step2 input-field-container">
@@ -106,7 +106,7 @@
         </button>
       </div>
       <div class="button-next">
-        <button mat-fab color="accent" matStepperNext [disabled]="!bookForm.valid">
+        <button mat-fab color="accent" matStepperNext [disabled]="!categos.length">
           <mat-icon>arrow_forward</mat-icon>
         </button>
       </div>
@@ -114,7 +114,7 @@
   </mat-step>
 
   <!-- Step 3: Confirmation -->
-  <mat-step [stepControl]="bookCategoName" label="Récapitulatif">
+  <mat-step [stepControl]="bookForm" label="Récapitulatif">
     <form [formGroup]="bookForm">
       <div class="book-container">
         <div class="book-info">
@@ -128,7 +128,7 @@
             <p class="description">{{bookForm.value.bookDescription}}</p>
             <div class="categories">
               <p>Catégories:</p>
-              <a *ngFor="let categorie of book.categories"> {{categorie.bookCategoName}} </a>
+              <a *ngFor="let categorie of categos"> {{categorie.bookCategoName}} </a>
             </div>
             <p class="page-count">{{bookForm.value.bookPageCount}} pages</p>
             <p class="publish-date">Publié le: {{bookForm.value.bookPublishDate | date:"dd MMM YYYY" }}</p>

@@ -45,7 +45,7 @@ export class BookFormComponent implements OnInit {
     authorId: new FormControl(0, [Validators.required]),
     read: new FormControl(false, [Validators.required]),
     inList: new FormControl(false, [Validators.required]),
-    categories: new FormArray([], [Validators.required])
+    categories: new FormArray([])
   });
 
   publisherName = new FormControl<string | Publisher>("", [Validators.required]);

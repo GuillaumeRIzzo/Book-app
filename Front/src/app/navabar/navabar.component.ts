@@ -139,14 +139,14 @@ export class NavabarComponent implements OnInit {
   mouseLeave(trigger: { closeMenu: () => void }) {
     this.timedOutCloser = setTimeout(() => {
       trigger.closeMenu();
-    }, 15);
+    }, 50);
   }
 
   toggleSearch() {
     this.searchOpen.set(true);
     setTimeout(() => {
       this.overlayOpen.set(true);
-    }, 100); // Delay to ensure overlay opens before animation starts
+    }, 0); // Delay to ensure overlay opens before animation starts
   }
 
   closeSearch() {
@@ -154,6 +154,13 @@ export class NavabarComponent implements OnInit {
     setTimeout(() => {
       this.searchOpen.set(false);
     }, 0); // Delay to ensure animation completes before closing overlay
+  }
+
+  shouldDisplayMenuItem(condition?: string): boolean {
+    if (!condition) {
+      return true;
+    }
+    return !!this[condition as keyof this];
   }
 
   logout() {

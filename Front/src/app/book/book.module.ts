@@ -5,6 +5,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatCardModule } from '@angular/material/card';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatInputModule } from '@angular/material/input';
+import { MatGridListModule } from '@angular/material/grid-list';
 import { RouterModule, Routes } from '@angular/router';
 import { BookService } from './book.service';
 import { authGuard } from '../auth/auth.guard';
@@ -18,7 +19,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { BookFormComponent } from './bookForm/bookForm.component';
 import { EditBookComponent } from './editBook/editBook.component';
 import { MatButtonModule } from '@angular/material/button';
-import { SearchComponent } from '../search/search.component';
 import { BooksListComponent } from './booksList/booksList.component';
 
 
@@ -42,6 +42,7 @@ const bookRoute: Routes = [
     CommonModule,
     ReactiveFormsModule,
     MatCardModule,
+    MatGridListModule,
     MatTableModule,
     FormsModule,
     MatFormFieldModule,

@@ -13,6 +13,7 @@ import { OverlayModule } from '@angular/cdk/overlay'
 import { MatDivider } from '@angular/material/divider';
 import { MatListModule } from '@angular/material/list';
 import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
+import { MatGridListModule } from '@angular/material/grid-list';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -56,6 +57,7 @@ import { SearchResultsComponent } from './search/searchResults/searchResults.com
         MatListModule,
         MatTableModule,
         MatCardModule,
+        MatGridListModule,
         MatMenu,
         MatButtonModule,
         MatMenuModule,

@@ -22,7 +22,7 @@ export class LoginComponent implements OnInit {
   ) { }
 
   ngAfterViewInit() {
-    this.identifierInput.nativeElement.focus();
+    Promise.resolve().then(() => this.identifierInput.nativeElement.focus());
   }
 
   ngOnInit(): void {

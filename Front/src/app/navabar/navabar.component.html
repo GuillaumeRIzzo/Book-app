@@ -14,7 +14,9 @@
           </div>
           <mat-menu #menuRef="matMenu" [hasBackdrop]="false">
             <div (mouseenter)="mouseEnter(menuTrigger)" (mouseleave)="mouseLeave(menuTrigger)">
-              <a *ngFor="let item of menu.items" mat-menu-item [routerLink]="item.link">{{ item.label }}</a>
+              <ng-container *ngFor="let item of menu.items">
+                <a *ngIf="shouldDisplayMenuItem(item.condition)" mat-menu-item [routerLink]="item.link">{{ item.label }}</a>
+              </ng-container>
             </div>
           </mat-menu>
         </li>
