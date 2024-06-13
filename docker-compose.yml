@@ -50,7 +50,7 @@ services:
   angular-prod:
     build:
       context: ./Front
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.nginx
     container_name: angular-prod
     ports:
       - "80:80"
@@ -58,6 +58,19 @@ services:
       - api
     networks:
       - sqlnetwork
+
+  react:
+    build:
+      context: ./FrontReactJs
+      dockerfile: Dockerfile
+    container_name: react
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./FrontReactJs:/app:delegated
+    networks:
+      - sqlnetwork
+    command: npm run dev
 
 networks:
   sqlnetwork:
