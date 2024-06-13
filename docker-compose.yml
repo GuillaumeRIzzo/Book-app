@@ -1,0 +1,63 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourStrong!Passw0rd
+    ports:
+      - 1433:1433
+    volumes:
+      - ./data:/var/opt/mssql/data
+      - ./init.sql:/init.sql
+      - ./entrypoint.sh:/entrypoint.sh
+    entrypoint: ["/bin/bash", "/entrypoint.sh"]
+    networks:
+      - sqlnetwork
+    command: /bin/bash -c "/opt/mssql/bin/sqlservr & sleep 30 & /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P YourStrong!Passw0rd -i /docker-entrypoint-initdb.d/init.sql"
+
+  api:
+    build:
+      context: ./Back
+      dockerfile: Dockerfile
+    container_name: api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DevConnection=Server=sqlserver;Database=BookDB;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;MultipleActiveResultSets=True;
+    ports:
+      - "5000:80"
+    depends_on:
+      - sqlserver
+    networks:
+      - sqlnetwork
+    volumes:
+      - ./Back:/src/BookAPI
+    command: dotnet watch run --urls http://0.0.0.0:80
+
+  angular-dev:
+    build:
+      context: ./Front
+      dockerfile: Dockerfile.dev
+    container_name: angular-dev
+    ports:
+      - "4200:4200"
+    volumes:
+      - ./Front:/app:delegated
+    depends_on:
+      - api
+    networks:
+      - sqlnetwork
+
+  angular-prod:
+    build:
+      context: ./Front
+      dockerfile: Dockerfile
+    container_name: angular-prod
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+    networks:
+      - sqlnetwork
+
+networks:
+  sqlnetwork:

@@ -12,7 +12,7 @@
 
         public int BookPageCount { get; set; }
 
-        public int BookAverageRating { get; set; }
+        public double BookAverageRating { get; set; }
 
         public int BookRatingCount { get; set; }
 
@@ -23,7 +23,11 @@
         public int PublisherId { get; set; }
 
         public int AuthorId { get; set; }
+
         public bool Read { get; set; } = false;
+
         public bool InList { get; set; } = false;
+
+        public List<ModelViewBookCategory> Categories { get; set; } = new List<ModelViewBookCategory>();
     }
 }

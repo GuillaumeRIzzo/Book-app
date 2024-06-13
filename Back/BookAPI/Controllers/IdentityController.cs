@@ -5,6 +5,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using BCrypt.Net;
+using BookAPI.Identity;
 
 
 namespace BookAPI.Controllers
@@ -15,14 +17,14 @@ namespace BookAPI.Controllers
     {
         private readonly IConfiguration _configuration;
         private readonly BookDbContext _context;
-        private readonly UsersController usersController;
-        private static readonly TimeSpan tokenLifetime = TimeSpan.FromDays(1);
+        private readonly UsersController _usersController;
+        private static readonly TimeSpan tokenLifetime = TimeSpan.FromDays(7);
 
-        public IdentityController(IConfiguration configuration, BookDbContext context)
+        public IdentityController(IConfiguration configuration, BookDbContext context, UsersController usersController)
         {
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-            _context = context;
-            usersController = new UsersController(_context);
+            _context = context ?? throw new ArgumentNullException(nameof(context));
+            _usersController = usersController ?? throw new ArgumentNullException(nameof(usersController));
         }
 
         [AllowAnonymous]
@@ -79,20 +81,34 @@ namespace BookAPI.Controllers
 
         [AllowAnonymous]
         [HttpPost("login")]
-        public async Task<ActionResult<ModelViewUser>> Login([FromBody] LoginViewModel model)
+        public async Task<ActionResult<LoginResponseDto>> Login([FromBody] LoginViewModel model)
         {
             //Get user informations
-            var user = await usersController.GetUser(0, model.Identifier);
+            var user = await _usersController.GetUser(0, model.Identifier);
             var value = user.Value;
 
-            if (value != null && (value.UserLogin == model.Identifier || value.UserEmail == model.Identifier && value.UserPassword == model.Password))
+            if (value != null && (value.UserLogin == model.Identifier || value.UserEmail == model.Identifier) && VerifyPassword(model.Password, value.UserPassword))
             {
                 var token = GenerateToken(value);
-                return Ok(new { Token = token , UserRight = value.UserRight });
+
+                var response = new LoginResponseDto
+                {
+                    Token = token,
+                    id = value.UserId,
+                    login = value.UserLogin,
+                    right = value.UserRight
+                };
+
+                return Ok(response);
             }
             return NotFound();
         }
+
+        // Verifies if a password matches its hashed version
+        private bool VerifyPassword(string password, string hashedPassword)
+        {
+            // Check if the provided password matches the hashed password
+            return BCrypt.Net.BCrypt.Verify(password, hashedPassword);
+        }
     }
-
 }
-

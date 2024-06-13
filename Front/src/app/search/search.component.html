@@ -1,0 +1,25 @@
+<!-- search.component.html -->
+<div class="search-bar-container" cdkOverlayOrigin #overlayPosition="cdkOverlayOrigin"
+  [ngClass]="{ 'opened mat-elevation-z2': overlayOpen()}">
+  <button mat-icon-button>
+    <mat-icon>search</mat-icon>
+  </button>
+  <input
+    type="text"
+    placeholder="Livre / auteur / catégorie / éditeur"
+    #searchBox
+    [value]="searchTerms()"
+    (input)="searchTerms.set(searchBox.value)"
+    (click)="overlayOpen.set(true)"
+    (keydown.ENTER)="search(searchBox.value)">
+  <ng-container *ngIf="searchTerms()">
+    <button mat-icon-button class="close-button" (click)="clearSearch()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </ng-container>
+</div>
+
+<ng-template cdkConnectedOverlay [cdkConnectedOverlayOrigin]="overlayPosition" [cdkConnectedOverlayOpen]="overlayOpen()"
+  (overlayOutsideClick)="overlayOpen.set(false)">
+  <app-search-overlay [customKeydown]="customKeydown" [searchBox]="searchBox"></app-search-overlay>
+</ng-template>

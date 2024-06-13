@@ -1,0 +1,20 @@
+<!-- searchOverlay.component.html -->
+<div class="overlay-container mat-elevation-z2" #searchResults>
+  <mat-divider />
+  <mat-action-list>
+    <ng-container *ngFor="let search of recentSearches(); trackBy: trackBySearch">
+      <mat-list-item tabindex="0" class="search-result-item" (click)="performSearch(search)">
+        <mat-icon matListItemIcon>history</mat-icon>
+        <h3 matListItemTitle>{{ search }}</h3>
+        <button matListItemMeta mat-icon-button (click)="deleteRecentSearches(search); $event.stopPropagation()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-list-item>
+    </ng-container>
+  </mat-action-list>
+  <ng-container *ngIf="searchTerm()">
+    <mat-divider />
+    <app-quick-results-list></app-quick-results-list>
+  </ng-container>
+</div>
+

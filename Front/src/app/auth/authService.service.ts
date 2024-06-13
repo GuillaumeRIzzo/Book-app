@@ -1,18 +1,23 @@
 import { Injectable } from '@angular/core';
 import axios from 'axios';
 import { BehaviorSubject } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  public apiUrl = 'https://localhost:7197/api/';
+  public apiUrl = environment.API_BASE_URL;
+
   private token = new BehaviorSubject<string | null>(null);
   token$ = this.token.asObservable();
 
-  private log: boolean;
+  private log = new BehaviorSubject<boolean>(false);
+  log$ = this.log.asObservable();
 
-  constructor() { }
+  constructor() {
+    this.setLog();
+   }
 
   async login(identifier: string, password: string): Promise<boolean> {
     try {
@@ -21,17 +26,20 @@ export class AuthService {
         password
       });
 
-      const { token, userRight } = response.data;
+      const { token, id, login, right } = response.data;
       
-      if (token && userRight) {
+      if (token && right) {
         this.setToken(token);
         localStorage.setItem('token', token);
-        localStorage.setItem('right', userRight);
+        localStorage.setItem('right', right);
+        localStorage.setItem('id', id);
+        localStorage.setItem('login', login);
+        this.setLog();
         return true;
       }
       return false;
     } catch (error) {
-      console.error('Login failed:', error);
+      // console.error('Login failed:', error);
       return false;
     }
   }
@@ -54,9 +62,8 @@ export class AuthService {
     }
   }
 
-  isLog(): boolean {
-    this.log = (this.getToken() != null) ? true : false;
-    return this.log;
+  setLog() {
+    this.log.next(this.getToken() != null);
   }
 
   getToken(): string | null {
@@ -68,11 +75,12 @@ export class AuthService {
     if (token == "") {
       localStorage.removeItem('token');
       localStorage.removeItem('right');
+      localStorage.removeItem('id');
+      localStorage.removeItem('login');
     }
   }
   
-  hasPermission(requiredPermission: string): boolean {
-    const userRight = localStorage.getItem('right');
-      return userRight == requiredPermission;
+  hasPermission(requiredPermissions: string[]): boolean {
+    return requiredPermissions.some(permission => permission == localStorage.getItem('right'));
   }
 }

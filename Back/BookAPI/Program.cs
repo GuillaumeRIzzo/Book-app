@@ -20,6 +20,9 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
 builder.Services.AddSingleton<IAuthorizationHandler, RequiresCustomClaimAttributeHandler>();
 
+builder.Services.AddTransient<UsersController>();
+builder.Services.AddTransient<CategoryListsController>();
+
 builder.Services.AddAuthentication(x =>
 {
     x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -64,6 +67,7 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddDbContext<BookDbContext>(options => options.UseSqlServer(config.GetConnectionString("DevConnection")));
+builder.Services.AddControllers();
 
 var app = builder.Build();
 

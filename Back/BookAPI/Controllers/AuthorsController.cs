@@ -67,13 +67,18 @@ namespace BookAPI.Controllers
                 return BadRequest();
             }
 
-            var author = new ModelViewAuthor()
+            if (AuthorNameExists(model.AuthorName, id))
             {
-                AuthorId = model.AuthorId,
-                AuthorName = model.AuthorName
-            };
+                return BadRequest("Name already exists");
+            }
 
-            _context.Entry(author).State = EntityState.Modified;
+            var author = await _context.Authors.FindAsync(id);
+
+            if (author != null)
+            {
+                author.AuthorId = model.AuthorId;
+                author.AuthorName = model.AuthorName;
+            }
 
             try
             {
@@ -103,6 +108,11 @@ namespace BookAPI.Controllers
             if (model == null)
             {
                 return NoContent();
+            }
+
+            if (AuthorNameExists(model.AuthorName, 0))
+            {
+                return BadRequest("Name already exists");
             }
 
             var author = new Author()
@@ -136,6 +146,11 @@ namespace BookAPI.Controllers
         private bool AuthorExists(int id)
         {
             return _context.Authors.Any(e => e.AuthorId == id);
+        }
+
+        private bool AuthorNameExists(string name, int id)
+        {
+            return _context.Authors.Any(a => a.AuthorName == name && a.AuthorId != id);
         }
     }
 }

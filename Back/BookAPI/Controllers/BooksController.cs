@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BookAPI.Models;
-using BookAPI.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BookAPI.Controllers
 {
@@ -10,13 +10,14 @@ namespace BookAPI.Controllers
     public class BooksController : ControllerBase
     {
         private readonly BookDbContext _context;
+        private readonly CategoryListsController _categoryListsController;
 
-        public BooksController(BookDbContext context)
+        public BooksController(BookDbContext context, CategoryListsController categoryListsController)
         {
             _context = context;
+            _categoryListsController = categoryListsController ?? throw new ArgumentNullException(nameof(categoryListsController));
         }
 
-        // GET: api/Books
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ModelViewBook>>> GetBooks(int? userId)
         {
@@ -37,22 +38,33 @@ namespace BookAPI.Controllers
                     BookLanguage = x.BookLanguage,
                     PublisherId = x.PublisherId,
                     AuthorId = x.AuthorId
-
                 }).ToList();
 
                 foreach (var item in model)
                 {
-                    var p = await _context.Readlists.FirstOrDefaultAsync(p => 
+                    var p = await _context.Readlists.FirstOrDefaultAsync(p =>
                                 p.UserId == userId && p.BookId == item.BookId);
                     if (p != null)
                     {
                         item.InList = true;
                         item.Read = p.ReadListRead;
                     }
+
+                    // Fetch and populate categories for each book
+                    var categories = await _context.CategoryLists
+                        .Where(cl => cl.BookId == item.BookId)
+                        .Select(cl => new ModelViewBookCategory()
+                        {
+                            BookCategoId = cl.BookCategoId,
+                            BookCategoName = cl.BookCategory.BookCategoName,
+                            BookCategoDescription = cl.BookCategory.BookCategoDescription
+                        })
+                        .ToListAsync();
+
+                    item.Categories = categories;
                 }
                 return model;
             }
-
 
             return NoContent();
         }
@@ -83,11 +95,25 @@ namespace BookAPI.Controllers
                 AuthorId = book.AuthorId
             };
 
+            // Fetch and populate categories for each book
+            var categories = await _context.CategoryLists
+                .Where(cl => cl.BookId == model.BookId)
+                .Select(cl => new ModelViewBookCategory()
+                {
+                    BookCategoId = cl.BookCategoId,
+                    BookCategoName = cl.BookCategory.BookCategoName,
+                    BookCategoDescription = cl.BookCategory.BookCategoDescription
+                })
+                .ToListAsync();
+
+            model.Categories = categories;
+
             return model;
         }
 
         // PUT: api/Books/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Authorize(Policy = IdentityData.UserPolicyName)]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutBook(int id, ModelViewBook model)
         {
@@ -96,26 +122,29 @@ namespace BookAPI.Controllers
                 return BadRequest();
             }
 
-            var book = new Book()
-            {
-                BookId = model.BookId,
-                BookTitle = model.BookTitle,
-                BookDescription = model.BookDescription,
-                BookPublishDate = model.BookPublishDate,
-                BookPageCount = model.BookPageCount,
-                BookAverageRating = model.BookAverageRating,
-                BookRatingCount = model.BookRatingCount,
-                BookImageLink = model.BookImageLink,
-                BookLanguage = model.BookLanguage,
-                PublisherId = model.PublisherId,
-                AuthorId = model.AuthorId
-            };
+            var book = await _context.Books.FindAsync(id);
 
-            _context.Entry(book).State = EntityState.Modified;
+            if (book == null)
+            {
+                return NotFound();
+            }
+
+            book.BookId = model.BookId;
+            book.BookTitle = model.BookTitle;
+            book.BookDescription = model.BookDescription;
+            book.BookPublishDate = model.BookPublishDate;
+            book.BookPageCount = model.BookPageCount;
+            book.BookAverageRating = model.BookAverageRating;
+            book.BookRatingCount = model.BookRatingCount;
+            book.BookImageLink = model.BookImageLink;
+            book.BookLanguage = model.BookLanguage;
+            book.PublisherId = model.PublisherId;
+            book.AuthorId = model.AuthorId;
 
             try
             {
                 await _context.SaveChangesAsync();
+                await _categoryListsController.PutCategoryList(model.BookId, model.Categories);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -134,6 +163,7 @@ namespace BookAPI.Controllers
 
         // POST: api/Books
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Authorize(Policy = IdentityData.UserPolicyName)]
         [HttpPost]
         public async Task<ActionResult<ModelViewBook>> PostBook(ModelViewBook model)
         {
@@ -141,7 +171,7 @@ namespace BookAPI.Controllers
             {
                 return NoContent();
             }
-            
+
             var book = new Book()
             {
                 BookTitle = model.BookTitle,
@@ -159,10 +189,20 @@ namespace BookAPI.Controllers
             _context.Books.Add(book);
             await _context.SaveChangesAsync();
 
+            model.BookId = book.BookId;
+
+            var categoryModels = model.Categories.Select(categoId => new ModelViewCategoryList
+            {
+                BookId = model.BookId,
+                BookCategoId = categoId.BookCategoId
+            }).ToList();
+
+            await _categoryListsController.PostCategorieList(categoryModels);
             return CreatedAtAction("GetBook", new { id = model.BookId }, model);
         }
 
         // DELETE: api/Books/5
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBook(int id)
         {

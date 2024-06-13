@@ -1,18 +1,70 @@
 <nav>
-    <div class="nav-wrapper">
-      <ul>
-        <li><a routerLink="books" class="left hide-on-med-and-down">Liste des Livres</a></li>
-        <li><a routerLink="authors">Auteurs</a></li>
-        <li><a routerLink="publishers">Éditeurs</a></li>
-        <li>
+  <div class="nav-wrapper">
+    <a routerLink="" class="brand-logo">Accueil</a>
+    <ul class="left hide-on-med-and-down">
+      <ng-container *ngFor="let menu of menuList">
+        <li *ngIf="log || menu.alwaysVisible">
+          <div
+            [matMenuTriggerFor]="menuRef"
+            #menuTrigger="matMenuTrigger"
+            (mouseenter)="mouseEnter(menuTrigger)"
+            (mouseleave)="mouseLeave(menuTrigger)"
+          >
+            <button mat-button>{{ menu.label }}</button>
+          </div>
+          <mat-menu #menuRef="matMenu" [hasBackdrop]="false">
+            <div (mouseenter)="mouseEnter(menuTrigger)" (mouseleave)="mouseLeave(menuTrigger)">
+              <ng-container *ngFor="let item of menu.items">
+                <a *ngIf="shouldDisplayMenuItem(item.condition)" mat-menu-item [routerLink]="item.link">{{ item.label }}</a>
+              </ng-container>
+            </div>
+          </mat-menu>
         </li>
-      </ul>
-      <ul *ngIf="!log" id="nav-mobile" class="right hide-on-med-and-down">
-        <li><a routerLink="singin">Inscription</a></li>
-        <li><a routerLink="login">Connexion</a></li>
-      </ul>
-      <ul *ngIf="log" id="nav-mobile" class="right hide-on-med-and-down">
-        <li><a (click)="logout()">Déconnexion</a></li>
-      </ul>
-    </div>
-  </nav>
+      </ng-container>
+    </ul>
+
+    <ul id="nav-mobile" class="right hide-on-med-and-down">
+      <li class="center">
+        <div class="div-button-search">
+          <div cdkOverlayOrigin #searchButtonOrigin="cdkOverlayOrigin">
+            <button mat-icon-button (click)="toggleSearch()">
+              <mat-icon>search</mat-icon>
+            </button>
+          </div>
+          <ng-template 
+            cdkConnectedOverlay 
+            [cdkConnectedOverlayOrigin]="searchButtonOrigin" 
+            [cdkConnectedOverlayOpen]="searchOpen()" 
+            [cdkConnectedOverlayHasBackdrop]="true" 
+            (backdropClick)="closeSearch()"
+            (overlayOutsideClick)="closeSearch()">
+            <div class="overlay-backdrop overlay-container" [@searchBarAnimation]="searchOpen() ? 'open' : 'closed'">
+              <app-search></app-search>
+            </div>
+          </ng-template>
+        </div>
+      </li>
+      
+      <li *ngIf="!log"><a routerLink="singin">Inscription</a></li>
+      <li *ngIf="!log"><a routerLink="login">Connexion</a></li>
+      <li *ngIf="log">Connecté en tant que: {{ login }} </li>
+      <li *ngIf="log && right"><a routerLink="users">Liste des users</a></li>
+      <li *ngIf="log">
+        <div
+          [matMenuTriggerFor]="profileMenu"
+          #profileMenuTrigger="matMenuTrigger"
+          (mouseenter)="mouseEnter(profileMenuTrigger)"
+          (mouseleave)="mouseLeave(profileMenuTrigger)"
+        >
+          <button mat-button>Profile</button>
+        </div>
+        <mat-menu #profileMenu="matMenu" [hasBackdrop]="false">
+          <div (mouseenter)="mouseEnter(profileMenuTrigger)" (mouseleave)="mouseLeave(profileMenuTrigger)">
+            <a mat-menu-item [routerLink]="'user/' + userId">Informations personnelles</a>
+            <a mat-menu-item (click)="logout()">Déconnexion</a>
+          </div>
+        </mat-menu>
+      </li>
+    </ul>
+  </div>
+</nav>

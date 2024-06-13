@@ -33,7 +33,8 @@ export class AuthorService {
 
     return data;
   }
-	async AddAuthor(author: Author) {
+  
+	async addAuthor(author: Author) {
     const token = this.authService.getToken();
     if (!token) {
       throw new Error('Token not available');
@@ -43,7 +44,42 @@ export class AuthorService {
       const response = await axios.post(`${this.authService.apiUrl}Authors`, author, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      return response.data;
+      return response.status;
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      throw error;
+    }
+  }
+  
+	async updateAuthor(author: Author) {
+    const token = this.authService.getToken();
+    if (!token) {
+      throw new Error('Token not available');
+    }
+
+    try {
+      const response = await axios.put(`${this.authService.apiUrl}Authors/${author.authorId}`, author, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      return response.status;
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      throw error;
+    }
+  }
+
+  async deleteAuthor(author: Author) {
+    const token = this.authService.getToken();
+    if (!token) {
+      throw new Error('Token not available');
+    }
+
+    try {
+      const response = await axios.delete(`${this.authService.apiUrl}Authors/${author.authorId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      return response.status;
     } catch (error) {
       console.error('Error fetching data:', error);
       throw error;

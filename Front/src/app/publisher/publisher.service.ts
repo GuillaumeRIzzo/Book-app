@@ -13,12 +13,8 @@ export class PublisherService {
 	ngOnInit(): void {
 	}
 
-	async getPublishers(publisherId?: number): Promise<Publisher[]> {
-    let url;
-
-    (publisherId != undefined) ?
-      url = `${this.authService.apiUrl}Publishers/${publisherId}` :
-      url = `${this.authService.apiUrl}Publishers`
+	async getPublishers(): Promise<Publisher[]> {
+    let url = `${this.authService.apiUrl}Publishers`;
 
     var results = await axios.get<Publisher[]>(url);
 
@@ -27,7 +23,17 @@ export class PublisherService {
     return data;
   }
 
-	async AddPublisher(publisher: Publisher) {
+  async getPublisher(authorId: number): Promise<Publisher> {
+    let url = `${this.authService.apiUrl}Publishers/${authorId}`
+   
+    var results = await axios.get<Publisher>(url);
+
+    const { data = results.data } = results;
+
+    return data;
+  }
+
+	async addPublisher(publisher: Publisher) {
     const token = this.authService.getToken();
     if (!token) {
       throw new Error('Token not available');
@@ -38,6 +44,41 @@ export class PublisherService {
         headers: { Authorization: `Bearer ${token}` }
       });
       return response.data;
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      throw error;
+    }
+  }
+
+	async updatePublisher(publisher: Publisher) {
+    const token = this.authService.getToken();
+    if (!token) {
+      throw new Error('Token not available');
+    }
+
+    try {
+      const response = await axios.put(`${this.authService.apiUrl}Publishers/${publisher.publisherId}`, publisher, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      throw error;
+    }
+  }
+
+  async deletePublisher(publisher: Publisher) {
+    const token = this.authService.getToken();
+    if (!token) {
+      throw new Error('Token not available');
+    }
+
+    try {
+      const response = await axios.delete(`${this.authService.apiUrl}Publishers/${publisher.publisherId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      return response.status;
     } catch (error) {
       console.error('Error fetching data:', error);
       throw error;

@@ -1,4 +1,4 @@
-<table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+<table mat-table [dataSource]="publisherList" class="mat-elevation-z8">
   <ng-container matColumnDef="publisherId">
       <th mat-header-cell *matHeaderCellDef> No. </th>
       <td mat-cell *matCellDef="let element"> {{element.publisherId}} </td>
@@ -6,10 +6,24 @@
   
   <ng-container matColumnDef="publisherName">
       <th mat-header-cell *matHeaderCellDef> Nom </th>
-      <td mat-cell *matCellDef="let element"> {{element.publisherName}} </td>
+      <td mat-cell *matCellDef="let element"> <a (click)="goToPublisher(element)">{{element.publisherName}}</a></td>
   </ng-container>
   
-  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  <div *ngIf="right">
+    <ng-container matColumnDef="Actions">
+      <th mat-header-cell *matHeaderCellDef> Actions </th>
+      <td mat-cell *matCellDef="let element">
+        <a (click)="modifyPublisher(element)"><i class="material-icons">create</i></a>
+        <a (click)="openDialog(element)"> / <i class="material-icons">delete</i></a>
+      </td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </div>
+  
+  <div *ngIf="!right">
+    <tr mat-header-row *matHeaderRowDef="displayedColumn"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumn;"></tr>
+  </div>
 </table>
-<a *ngIf="right" routerLink="/addpublisher">Add</a>
+<a *ngIf="right" routerLink="/publisher/add">Add</a>

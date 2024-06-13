@@ -2,6 +2,7 @@ import { Component, type OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { PublisherService } from '../publisher.service';
 import { Publisher } from '../publisher';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-add-publisher',
@@ -9,18 +10,9 @@ import { Publisher } from '../publisher';
   styleUrl: './addPublisher.component.css',
 })
 export class AddPublisherComponent implements OnInit {
+  publisher: Publisher;
 
-  publisherForm = new FormGroup({
-    publisherId: new FormControl(0, { nonNullable: true }),
-    publisherName: new FormControl('', { nonNullable: true }),
-  });
-
-	constructor(private publisherService: PublisherService) { }
-	
-	ngOnInit(): void {
-	}
-
-	async onSubmit() {
-    const result = await this.publisherService.AddPublisher((this.publisherForm.value as Publisher))
+  async ngOnInit() {
+    this.publisher = new Publisher();
   }
 }

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace BookAPI.Models;
+﻿namespace BookAPI.Models;
 
 public partial class BookCategory
 {
@@ -11,5 +8,5 @@ public partial class BookCategory
 
     public string BookCategoDescription { get; set; } = null!;
 
-    public virtual ICollection<Book> Books { get; set; } = new List<Book>();
+    public virtual ICollection<CategoryList> CategorieLists { get; set; } = new List<CategoryList>();
 }

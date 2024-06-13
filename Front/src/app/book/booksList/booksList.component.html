@@ -1,0 +1,22 @@
+<div class="container">
+  <!-- <div class="filter-container">
+    <input type="text" placeholder="Title" [(ngModel)]="filterCriteria.bookTitle" (ngModelChange)="onFilterChange()">
+    <input type="text" placeholder="Description" [(ngModel)]="filterCriteria.bookDescription" (ngModelChange)="onFilterChange()">
+    <input type="text" placeholder="Language" [(ngModel)]="filterCriteria.bookLanguage" (ngModelChange)="onFilterChange()">
+    <select [(ngModel)]="filterCriteria.categories" (ngModelChange)="onFilterChange()">
+      <option *ngFor="let category of categories" [value]="category.bookCategoName">{{ category.bookCategoName }}</option>
+    </select>
+    <select [(ngModel)]="groupBy" (ngModelChange)="onGroupChange()">
+      <option value="">None</option>
+      <option value="authorId">Author</option>
+      <option value="publisherId">Publisher</option>
+    </select>
+  </div> -->
+  <div class="row">
+    <div *ngFor="let book of bookList" class="col m2">
+      <mat-card class="card" (click)="detail(book)">
+        <img mat-card-image [src]="book.bookImageLink" [alt]="book.bookTitle">
+      </mat-card>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,20 @@
+.container {
+  margin-top: 5vh;
+}
+
+.card {
+  max-width: 100px;
+  max-height: 150px;
+  margin-left: 1vw;
+  margin-right: 1vw;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.card:hover {
+  transform: scale(1.25);
+}
+
+img {
+  min-height: 150px;
+}

@@ -25,10 +25,8 @@ export class BookService {
     return data;
   }
 
-  async getBookById(bookId?: number): Promise<Book> {
-    let url;
-
-    url = `${this.authService.apiUrl}Books/${bookId}`;
+  async getBook(bookId?: number): Promise<Book> {
+    let url = `${this.authService.apiUrl}Books/${bookId}`;
 
     var results = await axios.get<Book>(url);
 
@@ -37,7 +35,7 @@ export class BookService {
     return data;
   }
 
-  async AddBook(book: Book) {
+  async addBook(book: Book) {
     const token = this.authService.getToken();
     if (!token) {
       throw new Error('Token not available');
@@ -47,7 +45,42 @@ export class BookService {
       const response = await axios.post(`${this.authService.apiUrl}Books`, book, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      return response.data;
+      return response.status;
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      throw error;
+    }
+  }
+
+  async updateBook(book: Book) {
+    const token = this.authService.getToken();
+    if (!token) {
+      throw new Error('Token not available');
+    }
+
+    try {
+      const response = await axios.put(`${this.authService.apiUrl}Books/${book.bookId}`, book, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      return response.status;
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      throw error;
+    }
+  }
+
+  async deleteBook(book: Book) {
+    const token = this.authService.getToken();
+    if (!token) {
+      throw new Error('Token not available');
+    }
+
+    try {
+      const response = await axios.delete(`${this.authService.apiUrl}Books/${book.bookId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      return response.status;
     } catch (error) {
       console.error('Error fetching data:', error);
       throw error;

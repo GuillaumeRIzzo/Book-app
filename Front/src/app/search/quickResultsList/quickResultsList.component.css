@@ -1,0 +1,7 @@
+mat-action-list {
+  padding: 0px;
+}
+.book-title, .search-title {
+  white-space: normal;
+  word-wrap: break-word;
+}
