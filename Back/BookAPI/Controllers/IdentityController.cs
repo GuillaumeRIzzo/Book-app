@@ -96,7 +96,8 @@ namespace BookAPI.Controllers
                     Token = token,
                     id = value.UserId,
                     login = value.UserLogin,
-                    right = value.UserRight
+                    right = value.UserRight,
+                    email = value.UserEmail
                 };
 
                 return Ok(response);

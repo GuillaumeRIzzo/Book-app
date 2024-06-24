@@ -4,8 +4,8 @@ export class BookCategory {
   bookCategoDescription: string;
 
   constructor() {
-    this.bookCategoId = 0
-    this.bookCategoName = ""
-    this.bookCategoDescription = ""
+    this.bookCategoId = 0;
+    this.bookCategoName = '';
+    this.bookCategoDescription = '';
   }
 }

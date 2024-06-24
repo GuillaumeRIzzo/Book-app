@@ -1,11 +1,7 @@
-import { FC } from "react";
+import BookList from '@/features/books/BookList';
 
-import BookList from "@/features/books/BookList";
-
-const books: FC = () => {
-  return (
-    <BookList />
-  )
-}
+const books: React.FC = () => {
+  return <BookList />;
+};
 
 export default books;

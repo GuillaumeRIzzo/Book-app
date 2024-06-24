@@ -6,5 +6,6 @@
   "bracketSpacing": true,
   "bracketSameLine": false,
   "arrowParens": "avoid",
-  "parser":"babel-ts"
+  "parser":"babel-ts",
+  "jsxSingleQuote": true
 }

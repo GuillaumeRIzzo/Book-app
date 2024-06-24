@@ -6,5 +6,6 @@
         public int id { get; set; }
         public string login { get; set; }
         public string right { get; set; }
+        public string email { get; set; }
     }
 }

@@ -88,24 +88,27 @@ namespace BookAPI.Controllers
         {
             if (id != model.UserId)
             {
-                return BadRequest();
+                var errorResponse = new { name = "userId", message = "UserId dosen't match" };
+                return BadRequest(errorResponse);
             }
 
             var validationError = ValidateUser(model);
-            if (!string.IsNullOrEmpty(validationError))
+            if (!string.IsNullOrEmpty(validationError.name))
             {
                 return BadRequest(validationError);
             }
 
             if (EmailExists(model.UserEmail, id))
             {
-                return BadRequest("Email already exists.");
+                var errorResponse = new { name = "Email", message = "Email already exists." };
+                return BadRequest(errorResponse);
             }
 
             // Check if login already exists
             if (LoginExists(model.UserLogin, id))
             {
-                return BadRequest("Login already exists.");
+                var errorResponse = new { name = "Login", message = "Login already exists." };
+                return BadRequest(errorResponse);
             }
 
             var user = await _context.Users.FindAsync(id);
@@ -155,11 +158,12 @@ namespace BookAPI.Controllers
         {
             if (model == null)
             {
-                return BadRequest("Model cannot be null.");
+                var errorResponse = new { name = "", message = "Model cannot be null." };
+                return BadRequest(errorResponse);
             }
 
             var validationError = ValidateUser(model);
-            if (!string.IsNullOrEmpty(validationError))
+            if (!string.IsNullOrEmpty(validationError.name))
             {
                 return BadRequest(validationError);
             }
@@ -167,18 +171,21 @@ namespace BookAPI.Controllers
             // Check if email already exists
             if (EmailExists(model.UserEmail, 0))
             {
-                return BadRequest("Email already exists.");
+                var errorResponse = new { name = "Email" , message = "Email already exists." };
+                return BadRequest(errorResponse);
             }
 
             // Check if login already exists
             if (LoginExists(model.UserLogin, 0))
             {
-                return BadRequest("Login already exists.");
+                var errorResponse = new { name = "Login", message = "Login already exists." };
+                return BadRequest(errorResponse);
             }
 
             if (!IsUserRightValid(model.UserRight))
             {
-                return BadRequest("Invalid userRight value.");
+                var errorResponse = new { name = "Right", message = "Invalid userRight value." };
+                return BadRequest(errorResponse);
             }
 
             var user = new User()
@@ -242,16 +249,16 @@ namespace BookAPI.Controllers
             return BCrypt.Net.BCrypt.Verify(password, hashedPassword);
         }
 
-        private string ValidateUser(ModelViewUser model)
+        private (string name, string message) ValidateUser(ModelViewUser model)
         {
             if (model.UserLogin.Contains('@'))
             {
-                return "Invalid, User login should not contain '@' symbol.";
+                return (name: "Login", message: "Invalid, User login should not contain '@' symbol.");
             }
 
             if (!emailRegex.IsMatch(model.UserEmail))
             {
-                return "Invalid email address.";
+                return (name: "Email", message: "Invalid email address.");
             }
 
             if (model.UserPassword.Length < 8 ||
@@ -260,10 +267,10 @@ namespace BookAPI.Controllers
                 !hasNumber.IsMatch(model.UserPassword) ||
                 !hasSpecialChar.IsMatch(model.UserPassword))
             {
-                return "Invalid, Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character.";
+                return (name: "Password", message: "Invalid, Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character.");
             }
 
-            return null;
+            return (name: "", message: "");
         }
 
         private bool EmailExists(string email, int userId)

@@ -33,10 +33,10 @@ body {
 } */
 /* Define light and dark theme variables */
 :root {
-  --primary: #1DA1F2;
-  --secondary: #14171A;
+  --primary: #14171A;
+  --secondary: #1DA1F2;
   --accent: #657786;
-  --background: #E1E8ED;
+  --background: #f9f9f9;
   --border: #AAB8C2;
   --hover: #E1E8ED;
 }

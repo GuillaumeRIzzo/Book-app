@@ -1,9 +1,15 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import Link from 'next/link';
+
 import store, { RootState } from '@redux/store';
 import { Book } from '@/models/book/Book';
-import { fetchBooksAsync } from '@/features/books/bookSlice';
-import Link from 'next/link';
+import { fetchBooksAsync } from '@/features/books/BookSlice';
+import { fetchAuthorsAsync } from '../authors/AuthorSlice';
+import { fetchPublishersAsync } from '../publishers/PublisherSlice';
+import { fetchBookCategoriesAsync } from '../bookCategory/BookCategorySlice';
+import { fetchUsersAsync } from '../users/UserSlice';
+import Loading from '@/components/common/Loading';
 
 const BookList: React.FC = () => {
   const dispatch = useDispatch();
@@ -13,10 +19,16 @@ const BookList: React.FC = () => {
 
   useEffect(() => {
     store.dispatch(fetchBooksAsync());
+    store.dispatch(fetchAuthorsAsync());
+    store.dispatch(fetchPublishersAsync());
+    store.dispatch(fetchBookCategoriesAsync());
+    store.dispatch(fetchUsersAsync());
   }, [dispatch]);
 
   if (status === 'loading') {
-    return <div>Loading...</div>;
+    return (
+      <Loading />
+    );
   }
 
   if (status === 'failed') {
@@ -24,7 +36,7 @@ const BookList: React.FC = () => {
   }
 
   return (
-    <div className="flex justify-around my-20">
+    <div className="flex justify-around my-20 flex-wrap">
       {books.map((book: Book) => (
         <Link key={book.bookId} href={`book/${book.bookId}`}>
           <img

@@ -1,18 +1,23 @@
 import { Provider } from 'react-redux';
 import { AppProps } from 'next/app';
+import { SessionProvider } from 'next-auth/react';
 
 import store from '@redux/store';
 
 import { ThemeProvider } from '@components/context/ThemeContext';
 import '@styles/globals.css';
+import { Navbar } from '@/components/layout';
 
-const MyApp = ({ Component, pageProps }: AppProps) => {
+const MyApp = ({ Component,  pageProps: { session, ...pageProps } }: AppProps) => {
   return (
-    <ThemeProvider>
-      <Provider store={store}>
-        <Component {...pageProps} />
-      </Provider>
-    </ThemeProvider>
+    <SessionProvider session={session}>
+      <ThemeProvider>
+        <Provider store={store}>
+          <Navbar />
+          <Component {...pageProps} />
+        </Provider>
+      </ThemeProvider>
+    </SessionProvider>
   );
 };
 

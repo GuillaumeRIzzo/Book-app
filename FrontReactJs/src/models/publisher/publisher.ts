@@ -3,7 +3,7 @@ export class Publisher {
   publisherName: string;
 
   constructor() {
-      this.publisherId = 0;
-      this.publisherName = "";
+    this.publisherId = 0;
+    this.publisherName = '';
   }
 }

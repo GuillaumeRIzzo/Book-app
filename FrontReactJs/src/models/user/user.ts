@@ -14,14 +14,14 @@ export class User {
     userPassword: string,
     userLogin: string,
     userEmail: string,
-    userRight: string
+    userRight: string,
   ) {
-    this.userId = userId
-    this.userFirstname = userFirstname
-    this.userLastname = userLastname
-    this.userPassword = userPassword
-    this.userLogin = userLogin
-    this.userEmail = userEmail
-    this.userRight = userRight
+    this.userId = userId;
+    this.userFirstname = userFirstname;
+    this.userLastname = userLastname;
+    this.userPassword = userPassword;
+    this.userLogin = userLogin;
+    this.userEmail = userEmail;
+    this.userRight = userRight;
   }
 }

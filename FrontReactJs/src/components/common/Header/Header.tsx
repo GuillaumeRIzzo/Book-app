@@ -4,7 +4,6 @@ import { Link, Outlet } from 'react-router-dom';
 import { useTheme } from '@/components/context/ThemeContext';
 
 const Header: FC = () => {
-
   // const ThemeToggleButton = () => {
   //   const { theme, toggleTheme } = useTheme();
   //   return (
@@ -13,7 +12,7 @@ const Header: FC = () => {
   //     </button>
   //   );
   // };
-  
+
   return (
     <nav>
       <Link to="/">Accueil </Link>
