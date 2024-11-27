@@ -1,28 +1,31 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Input from '@/components/common/Input';
 import CustomButton from '@/components/common/Button';
+import { User } from '@/models/user/user';
 import usePasswordValidator from '@/hooks/usePasswordValidator';
 import useConfirmPasswordValidator from '@/hooks/useConfirmPasswordValidator';
 
 interface PasswordChangeFormProps {
-  onSubmit: (formData: any) => void;
+  user: User | undefined;
+  onSubmit: (formData: any, event: React.FormEvent<HTMLFormElement>) => void;
 }
 
-const PasswordChangeForm: React.FC<PasswordChangeFormProps> = ({ onSubmit }) => {
+const PasswordChangeForm: React.FC<PasswordChangeFormProps> = ({ user, onSubmit }) => {
   const [formData, setFormData] = useState({
-    userPassword: '',
-    confirmPassword: '',
+    UserId: user?.userId,
+    CurrentPassword: '',
+    NewPassword: ''
   });
 
   const [touched, setTouched] = useState({
-    userPassword: false,
-    confirmPassword: false,
+    CurrentPassword: false,
+    NewPassword: false,
   });
 
-  const passwordErrors = usePasswordValidator(formData.userPassword);
-  const confirmPasswordError = useConfirmPasswordValidator(
-    formData.userPassword,
-    formData.confirmPassword,
+  const passwordErrors = usePasswordValidator(formData.CurrentPassword);
+  const NewPasswordError = useConfirmPasswordValidator(
+    formData.CurrentPassword,
+    formData.NewPassword,
   );
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -42,23 +45,29 @@ const PasswordChangeForm: React.FC<PasswordChangeFormProps> = ({ onSubmit }) => 
   };
 
   const formValidator: boolean = 
-  Object.values(passwordErrors).length < 1 && !confirmPasswordError;
+  Object.values(passwordErrors).length < 1 && !NewPasswordError;
 
-  const handleSubmit = () => {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault(); // Prevent page reload
     if (formValidator) {
-      onSubmit(formData);
+      onSubmit(formData, event); // Pass formData and event to parent handler
+      setFormData({
+        UserId: user?.userId,
+        CurrentPassword: '',
+        NewPassword: ''
+      })
     } else {
       console.error('Validation failed');
     }
   };
 
   return (
-    <form>
+    <form onSubmit={handleSubmit}>
       <Input
-        label='Mot de passe :'
+        label='Mot de passe actuel :'
         type='password'
-        name='userPassword'
-        value={formData.userPassword}
+        name='CurrentPassword'
+        value={formData.CurrentPassword}
         onChange={handleChange}
         onBlur={handleBlur}
         required
@@ -83,21 +92,21 @@ const PasswordChangeForm: React.FC<PasswordChangeFormProps> = ({ onSubmit }) => 
       <Input
         label='Confirmation mot de passe :'
         type='password'
-        name='confirmPassword'
-        value={formData.confirmPassword}
+        name='NewPassword'
+        value={formData.NewPassword}
         onChange={handleChange}
         onBlur={handleBlur}
         error={
-          touched.confirmPassword && confirmPasswordError
+          touched.NewPassword && NewPasswordError
             ? true
             : undefined
         }
-        infoText={touched.confirmPassword && confirmPasswordError ? confirmPasswordError : ''}
+        infoText={touched.NewPassword && NewPasswordError ? NewPasswordError : ''}
         required
       />
       <CustomButton
         text='Submit'
-        onClick={handleSubmit}
+        type='submit'
         disable={!formValidator}
       />
     </form>

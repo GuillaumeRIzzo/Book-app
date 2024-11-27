@@ -1,9 +1,9 @@
-import UserForm from "@/features/users/userProfileForm/UserProfileForm";
+import { UserProfileForm } from "@/features/users/userProfileForm";
 
 const Profile: React.FC = () => {
   return (
     <div className="flex justify-center bg-background">
-      <UserForm title="Modification de votre profil" />
+      <UserProfileForm title="Modification de votre profil" />
     </div>
   );
 };

@@ -39,6 +39,12 @@ const usersSlice = createSlice({
     setError: (state, action: PayloadAction<string | null>) => {
       state.error = action.payload;
     },
+    updateUserInState: (state, action: PayloadAction<User>) => {
+      const index = state.users.findIndex(u => u.userId === action.payload.userId);
+      if (index !== -1) {
+        state.users[index] = action.payload;
+      }
+    },
   },
   extraReducers: builder => {
     builder
@@ -67,6 +73,6 @@ const usersSlice = createSlice({
   },
 });
 
-export const { addUser, setUsers, setStatus, setError } = usersSlice.actions;
+export const { addUser, setUsers, updateUserInState, setStatus, setError } = usersSlice.actions;
 
 export default usersSlice.reducer;

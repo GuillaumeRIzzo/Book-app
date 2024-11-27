@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { getSession } from 'next-auth/react';
 
-import { environment } from '@/environments/environment';
+import { environment } from 'environments/environment';
 
 export const apiClient = axios.create({
   baseURL: environment.API_BASE_URL,

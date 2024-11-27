@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using BookAPI.Models;
+﻿using BookAPI.Models;
+using BookAPI.Utils;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 
 namespace BookAPI.Controllers
@@ -24,7 +26,7 @@ namespace BookAPI.Controllers
 
         // GET: api/Users
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ModelViewUser>>> GetUsers()
+        public async Task<ActionResult<IEnumerable<EncryptedPayload>>> GetUsers()
         {
             var users = await _context.Users.ToListAsync();
 
@@ -41,7 +43,14 @@ namespace BookAPI.Controllers
                     UserRight = x.UserRight
                 }).ToList();
 
-                return model;
+                // Encrypt the list of users
+                var encryptedData = EncryptionHelper.EncryptData(JsonSerializer.Serialize(model));
+
+                return Ok(new EncryptedPayload
+                {
+                    EncryptedData = encryptedData.EncryptedData,
+                    Iv = encryptedData.Iv
+                });
             }
             return NoContent();
         }
@@ -49,7 +58,7 @@ namespace BookAPI.Controllers
         // GET: api/Users/5
         [Authorize]
         [HttpGet("{id}")]
-        public virtual async Task<ActionResult<ModelViewUser>> GetUser(int id, string? identifier)
+        public virtual async Task<ActionResult<EncryptedPayload>> GetUser(int id, string? identifier)
         {
             var user = new User();
 
@@ -58,8 +67,9 @@ namespace BookAPI.Controllers
                 user = await _context.Users.FindAsync(id);
 
             }
-            else { 
-                user = await _context.Users.FirstAsync(u => u.UserLogin == identifier || u.UserEmail == identifier); 
+            else
+            {
+                user = await _context.Users.FirstAsync(u => u.UserLogin == identifier || u.UserEmail == identifier);
             }
 
             if (user == null)
@@ -77,79 +87,161 @@ namespace BookAPI.Controllers
                 UserRight = user.UserRight
             };
 
-            return model;
+            // Encrypt the user data
+            var encryptedData = EncryptionHelper.EncryptData(JsonSerializer.Serialize(model));
+
+            return Ok(new EncryptedPayload
+            {
+                EncryptedData = encryptedData.EncryptedData,
+                Iv = encryptedData.Iv
+            });
         }
 
-        // PUT: api/Users/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [Authorize(Policy = IdentityData.UserPolicyName)]
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser(int id, ModelViewUser model)
+        [HttpPut("{id}/infos")]
+        public async Task<IActionResult> UpdateUserInfos(int id, [FromBody] EncryptedPayload payload)
         {
-            if (id != model.UserId)
-            {
-                var errorResponse = new { name = "userId", message = "UserId dosen't match" };
-                return BadRequest(errorResponse);
-            }
-
-            var validationError = ValidateUser(model);
-            if (!string.IsNullOrEmpty(validationError.name))
-            {
-                return BadRequest(validationError);
-            }
-
-            if (EmailExists(model.UserEmail, id))
-            {
-                var errorResponse = new { name = "Email", message = "Email already exists." };
-                return BadRequest(errorResponse);
-            }
-
-            // Check if login already exists
-            if (LoginExists(model.UserLogin, id))
-            {
-                var errorResponse = new { name = "Login", message = "Login already exists." };
-                return BadRequest(errorResponse);
-            }
-
-            var user = await _context.Users.FindAsync(id);
-
-            if (user != null)
-            {
-                var check = VerifyPassword(model.UserPassword, user.UserPassword);
-
-                if (check)
-                {
-                    return BadRequest();
-                }
-
-                var pass = (model.UserPassword == user.UserPassword) ? user.UserPassword : HashPassword(model.UserPassword);
-
-                user.UserFirstname = model.UserFirstname;
-                user.UserLastname = model.UserLastname;
-                user.UserPassword = pass;
-                user.UserLogin = model.UserLogin;
-                user.UserEmail = model.UserEmail;
-                user.UserRight = model.UserRight;
-            }
-
             try
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!UserExists(id))
+                string decryptedData = EncryptionHelper.DecryptData(payload.EncryptedData, payload.Iv);
+                var options = new JsonSerializerOptions
                 {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+                    PropertyNameCaseInsensitive = true // Enable case-insensitive matching
+                };
+                var userData = JsonSerializer.Deserialize<ChangeUserInfosRequest>(decryptedData, options);
 
-            return NoContent();
+                if (userData != null)
+                {
+                    if (id != userData.UserId)
+                    {
+                        var errorResponse = new { name = "userId", message = "userId doesn't match."};
+                        return BadRequest(errorResponse);
+                    }
+
+                    if (EmailExists(userData.UserEmail, id))
+                    {
+                        var errorResponse = new { name = "Email", message = "Email already exists." };
+                        return BadRequest(errorResponse);
+                    }
+
+                    if (LoginExists(userData.UserLogin, id))
+                    {
+                        var errorResponse = new { name = "Login", message = "Login already exists." };
+                        return BadRequest(errorResponse);
+                    }
+
+                    var user = await _context.Users.FindAsync(id);
+                    if (user == null)
+                    {
+                        return NotFound("User not found.");
+                    }
+
+                    user.UserFirstname = userData.UserFirstname;
+                    user.UserLastname = userData.UserLastname;
+                    user.UserEmail = userData.UserEmail;
+                    user.UserLogin = userData.UserLogin;
+                    user.UserRight = userData.UserRight;
+
+                    try
+                    {
+                        await _context.SaveChangesAsync();
+                    }
+                    catch (DbUpdateConcurrencyException)
+                    {
+                        if (!UserExists(id))
+                        {
+                            return NotFound();
+                        }
+                        throw;
+                    }
+                }
+                return NoContent();
+            }
+            catch (JsonException ex)
+            {
+                // Handle JSON deserialization errors
+                return BadRequest(new { message = "Invalid JSON format.", details = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                // Handle other errors
+                return StatusCode(500, new { message = "An error occurred.", details = ex.Message });
+            }
         }
+
+        [Authorize]
+        [HttpPut("{id}/password")]
+        public async Task<IActionResult> ChangePassword(int id, [FromBody] EncryptedPayload payload)
+        {
+            try
+            {
+                string decryptedData = EncryptionHelper.DecryptData(payload.EncryptedData, payload.Iv);
+                var userData = JsonSerializer.Deserialize<ChangePasswordRequest>(decryptedData);
+
+                if (userData != null)
+                {
+                    if (string.IsNullOrWhiteSpace(userData.CurrentPassword) || string.IsNullOrWhiteSpace(userData.NewPassword))
+                    {
+                        return BadRequest(new { name = "Password", message = "Passwords cannot be empty." });
+                    }
+
+                    var user = await _context.Users.FindAsync(id);
+                    if (user == null)
+                    {
+                        return NotFound("User not found.");
+                    }
+
+                    // Verify current password
+                    if (!VerifyPassword(userData.CurrentPassword, user.UserPassword))
+                    {
+                        return BadRequest(new { name = "CurrentPassword", message = "Incorrect current password." });
+                    }
+
+                    // Validate new password
+                    if (userData.NewPassword.Length < 8 ||
+                        !hasUpperCase.IsMatch(userData.NewPassword) ||
+                        !hasLowerCase.IsMatch(userData.NewPassword) ||
+                        !hasNumber.IsMatch(userData.NewPassword) ||
+                        !hasSpecialChar.IsMatch(userData.NewPassword))
+                    {
+                        return BadRequest(new
+                        {
+                            name = "NewPassword",
+                            message = "Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character."
+                        });
+                    }
+
+                    // Hash and update password
+                    user.UserPassword = HashPassword(userData.NewPassword);
+
+                    try
+                    {
+                        await _context.SaveChangesAsync();
+                    }
+                    catch (DbUpdateConcurrencyException)
+                    {
+                        if (!UserExists(id))
+                        {
+                            return NotFound();
+                        }
+                        throw;
+                    }
+
+                }
+                return NoContent();
+            }
+            catch (JsonException ex)
+            {
+                // Handle JSON deserialization errors
+                return BadRequest(new { message = "Invalid JSON format.", details = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                // Handle other errors
+                return StatusCode(500, new { message = "An error occurred.", details = ex.Message });
+            }
+        }
+
 
         // POST: api/Users
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -171,7 +263,7 @@ namespace BookAPI.Controllers
             // Check if email already exists
             if (EmailExists(model.UserEmail, 0))
             {
-                var errorResponse = new { name = "Email" , message = "Email already exists." };
+                var errorResponse = new { name = "Email", message = "Email already exists." };
                 return BadRequest(errorResponse);
             }
 
@@ -204,7 +296,7 @@ namespace BookAPI.Controllers
         }
 
         // DELETE: api/Users/5
-        [Authorize (Policy = IdentityData.UserPolicyName)]
+        [Authorize(Policy = IdentityData.UserPolicyName)]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
@@ -280,7 +372,12 @@ namespace BookAPI.Controllers
 
         private bool LoginExists(string login, int userId)
         {
-            return  _context.Users.Any(u => u.UserLogin == login && u.UserId != userId);
+            return _context.Users.Any(u => u.UserLogin == login && u.UserId != userId);
         }
+    }
+    public class EncryptedPayload
+    {
+        public string EncryptedData { get; set; }
+        public string Iv { get; set; }
     }
 }
