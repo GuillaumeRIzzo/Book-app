@@ -1,39 +1,59 @@
-import { useEffect, useState } from "react";
-import { useRouter } from "next/router";
-import Input from "@/components/common/Input";
-import CustomButton from "@/components/common/Button";
-import { signIn } from "next-auth/react";
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
+import Input from '@/components/common/Input';
+import CustomButton from '@/components/common/Button';
+import { encryptPayload } from '@/utils/encryptUtils';
+import { getSession, signIn } from 'next-auth/react';
+import { saveSessionLocally } from '@api/auth/session';
 
 const Login: React.FC = () => {
-  const [identifier, setIdentifier] = useState('');
-  const [password, setPassword] = useState('');
+  const [formData, setFormData] = useState({
+    identifier: '',
+    password: '',
+  });
   const router = useRouter();
   const { error } = router.query;
 
   const [apiErrors, setApiErrors] = useState<string | null>(null);
-  
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
   useEffect(() => {
     if (error) {
       setApiErrors('Invalid credentials. Please try again.');
     }
   }, [error]);
 
-  const handleSignIn = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSignIn = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     setApiErrors(null);
-
-    const result = await signIn('credentials', {
-      redirect: false,
-      identifier,
-      password,
-    });
-
-    if (result && result.error) {
-      setApiErrors('Login / e-mail or password invalid');
-    } else {
-      router.push('/');
+  
+    try {
+      const result = await signIn('credentials', {
+        redirect: false,
+        encryptedPayload: JSON.stringify(encryptPayload({
+          Identifier: formData.identifier,
+          Password: formData.password,
+        })),
+      });
+      if (result?.ok) {
+        const session = await getSession();
+        if (session) {
+          saveSessionLocally(session);
+          router.push('/');
+        }
+      } else {
+        setApiErrors('Login failed. Please check your credentials.');
+      }
+    } catch (error) {
+      console.error('Error during login:', error);
+      setApiErrors('An unexpected error occurred. Please try again later.');
     }
   };
+  
 
   return (
     <>
@@ -52,9 +72,9 @@ const Login: React.FC = () => {
                   label='Login ou E-mail :'
                   type='text'
                   name='identifier'
-                  value={identifier}
+                  value={formData.identifier}
+                  onChange={handleChange}
                   required
-                  onChange={(e) => setIdentifier(e.target.value)}
                 />
               </div>
             </div>
@@ -75,21 +95,17 @@ const Login: React.FC = () => {
                   label='Mot de passe'
                   type='password'
                   name='password'
-                  value={password}
+                  value={formData.password}
+                  onChange={handleChange}
                   required
-                  onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
             </div>
 
-            {apiErrors && 
-              <p className="text-red-500">{apiErrors}</p>
-            }
+            {apiErrors && <p className='text-red-500'>{apiErrors}</p>}
 
             <div className='mt-4'>
-              <CustomButton
-                text="Login"
-              />
+              <CustomButton text='Login' type='submit' />
             </div>
           </form>
         </div>

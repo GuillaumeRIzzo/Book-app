@@ -1,18 +1,20 @@
-import axios from 'axios';
-import { getSession } from 'next-auth/react';
+import axios, { AxiosPromise } from 'axios';
 
 import { environment } from 'environments/environment';
+import { EncryptedPayload } from '@/utils/encryptUtils';
 
 export const apiClient = axios.create({
   baseURL: environment.API_BASE_URL,
 });
 
-apiClient.interceptors.request.use(async (config) => {
-  const session = await getSession();
-  if (session?.user.token) {
-    config.headers.Authorization = `Bearer ${session.user.token}`;
+apiClient.interceptors.request.use((config) => {
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('sessionToken');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
   }
   return config;
 });
 
-export const login = (identifier: string, password: string): Promise<any> => apiClient.post('Identity/login', {identifier, password});
+export const login = (payload: EncryptedPayload): AxiosPromise<EncryptedPayload> => apiClient.post('Identity/login', payload);

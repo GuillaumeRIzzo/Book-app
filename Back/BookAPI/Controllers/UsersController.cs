@@ -377,7 +377,8 @@ namespace BookAPI.Controllers
     }
     public class EncryptedPayload
     {
-        public string EncryptedData { get; set; }
-        public string Iv { get; set; }
+        public string EncryptedData { get; set; } = string.Empty;
+        public string Iv { get; set; } = string.Empty;
     }
+
 }

@@ -10,7 +10,7 @@ import store, { RootState } from '@/redux/store';
 import { fetchUsersAsync } from './UserSlice';
 import Loading from '@/components/common/Loading';
 import { Dialog } from '@/components/common/dialog';
-import { User } from '@/models/user/User';
+import { User } from '@/models/user/user';
 import { useRouter } from 'next/router';
 
 const UserList: React.FC = () => {

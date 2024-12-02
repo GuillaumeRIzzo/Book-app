@@ -12,11 +12,7 @@ declare module 'next-auth' {
 
   interface Session {
     user: {
-      id: string;
-      login: string;
-      right: string;
-      email: string;
-      token: string;
+      encryptedSession: EncryptedPayload; // Use the EncryptedPayload type
     } & DefaultSession['user'];
   }
 }

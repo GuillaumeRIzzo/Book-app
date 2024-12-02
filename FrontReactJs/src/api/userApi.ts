@@ -4,9 +4,9 @@ import { apiClient } from './authApi';
 import { User } from '@/models/user/user';
 import { EncryptedPayload } from '@/utils/encryptUtils';
 
-export const getUsers = (): AxiosPromise<User[]> => apiClient.get<User[]>('Users');
+export const getUsers = (): AxiosPromise<EncryptedPayload> => apiClient.get<EncryptedPayload>('Users');
 
-export const getUser = (userId: number): AxiosPromise<User> => apiClient.get<User>(`Users/${userId}`);
+export const getUser = (userId: number): AxiosPromise<EncryptedPayload> => apiClient.get<EncryptedPayload>(`Users/${userId}`);
 
 export const addUser = (payload: EncryptedPayload) => apiClient.post<User>('Users', payload );
 

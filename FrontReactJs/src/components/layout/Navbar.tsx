@@ -13,6 +13,7 @@ import {
 } from '@headlessui/react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import Gravatar from 'react-gravatar';
+import { decryptPayload } from '@/utils/encryptUtils';
 
 const navigation = [
   { name: 'Accueil', href: '/', current: false },
@@ -27,7 +28,39 @@ const classNames = (...classes: string[]) => {
 
 const Navbar: React.FC = () => {
   const { data: session, status } = useSession();
+  let token: string;
+  let right: string;
+  let email: string;
+  let id: string;
 
+  // Check if the session is available and contains the encrypted session
+  if (session && session.user && session.user.encryptedSession) {
+    const encryptedSession = session.user.encryptedSession; // Retrieve encrypted session data
+
+    // Extract encrypted data and IV (if needed)
+    const { encryptedData, iv } = encryptedSession;
+
+    // Decrypt the session data
+    try {
+      const decryptedSessionData = decryptPayload(encryptedData, iv);
+      
+      // Cast the decrypted session data to the expected structure
+      const { token: decryptedToken, right: decryptedRight, email: decryptedEmail, id: decryptedId } = decryptedSessionData as {
+        token: string;
+        right: string;
+        email: string;
+        id: string;
+      };
+
+      token = decryptedToken;
+      right = decryptedRight;
+      email = decryptedEmail;
+      id = decryptedId;
+    } catch (error) {
+      console.error('Failed to decrypt session data:', error);
+    }
+  }
+  
   return (
     <Disclosure as='nav' className='bg-[#333]'>
       {({ open }) => (
@@ -64,13 +97,14 @@ const Navbar: React.FC = () => {
                         {item.name.toLocaleUpperCase()}
                       </Link>
                     ))}
-                    {session && (session.user.token && ['Super Admin', 'Admin'].includes(session.user.right)) &&
+                    {token && ['Super Admin', 'Admin'].includes(right) && (
                       <Link
                         href='/users'
                         className={'text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-base font-medium'}
                       >
                         UTILISATEURS
-                      </Link>}
+                      </Link>
+                    )}
                   </div>
                 </div>
               </div>
@@ -83,7 +117,7 @@ const Navbar: React.FC = () => {
                         <span className='absolute -inset-1.5' />
                         <span className='sr-only'>Open user menu</span>
                         <Gravatar
-                          email={session.user?.email}
+                          email={email}
                           className='h-8 w-8 rounded-full'
                         />
                       </MenuButton>
@@ -100,7 +134,7 @@ const Navbar: React.FC = () => {
                         <MenuItem>
                           {({ active }) => (
                             <Link
-                              href={`/user/${session.user?.id}`}
+                              href={`/user/${id}`}
                               className={classNames(
                                 active ? 'bg-gray-100' : '',
                                 'block px-4 py-2 text-sm text-gray-700'

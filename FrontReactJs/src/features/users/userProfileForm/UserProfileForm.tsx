@@ -45,8 +45,8 @@ const UserProfileForm: React.FC<FormProps> = ({ title }) => {
       const userId = Number(id);
       if (!isNaN(userId)) {
         setLoading(true);
-        if (session && userId !== Number(session.user.id)) {
-          router.push(`/user/${session?.user.id}`);
+        if (session && userId !== Number(id)) {
+          router.push(`/user/${userId}`);
         }
         store.dispatch(fetchUserById(userId)).finally(() => setLoading(false));
       } else {
