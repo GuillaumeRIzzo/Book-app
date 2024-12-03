@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import Link from 'next/link';
 
 import store, { RootState } from '@redux/store';
@@ -12,18 +12,19 @@ import { fetchUsersAsync } from '../users/UserSlice';
 import Loading from '@/components/common/Loading';
 
 const BookList: React.FC = () => {
-  const dispatch = useDispatch();
   const books = useSelector((state: RootState) => state.books.books);
   const status = useSelector((state: RootState) => state.books.status);
   const error = useSelector((state: RootState) => state.books.error);
 
-  useEffect(() => {
+useEffect(() => {
+  if (status === 'idle') {
     store.dispatch(fetchBooksAsync());
     store.dispatch(fetchAuthorsAsync());
     store.dispatch(fetchPublishersAsync());
     store.dispatch(fetchBookCategoriesAsync());
     store.dispatch(fetchUsersAsync());
-  }, [dispatch]);
+  }
+}, [status]);
 
   if (status === 'loading') {
     return (

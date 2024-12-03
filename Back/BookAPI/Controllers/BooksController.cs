@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using BookAPI.Models;
 using Microsoft.AspNetCore.Authorization;
+using BookAPI.Utils;
+using System.Text.Json;
 
 namespace BookAPI.Controllers
 {
@@ -19,7 +21,7 @@ namespace BookAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ModelViewBook>>> GetBooks(int? userId)
+        public async Task<ActionResult<IEnumerable<EncryptedPayload>>> GetBooks(int? userId)
         {
             var books = await _context.Books.ToListAsync();
 
@@ -63,7 +65,14 @@ namespace BookAPI.Controllers
 
                     item.Categories = categories;
                 }
-                return model;
+                // Encrypt the list of books
+                var encryptedData = EncryptionHelper.EncryptData(JsonSerializer.Serialize(model));
+
+                return Ok(new EncryptedPayload
+                {
+                    EncryptedData = encryptedData.EncryptedData,
+                    Iv = encryptedData.Iv
+                });
             }
 
             return NoContent();
@@ -71,7 +80,7 @@ namespace BookAPI.Controllers
 
         // GET: api/Books/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<ModelViewBook>> GetBook(int id)
+        public async Task<ActionResult<EncryptedPayload>> GetBook(int id)
         {
             var book = await _context.Books.FindAsync(id);
 
@@ -108,7 +117,14 @@ namespace BookAPI.Controllers
 
             model.Categories = categories;
 
-            return model;
+            // Encrypt the book data
+            var encryptedData = EncryptionHelper.EncryptData(JsonSerializer.Serialize(model));
+
+            return Ok(new EncryptedPayload
+            {
+                EncryptedData = encryptedData.EncryptedData,
+                Iv = encryptedData.Iv
+            });
         }
 
         // PUT: api/Books/5

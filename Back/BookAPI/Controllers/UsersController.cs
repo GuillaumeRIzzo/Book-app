@@ -375,10 +375,4 @@ namespace BookAPI.Controllers
             return _context.Users.Any(u => u.UserLogin == login && u.UserId != userId);
         }
     }
-    public class EncryptedPayload
-    {
-        public string EncryptedData { get; set; } = string.Empty;
-        public string Iv { get; set; } = string.Empty;
-    }
-
 }
