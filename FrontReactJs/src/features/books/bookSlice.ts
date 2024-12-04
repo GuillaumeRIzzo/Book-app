@@ -23,7 +23,6 @@ export const fetchBooksAsync = createAsyncThunk('books/getBooks', async () => {
       console.error('Failed to parse decrypted data:', decryptedData);
       throw new Error('Decrypted data is not valid JSON');
     }
-    // console.log('Parsed Books:', books);
     return books;
 
   } catch (error) {
@@ -50,7 +49,7 @@ export const fetchBookById = createAsyncThunk(
       const book = JSON.parse(decryptedData as unknown as string) as Book;
       return book;
     } catch (error) {
-      console.error('Failed to fetch books:', error);
+      console.error('Failed to fetch book:', error);
       throw error; // Throw error to handle it in UI
     }
   }

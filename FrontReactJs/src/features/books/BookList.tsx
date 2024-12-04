@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 import store, { RootState } from '@redux/store';
 import { Book } from '@/models/book/Book';
-import { fetchBooksAsync } from '@/features/books/BookSlice';
+import { fetchBooksAsync } from './BookSlice';
 import { fetchAuthorsAsync } from '../authors/AuthorSlice';
 import { fetchPublishersAsync } from '../publishers/PublisherSlice';
 import { fetchBookCategoriesAsync } from '../bookCategory/BookCategorySlice';

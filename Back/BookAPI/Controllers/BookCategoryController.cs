@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using BookAPI.Models;
 using Microsoft.AspNetCore.Authorization;
+using BookAPI.Utils;
+using System.Text.Json;
 
 namespace BookAPI.Controllers
 {
@@ -18,7 +20,7 @@ namespace BookAPI.Controllers
 
         // GET: api/BookCategories
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ModelViewBookCategory>>> GetBookCategories()
+        public async Task<ActionResult<IEnumerable<EncryptedPayload>>> GetBookCategories()
         {
             var categories = await _context.BookCategories.ToListAsync();
 
@@ -30,7 +32,14 @@ namespace BookAPI.Controllers
                     BookCategoName = x.BookCategoName,
                     BookCategoDescription = x.BookCategoDescription
                 }).ToList();
-                return model;
+                // Encrypt the list of categories
+                var encryptedData = EncryptionHelper.EncryptData(JsonSerializer.Serialize(model));
+
+                return Ok(new EncryptedPayload
+                {
+                    EncryptedData = encryptedData.EncryptedData,
+                    Iv = encryptedData.Iv
+                });
             }
 
             return NoContent();

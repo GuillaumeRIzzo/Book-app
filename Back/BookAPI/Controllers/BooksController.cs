@@ -131,50 +131,70 @@ namespace BookAPI.Controllers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [Authorize(Policy = IdentityData.UserPolicyName)]
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutBook(int id, ModelViewBook model)
+        public async Task<IActionResult> PutBook(int id, EncryptedPayload payload)
         {
-            if (id != model.BookId)
-            {
-                return BadRequest();
-            }
-
-            var book = await _context.Books.FindAsync(id);
-
-            if (book == null)
-            {
-                return NotFound();
-            }
-
-            book.BookId = model.BookId;
-            book.BookTitle = model.BookTitle;
-            book.BookDescription = model.BookDescription;
-            book.BookPublishDate = model.BookPublishDate;
-            book.BookPageCount = model.BookPageCount;
-            book.BookAverageRating = model.BookAverageRating;
-            book.BookRatingCount = model.BookRatingCount;
-            book.BookImageLink = model.BookImageLink;
-            book.BookLanguage = model.BookLanguage;
-            book.PublisherId = model.PublisherId;
-            book.AuthorId = model.AuthorId;
-
             try
             {
-                await _context.SaveChangesAsync();
-                await _categoryListsController.PutCategoryList(model.BookId, model.Categories);
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!BookExists(id))
+                string decryptedData = EncryptionHelper.DecryptData(payload.EncryptedData, payload.Iv);
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true // Enable case-insensitive matching
+                };
+                var model = JsonSerializer.Deserialize<ModelViewBook>(decryptedData, options);
+
+                if (id != model.BookId)
+                {
+                    return BadRequest();
+                }
+
+                var book = await _context.Books.FindAsync(id);
+
+                if (book == null)
                 {
                     return NotFound();
                 }
-                else
-                {
-                    throw;
-                }
-            }
 
-            return NoContent();
+                book.BookId = model.BookId;
+                book.BookTitle = model.BookTitle;
+                book.BookDescription = model.BookDescription;
+                book.BookPublishDate = model.BookPublishDate;
+                book.BookPageCount = model.BookPageCount;
+                book.BookAverageRating = model.BookAverageRating;
+                book.BookRatingCount = model.BookRatingCount;
+                book.BookImageLink = model.BookImageLink;
+                book.BookLanguage = model.BookLanguage;
+                book.PublisherId = model.PublisherId;
+                book.AuthorId = model.AuthorId;
+
+                try
+                {
+                    await _context.SaveChangesAsync();
+                    await _categoryListsController.PutCategoryList(model.BookId, model.Categories);
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!BookExists(id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+
+                return NoContent();
+            }
+            catch (JsonException ex)
+            {
+                // Handle JSON deserialization errors
+                return BadRequest(new { message = "Invalid JSON format.", details = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                // Handle other errors
+                return StatusCode(500, new { message = "An error occurred.", details = ex.Message });
+            }
         }
 
         // POST: api/Books

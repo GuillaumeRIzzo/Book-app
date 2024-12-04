@@ -1,5 +1,5 @@
 import { combineReducers } from '@reduxjs/toolkit';
-import bookReducer from '../features/books/BookSlice';
+import bookReducer from '@/features/books/BookSlice';
 import userReducer from '@/features/users/UserSlice';
 import authorReducer from '@/features/authors/AuthorSlice';
 import publisherReducer from '@/features/publishers/PublisherSlice';
