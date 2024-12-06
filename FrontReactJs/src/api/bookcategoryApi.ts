@@ -1,8 +1,8 @@
 import { AxiosPromise } from 'axios';
 
 import { apiClient } from './authApi';
-import { BookCategory } from '@/models/book-category/BookCategory';
+import { EncryptedPayload } from '@/utils/encryptUtils';
 
-export const getBookCategories = (): AxiosPromise<BookCategory[]> => apiClient.get<BookCategory[]>('BookCategory');
+export const getBookCategories = (): AxiosPromise<EncryptedPayload> => apiClient.get<EncryptedPayload>('BookCategory');
 
-export const getBookCategory = (): AxiosPromise<BookCategory> => apiClient.get<BookCategory>('BookCategory');
+export const getBookCategory = (): AxiosPromise<EncryptedPayload> => apiClient.get<EncryptedPayload>('BookCategory');

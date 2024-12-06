@@ -1,19 +1,57 @@
 import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
+import camelCaseKeys from 'camelcase-keys';
+
 import { Book } from '@/models/book/Book';
 import { BookState } from '@/models/book/BookState';
 import { getBook, getBooks } from '@/api/bookApi';
+import { decryptPayload } from '@/utils/encryptUtils';
 
 export const fetchBooksAsync = createAsyncThunk('books/getBooks', async () => {
-  const response = await getBooks();
-  return response.data;
+  try {
+    const response = await getBooks();
+
+    const encryptedData = response.data.encryptedData;
+    const iv = response.data.iv;
+
+    const decryptedData = decryptPayload(encryptedData, iv);
+
+    let books: Book[];
+    try {
+      books = camelCaseKeys(decryptedData, {deep: true}) as unknown as Book[];
+    } catch (error) {
+      console.error('Failed to parse decrypted data:', decryptedData);
+      throw new Error('Decrypted data is not valid JSON');
+    }
+    return books;
+
+  } catch (error) {
+    console.error('Failed to fetch books:', error);
+    throw error;
+  }
 });
 
 export const fetchBookById = createAsyncThunk(
   'books/getBook',
   async (bookId: number) => {
-    const response = await getBook(bookId);
-    return response.data;
+    try {
+      // Call API to fetch encrypted book data
+      const response = await getBook(bookId);
+
+       // Ensure data types for encrypted payload
+       const encryptedData = response.data.encryptedData as string;
+       const iv = response.data.iv as string;
+
+       // Decrypt the data
+       const decryptedData = decryptPayload(encryptedData, iv);
+ 
+      // Parse decrypted data as an array of Book objects
+      const book = JSON.parse(decryptedData as unknown as string) as Book;
+      return book;
+    } catch (error) {
+      console.error('Failed to fetch book:', error);
+      throw error; // Throw error to handle it in UI
+    }
   }
 );
 

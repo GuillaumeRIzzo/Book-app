@@ -1,19 +1,57 @@
 import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
+import camelCaseKeys from 'camelcase-keys';
+
 import { Publisher } from '@/models/publisher/Publisher';
 import { PublisherState } from '@/models/publisher/PublisherState';
 import { getPublisher, getPublishers } from '@/api/publisherApi';
+import { decryptPayload } from '@/utils/encryptUtils';
 
 export const fetchPublishersAsync = createAsyncThunk('publishers/getPublishers', async () => {
-  const response = await getPublishers();
-  return response.data;
+  try {
+    const response = await getPublishers();
+
+    const encryptedData = response.data.encryptedData;
+    const iv = response.data.iv;
+
+    const decryptedData = decryptPayload(encryptedData, iv);
+
+    let publishers: Publisher[];
+    try {
+      publishers = camelCaseKeys(decryptedData, {deep: true}) as unknown as Publisher[];
+    } catch (error) {
+      console.error('Failed to parse decrypted data:', decryptedData);
+      throw new Error('Decrypted data is not valid JSON');
+    }
+    return publishers;
+
+  } catch (error) {
+    console.error('Failed to fetch publishers:', error);
+    throw error;
+  }
 });
 
 export const fetchPublisherById = createAsyncThunk(
   'publishers/fetchById',
   async (publisherId: number) => {
-    const response = await getPublisher(publisherId);
-    return response.data;
+    try {
+      // Call API to fetch encrypted publisher data
+      const response = await getPublisher(publisherId);
+
+       // Ensure data types for encrypted payload
+       const encryptedData = response.data.encryptedData as string;
+       const iv = response.data.iv as string;
+
+       // Decrypt the data
+       const decryptedData = decryptPayload(encryptedData, iv);
+ 
+      // Parse decrypted data as an array of Publisher objects
+      const publisher = JSON.parse(decryptedData as unknown as string) as Publisher;
+      return publisher;
+    } catch (error) {
+      console.error('Failed to fetch publisher:', error);
+      throw error; // Throw error to handle it in UI
+    }
   }
 );
 

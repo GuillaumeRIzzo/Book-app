@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BookAPI.Models;
-using BookAPI.Models;
 using Microsoft.AspNetCore.Authorization;
+using BookAPI.Utils;
+using System.Text.Json;
 
 namespace BookAPI.Controllers
 {
@@ -19,7 +20,7 @@ namespace BookAPI.Controllers
 
         // GET: api/Authors
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ModelViewAuthor>>> GetAuthors()
+        public async Task<ActionResult<IEnumerable<EncryptedPayload>>> GetAuthors()
         {
             var authors = await _context.Authors.ToListAsync();
 
@@ -31,14 +32,22 @@ namespace BookAPI.Controllers
                     AuthorName = x.AuthorName
 
                 }).ToList();
-                return model;
+
+                // Encrypt the list of authors
+                var encryptedData = EncryptionHelper.EncryptData(JsonSerializer.Serialize(model));
+
+                return Ok(new EncryptedPayload
+                {
+                    EncryptedData = encryptedData.EncryptedData,
+                    Iv = encryptedData.Iv
+                });
             }
             return NoContent();
         }
 
         // GET: api/Authors/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<ModelViewAuthor>> GetAuthor(int id)
+        public async Task<ActionResult<EncryptedPayload>> GetAuthor(int id)
         {
             var author = await _context.Authors.FindAsync(id);
 
@@ -53,7 +62,14 @@ namespace BookAPI.Controllers
                 AuthorName = author.AuthorName
             };
 
-            return model;
+            // Encrypt the author data
+            var encryptedData = EncryptionHelper.EncryptData(JsonSerializer.Serialize(model));
+
+            return Ok(new EncryptedPayload
+            {
+                EncryptedData = encryptedData.EncryptedData,
+                Iv = encryptedData.Iv
+            });
         }
 
         // PUT: api/Authors/5

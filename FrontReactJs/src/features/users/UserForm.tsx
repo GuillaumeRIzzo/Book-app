@@ -7,13 +7,7 @@ import useEmailValidator from '@/hooks/useEmailValidator';
 import useLoginValidator from '@/hooks/useLoginValidator';
 import usePasswordValidator from '@/hooks/usePasswordValidator';
 import useConfirmPasswordValidator from '@/hooks/useConfirmPasswordValidator';
-import { User } from '@/models/user/User';
-import Loading from '@/components/common/Loading';
-import store, { RootState } from '@/redux/store';
-import { useRouter } from 'next/router';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchUserById } from './UserSlice';
-import { useSession } from 'next-auth/react';
+import { EncryptedPayload, encryptPayload } from '@/utils/encryptUtils';
 
 const FormWrapper = styled.div`
   w-2/4
@@ -25,33 +19,6 @@ interface FormProps {
 }
 
 const UserForm: React.FC<FormProps> = ({ title }) => {
-  const { data: session, status } = useSession();
-  const router = useRouter();
-  const { id } = router.query;
-  const dispatch = useDispatch();
-  const [loading, setLoading] = useState(true);
-
-  const user = useSelector((state: RootState) =>
-    state.users.users.find((u: User) => u.userId === Number(id))
-  );
-
-  useEffect(() => {
-    if (id && !user) {
-      const userId = Number(id);
-      if (!isNaN(userId)) {
-        setLoading(true);
-        if (session && userId !== Number(session.user.id)) {
-          router.push(`/user/${session?.user.id}`);
-        }
-        store.dispatch(fetchUserById(userId)).finally(() => setLoading(false));
-      } else {
-        setLoading(false);
-      }
-    } else {
-      setLoading(false);
-    }
-  }, [dispatch, id, user, status]);
-
   const [formData, setFormData] = useState({
     userId: 0,
     userFirstname: '',
@@ -62,21 +29,6 @@ const UserForm: React.FC<FormProps> = ({ title }) => {
     userRight: 'User',
     confirmPassword: '',
   });
-
-  useEffect(() => {
-    if (user) {
-      setFormData({
-        userId: user.userId,
-        userFirstname: user.userFirstname,
-        userLastname: user.userLastname,
-        userPassword: '',
-        userLogin: user.userLogin,
-        userEmail: user.userEmail,
-        userRight: user.userRight || 'User',
-        confirmPassword: '',
-      });
-    }
-  }, [user]);
 
   const [touched, setTouched] = useState({
     userFirstname: false,
@@ -127,8 +79,16 @@ const UserForm: React.FC<FormProps> = ({ title }) => {
   const handleSubmit = async () => {
     try {
       if (formValidator) {
-        const result = await addUser(formData);
-        console.log(result);
+        const encryptedPayload: EncryptedPayload = encryptPayload({
+          UserFirstname: formData.userFirstname,
+          UserLastname: formData.userLastname,
+          UserPassword: formData.userPassword,
+          UserLogin: formData.userLogin,
+          UserEmail: formData.userEmail,
+          UserRight: formData.userRight,
+        });
+
+        const result = await addUser(encryptedPayload);
       } else {
         console.error('Validation failed');
       }
@@ -142,10 +102,6 @@ const UserForm: React.FC<FormProps> = ({ title }) => {
       }
     }
   };
-
-  if (loading) {
-    return <Loading />;
-  }
 
   return (
     <FormWrapper>

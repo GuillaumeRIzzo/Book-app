@@ -1,7 +1,8 @@
-import { Author } from '@/models/author/Author';
-import { apiClient } from './authApi';
 import { AxiosPromise } from 'axios';
 
-export const getAuthors = (): AxiosPromise<Author[]> => apiClient.get<Author[]>('Authors');
+import { apiClient } from './authApi';
+import { EncryptedPayload } from '@/utils/encryptUtils';
 
-export const getAuthor = (authorId: number): AxiosPromise<Author> => apiClient.get<Author>(`Authors/${authorId}`);
+export const getAuthors = (): AxiosPromise<EncryptedPayload> => apiClient.get<EncryptedPayload>('Authors');
+
+export const getAuthor = (authorId: number): AxiosPromise<EncryptedPayload> => apiClient.get<EncryptedPayload>(`Authors/${authorId}`);

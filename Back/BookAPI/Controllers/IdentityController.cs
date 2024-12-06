@@ -5,8 +5,9 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using BCrypt.Net;
 using BookAPI.Identity;
+using BookAPI.Utils;
+using System.Text.Json;
 
 
 namespace BookAPI.Controllers
@@ -81,29 +82,67 @@ namespace BookAPI.Controllers
 
         [AllowAnonymous]
         [HttpPost("login")]
-        public async Task<ActionResult<LoginResponseDto>> Login([FromBody] LoginViewModel model)
+        public async Task<ActionResult<EncryptedPayload>> Login([FromBody] EncryptedPayload payload)
         {
-            //Get user informations
-            var user = await _usersController.GetUser(0, model.Identifier);
-            var value = user.Value;
+            // Step 0: Decrypt the payload data
+            var encryptedPayload = payload;
+            var decryptedPayloadJson = EncryptionHelper.DecryptData(encryptedPayload.EncryptedData, encryptedPayload.Iv);
+            var model = JsonSerializer.Deserialize<LoginViewModel>(decryptedPayloadJson);
 
-            if (value != null && (value.UserLogin == model.Identifier || value.UserEmail == model.Identifier) && VerifyPassword(model.Password, value.UserPassword))
+            if (model == null)
             {
-                var token = GenerateToken(value);
-
-                var response = new LoginResponseDto
-                {
-                    Token = token,
-                    id = value.UserId,
-                    login = value.UserLogin,
-                    right = value.UserRight,
-                    email = value.UserEmail
-                };
-
-                return Ok(response);
+                return NotFound();
             }
+
+            // Step 1: Call GetUser to retrieve the encrypted user data
+            var encryptedUserResult = await _usersController.GetUser(0, model.Identifier);
+
+            if (encryptedUserResult.Result is ObjectResult objectResult && objectResult.Value is EncryptedPayload encryptedUser)
+            {
+                // Step 2: Decrypt the user data
+                var decryptedUserJson = EncryptionHelper.DecryptData(encryptedUser.EncryptedData, encryptedUser.Iv);
+                var user = JsonSerializer.Deserialize<ModelViewUser>(decryptedUserJson);
+
+                if (user == null)
+                {
+                    return NotFound();
+                }
+
+                // Step 3: Validate the credentials
+                if ((user.UserLogin == model.Identifier || user.UserEmail == model.Identifier) && VerifyPassword(model.Password, user.UserPassword))
+                {
+                    // Generate the JWT token
+                    var token = GenerateToken(user);
+
+                    // Prepare the login response
+                    var response = new LoginResponseDto
+                    {
+                        Token = token,
+                        id = user.UserId,
+                        login = user.UserLogin,
+                        right = user.UserRight,
+                        email = user.UserEmail
+                    };
+
+                    // Step 4: Encrypt the login response
+                    var encryptedResponse = EncryptionHelper.EncryptData(JsonSerializer.Serialize(response));
+
+                    // Return the encrypted payload
+                    return Ok(new EncryptedPayload
+                    {
+                        EncryptedData = encryptedResponse.EncryptedData,
+                        Iv = encryptedResponse.Iv
+                    });
+                }
+
+                return Unauthorized();
+            }
+
             return NotFound();
         }
+
+
+
 
         // Verifies if a password matches its hashed version
         private bool VerifyPassword(string password, string hashedPassword)
@@ -112,4 +151,5 @@ namespace BookAPI.Controllers
             return BCrypt.Net.BCrypt.Verify(password, hashedPassword);
         }
     }
+
 }

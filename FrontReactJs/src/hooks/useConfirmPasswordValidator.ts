@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 
-const useConfirmPasswordValidator = (password: string, confirmPassword: string) => {
+const useConfirmPasswordValidator = (CurrentPassword: string, NewPassword: string) => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setError(password === confirmPassword ? null : 'Les mots de passe ne correspondent pas');
-  }, [password, confirmPassword]);
+    setError(CurrentPassword === NewPassword ? null : 'Les mots de passe ne correspondent pas');
+  }, [CurrentPassword, NewPassword]);
 
   return error;
 };

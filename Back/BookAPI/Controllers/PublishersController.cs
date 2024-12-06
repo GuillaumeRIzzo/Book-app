@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BookAPI.Models;
 using Microsoft.AspNetCore.Authorization;
+using BookAPI.Utils;
+using System.Text.Json;
 
 namespace BookAPI.Controllers
 {
@@ -23,7 +20,7 @@ namespace BookAPI.Controllers
 
         // GET: api/Publishers
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ModelViewPublisher>>> GetPublishers()
+        public async Task<ActionResult<IEnumerable<EncryptedPayload>>> GetPublishers()
         {
             var publishers = await _context.Publishers.ToListAsync();
 
@@ -34,7 +31,14 @@ namespace BookAPI.Controllers
                     PublisherId = x.PublisherId,
                     PublisherName = x.PublisherName
                 }).ToList();
-                return model;
+                // Encrypt the list of publishers
+                var encryptedData = EncryptionHelper.EncryptData(JsonSerializer.Serialize(model));
+
+                return Ok(new EncryptedPayload
+                {
+                    EncryptedData = encryptedData.EncryptedData,
+                    Iv = encryptedData.Iv
+                });
             }
 
             return NoContent();
@@ -42,7 +46,7 @@ namespace BookAPI.Controllers
 
         // GET: api/Publishers/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<ModelViewPublisher>> GetPublisher(int id)
+        public async Task<ActionResult<EncryptedPayload>> GetPublisher(int id)
         {
             var publisher = await _context.Publishers.FindAsync(id);
 
@@ -57,51 +61,78 @@ namespace BookAPI.Controllers
                 PublisherName = publisher.PublisherName
             };
 
-            return model;
+            // Encrypt the list of publishers
+            var encryptedData = EncryptionHelper.EncryptData(JsonSerializer.Serialize(model));
+
+            return Ok(new EncryptedPayload
+            {
+                EncryptedData = encryptedData.EncryptedData,
+                Iv = encryptedData.Iv
+            });
         }
 
         // PUT: api/Publishers/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [Authorize]
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutPublisher(int id, ModelViewPublisher model)
+        public async Task<IActionResult> PutPublisher(int id, EncryptedPayload payload)
         {
-            if (id != model.PublisherId)
-            {
-                return BadRequest();
-            }
-
-            if (PublisherNameExists(model.PublisherName, id))
-            {
-                return BadRequest("Name already exists");
-            }
-
-            var publisher = await _context.Publishers.FindAsync(id);
-
-            if (publisher != null)
-            {
-                publisher.PublisherId = model.PublisherId;
-                publisher.PublisherName = model.PublisherName;
-                
-            }
-
             try
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!PublisherExists(id))
+                string decryptedData = EncryptionHelper.DecryptData(payload.EncryptedData, payload.Iv);
+                var options = new JsonSerializerOptions
                 {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+                    PropertyNameCaseInsensitive = true // Enable case-insensitive matching
+                };
+                var model = JsonSerializer.Deserialize<ModelViewPublisher>(decryptedData, options);
 
-            return NoContent();
+                if (id != model.PublisherId)
+                {
+                    return BadRequest();
+                }
+
+                if (PublisherNameExists(model.PublisherName, id))
+                {
+                    return BadRequest("Name already exists");
+                }
+
+                var publisher = await _context.Publishers.FindAsync(id);
+
+                if (publisher != null)
+                {
+                    publisher.PublisherId = model.PublisherId;
+                    publisher.PublisherName = model.PublisherName;
+
+                }
+
+                try
+                {
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!PublisherExists(id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+
+                return NoContent();
+            }
+            catch (JsonException ex)
+            {
+                // Handle JSON deserialization errors
+                return BadRequest(new { message = "Invalid JSON format.", details = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                // Handle other errors
+                return StatusCode(500, new { message = "An error occurred.", details = ex.Message });
+            }
         }
 
         // POST: api/Publishers

@@ -1,12 +1,34 @@
 import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
+import camelCaseKeys from 'camelcase-keys';
+
 import { BookCategory } from '@/models/book-category/BookCategory';
 import { BookCategoryState } from '@/models/book-category/BookCategoryState';
 import { getBookCategories } from '@/api/bookcategoryApi';
+import { decryptPayload } from '@/utils/encryptUtils';
 
 export const fetchBookCategoriesAsync = createAsyncThunk('bookCategories/getBooks', async () => {
-  const response = await getBookCategories();
-  return response.data;
+  try {
+    const response = await getBookCategories();
+
+    const encryptedData = response.data.encryptedData;
+    const iv = response.data.iv;
+
+    const decryptedData = decryptPayload(encryptedData, iv);
+
+    let categos: BookCategory[];
+    try {
+      categos = camelCaseKeys(decryptedData, {deep: true}) as unknown as BookCategory[];
+    } catch (error) {
+      console.error('Failed to parse decrypted data:', decryptedData);
+      throw new Error('Decrypted data is not valid JSON');
+    }
+    return categos;
+
+  } catch (error) {
+    console.error('Failed to fetch BookCategories:', error);
+    throw error;
+  }
 });
 
 const initialState: BookCategoryState = {
