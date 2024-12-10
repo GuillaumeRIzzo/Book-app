@@ -1,6 +1,5 @@
 import { decryptPayload } from '@/utils/encryptUtils';
 import { Session } from 'next-auth';
-import { useSession } from 'next-auth/react';
 
 export const saveSessionLocally = (session: Session) => {
   if (typeof window !== 'undefined') {

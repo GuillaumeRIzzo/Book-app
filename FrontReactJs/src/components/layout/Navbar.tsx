@@ -14,6 +14,7 @@ import {
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import Gravatar from 'react-gravatar';
 import { decryptPayload } from '@/utils/encryptUtils';
+import { SearchBar } from '../SearchBar';
 
 const navigation = [
   { name: 'Accueil', href: '/', current: false },
@@ -43,9 +44,14 @@ const Navbar: React.FC = () => {
     // Decrypt the session data
     try {
       const decryptedSessionData = decryptPayload(encryptedData, iv);
-      
+
       // Cast the decrypted session data to the expected structure
-      const { token: decryptedToken, right: decryptedRight, email: decryptedEmail, id: decryptedId } = decryptedSessionData as {
+      const {
+        token: decryptedToken,
+        right: decryptedRight,
+        email: decryptedEmail,
+        id: decryptedId,
+      } = decryptedSessionData as {
         token: string;
         right: string;
         email: string;
@@ -60,7 +66,7 @@ const Navbar: React.FC = () => {
       console.error('Failed to decrypt session data:', error);
     }
   }
-  
+
   return (
     <Disclosure as='nav' className='bg-[#333]'>
       {({ open }) => (
@@ -82,7 +88,7 @@ const Navbar: React.FC = () => {
               <div className='flex flex-1 items-center justify-center sm:items-stretch sm:justify-start'>
                 <div className='hidden sm:ml-6 sm:block'>
                   <div className='flex space-x-4'>
-                    {navigation.map((item) => (
+                    {navigation.map(item => (
                       <Link
                         key={item.name}
                         href={item.href}
@@ -90,7 +96,7 @@ const Navbar: React.FC = () => {
                           item.current
                             ? 'bg-gray-900 text-white'
                             : 'text-gray-300 hover:bg-gray-700 hover:text-white',
-                          'rounded-md px-3 py-2 text-base font-medium'
+                          'rounded-md px-3 py-2 text-base font-medium',
                         )}
                         aria-current={item.current ? 'page' : undefined}
                       >
@@ -100,7 +106,9 @@ const Navbar: React.FC = () => {
                     {token && ['Super Admin', 'Admin'].includes(right) && (
                       <Link
                         href='/users'
-                        className={'text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-base font-medium'}
+                        className={
+                          'text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-base font-medium'
+                        }
                       >
                         UTILISATEURS
                       </Link>
@@ -108,6 +116,7 @@ const Navbar: React.FC = () => {
                   </div>
                 </div>
               </div>
+              <SearchBar />
               <div className='absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0'>
                 {/* Profile dropdown */}
                 {status === 'authenticated' ? (
@@ -137,7 +146,7 @@ const Navbar: React.FC = () => {
                               href={`/user/${id}`}
                               className={classNames(
                                 active ? 'bg-gray-100' : '',
-                                'block px-4 py-2 text-sm text-gray-700'
+                                'block px-4 py-2 text-sm text-gray-700',
                               )}
                             >
                               Votre Profile
@@ -150,7 +159,7 @@ const Navbar: React.FC = () => {
                               href='/'
                               className={classNames(
                                 active ? 'bg-gray-100' : '',
-                                'block px-4 py-2 text-sm text-gray-700'
+                                'block px-4 py-2 text-sm text-gray-700',
                               )}
                               onClick={() => {
                                 signOut();
@@ -170,7 +179,7 @@ const Navbar: React.FC = () => {
                         href='/signin'
                         className={classNames(
                           'text-gray-300 hover:bg-gray-700 hover:text-white',
-                          'rounded-md px-3 py-2 text-base font-medium'
+                          'rounded-md px-3 py-2 text-base font-medium',
                         )}
                         aria-current='page'
                       >
@@ -180,7 +189,7 @@ const Navbar: React.FC = () => {
                         href='/login'
                         className={classNames(
                           'text-gray-300 hover:bg-gray-700 hover:text-white',
-                          'rounded-md px-3 py-2 text-base font-medium'
+                          'rounded-md px-3 py-2 text-base font-medium',
                         )}
                         aria-current='page'
                       >
@@ -195,7 +204,7 @@ const Navbar: React.FC = () => {
 
           <DisclosurePanel className='sm:hidden'>
             <div className='space-y-1 px-2 pb-3 pt-2'>
-              {navigation.map((item) => (
+              {navigation.map(item => (
                 <DisclosureButton
                   key={item.name}
                   as='a'
@@ -204,7 +213,7 @@ const Navbar: React.FC = () => {
                     item.current
                       ? 'bg-gray-900 text-white'
                       : 'text-gray-300 hover:bg-gray-700 hover:text-white',
-                    'block rounded-md px-3 py-2 text-base font-medium'
+                    'block rounded-md px-3 py-2 text-base font-medium',
                   )}
                   aria-current={item.current ? 'page' : undefined}
                 >
