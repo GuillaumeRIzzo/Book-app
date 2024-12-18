@@ -12,6 +12,7 @@ import {
   ResultItem,
   DeleteButton,
   NoResults,
+  ResultsFooter
 } from './StyledComponents';
 
 interface SearchItemProps {
@@ -90,57 +91,65 @@ const SearchItem: React.FC<SearchItemProps> = ({
       {isOpen && (
         <Overlay ref={overlayRef}>
           {combinedResults.length > 0 ? (
-            combinedResults.map((result, index) => (
-              <ResultItem
-                key={index}
-                $isSelected={index === selectedIndex}
-                onClick={() => {
-                    if (result.type === 'History') {
-                      selectHistoryItem(result.item);
-                      handleSearch(result.item);
-                    } else {
-                      setSearchTerm(
-                        result.item.bookTitle ||
-                          result.item.authorName ||
-                          result.item.publisherName ||
-                          result.item.bookCategoName,
-                      );
-                      setHistory((prev: any) => [...new Set([searchTerm, ...prev])]);
-                      goToSearch(index);
-                    }
-                }}
-              >
-                <Box display='flex' alignItems='center' justifyContent='space-between'>
-                  <Box display='flex'>
-                    <p className='mr-2'>
-                      <strong>{result.type}:</strong>
-                    </p>
-                    {result.type === 'History' ? (
-                      <p className='w-96'>{result.item}</p>
-                    ) : (
-                      result.item.bookTitle ||
-                      result.item.authorName ||
-                      result.item.publisherName ||
-                      result.item.bookCategoName
-                    )}
-                  </Box>
-                  {result.type === 'History' && (
-                    <DeleteButton
-                      onClick={e => {
-                        e.stopPropagation(); // Prevent bubbling to ResultItem's click handler
-                        deleteRecentSearches(index);
-                      }}
-                    >
-                      <TrashIcon className='block h-6 w-6' />
-                    </DeleteButton>
-                  )}
-                </Box>
-                <img src={resultImage(result)} width={30} />
-              </ResultItem>
-            ))            
-          ) : (
-            <NoResults>No results found</NoResults>
+  <>
+    {combinedResults.map((result, index) => (
+      <ResultItem
+        key={index}
+        $isSelected={index === selectedIndex}
+        onClick={() => {
+          if (result.type === 'History') {
+            selectHistoryItem(result.item);
+            handleSearch(result.item);
+          } else {
+            setSearchTerm(
+              result.item.bookTitle ||
+                result.item.authorName ||
+                result.item.publisherName ||
+                result.item.bookCategoName,
+            );
+            setHistory((prev: any) => [...new Set([searchTerm, ...prev])]);
+            goToSearch(index);
+          }
+        }}
+      >
+        <Box display='flex' alignItems='center' justifyContent='space-between'>
+          <Box display='flex'>
+            <p className='mr-2'>
+              <strong>{result.type}:</strong>
+            </p>
+            {result.type === 'History' ? (
+              <p className='w-96'>{result.item}</p>
+            ) : (
+              result.item.bookTitle ||
+              result.item.authorName ||
+              result.item.publisherName ||
+              result.item.bookCategoName
+            )}
+          </Box>
+          {result.type === 'History' && (
+            <DeleteButton
+              onClick={e => {
+                e.stopPropagation(); // Prevent bubbling to ResultItem's click handler
+                deleteRecentSearches(index);
+              }}
+            >
+              <TrashIcon className='block h-6 w-6' />
+            </DeleteButton>
           )}
+        </Box>
+        <img src={resultImage(result)} width={30} />
+      </ResultItem>
+    ))}
+    {/* New Section Styled as Row and Clickable */}
+    <ResultsFooter onClick={() => goToSearch(0)}>
+      <span role="img" aria-label="search">🔍</span>
+      <h3>Tous les résultats pour "{searchTerm}"</h3>
+      <span>Cliquez <strong>ici</strong> ou <br />appuyez sur <strong>ENTRER</strong> <br /> pour voir plus de détails.</span>
+    </ResultsFooter>
+  </>
+) : (
+  <NoResults>No results found</NoResults>
+)}
         </Overlay>
       )}
     </Box>

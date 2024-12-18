@@ -68,7 +68,6 @@ export const Overlay = styled.div`
 
 export const ResultItem = styled.div<{ $isSelected: boolean }>`
   padding: 8px 16px;
-  border-bottom: 1px solid #ddd;
   cursor: pointer;
   background: ${props => (props.$isSelected ? '#dbeafe' : 'white')};
 
@@ -115,4 +114,34 @@ export const NoResults = styled.div`
   padding: 16px;
   text-align: center;
   color: #aaa;
+`;
+
+export const ResultsFooter = styled.div`
+  display: flex;
+  align-items: center;
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background-color: #f9f9f9;
+  border-top: 1px solid #e0e0e0;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: #f0f0f0;
+  }
+
+  span {
+    margin-right: 0.5rem;
+    text-align: center;
+    }
+    
+    h3 {
+      margin: 0;
+      font-size: 1.1rem;
+      color: #333;
+      font-weight: bold;
+      flex: 1;
+      text-align: center;
+      margin-right: 1rem;
+  }
 `;
