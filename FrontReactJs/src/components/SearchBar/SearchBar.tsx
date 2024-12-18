@@ -1,106 +1,9 @@
-import store from '@/redux/store';
+import { useRouter } from 'next/router';
 import React, { useState, useRef, useEffect } from 'react';
-import styled, { keyframes } from 'styled-components';
 
-// Styled Components
-const openSearchAnimation = keyframes`
-  from {
-    width: 0;
-    opacity: 0;
-  }
-  to {
-    width: 28vw;
-    opacity: 1;
-  }
-`;
-
-const closeSearchAnimation = keyframes`
-  from {
-    width: 28vw;
-    opacity: 1;
-  }
-  to {
-    width: 0;
-    opacity: 0;
-  }
-`;
-
-const SearchContainer = styled.div<{ $isOpen: boolean }>`
-  display: flex;
-  align-items: center;
-  background: #eaf1fb;
-  border-radius: 32px;
-  padding: 8px 16px;
-  position: relative;
-  width: ${(props) => (props.$isOpen ? '28vw' : 'auto')};
-  animation: ${(props) =>
-      props.$isOpen ? openSearchAnimation : closeSearchAnimation}
-    0.3s ease-in-out;
-`;
-
-const SearchInput = styled.input`
-  border: none;
-  outline: none;
-  flex: 1;
-  font-size: 1rem;
-  background: inherit;
-  padding: 8px;
-`;
-
-const SearchIconButton = styled.button`
-  background: none;
-  border: none;
-  cursor: pointer;
-
-  svg {
-    font-size: 1.5rem;
-  }
-`;
-
-const Overlay = styled.div`
-  position: absolute;
-  top: 100%;
-  width: 43%;
-  background: white;
-  border-radius: 0 0 16px 16px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
-`;
-
-const ResultItem = styled.div<{ $isSelected: boolean }>`
-  padding: 8px 16px;
-  border-bottom: 1px solid #ddd;
-  cursor: pointer;
-  background: ${(props) => (props.$isSelected ? '#dbeafe' : 'white')};
-
-  &:hover {
-    background: #f5f5f5;
-  }
-
-  &:last-child {
-    border-bottom: none;
-  }
-`;
-
-const CloseButton = styled.button`
-  background: none;
-  border: none;
-  cursor: pointer;
-  position: absolute;
-  right: 16px;
-
-  svg {
-    font-size: 1.2rem;
-  }
-`;
-
-const NoResults = styled.div`
-  padding: 16px;
-  text-align: center;
-  color: #aaa;
-`;
-
-interface SearchResult {
+import store from '@/redux/store';
+import SearchItem from './SearchItem';
+export interface SearchResult {
   type: string;
   item: any;
 }
@@ -110,11 +13,19 @@ const SearchBar: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
-  const [history, setHistory] = useState<string[]>([]); // Search history state
+  const [history, setHistory] = useState<string[]>([]);
+  const combinedResults = [
+    ...history.map(item => ({ type: 'History', item })),
+    ...results,
+  ];
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const searchBarRef = useRef<HTMLDivElement | null>(null);
+  const overlayRef = useRef<HTMLDivElement | null>(null);
+
+  const router = useRouter();
 
   const handleSearch = (term: string) => {
-    if (!term.trim()) {
+    if (!term.trim() || term.trim().length < 2) {
       setResults([]);
       return;
     }
@@ -127,55 +38,112 @@ const SearchBar: React.FC = () => {
     const bookCategories = store.getState().bookCategories.bookCategories;
 
     const filteredBooks = books.filter((book: { bookTitle: string }) =>
-      book.bookTitle.toLowerCase().includes(lowerCaseTerm)
+      book.bookTitle.toLowerCase().includes(lowerCaseTerm),
     );
     const filteredAuthors = authors.filter((author: { authorName: string }) =>
-      author.authorName.toLowerCase().includes(lowerCaseTerm)
+      author.authorName.toLowerCase().includes(lowerCaseTerm),
     );
     const filteredPublishers = publishers.filter(
       (publisher: { publisherName: string }) =>
-        publisher.publisherName.toLowerCase().includes(lowerCaseTerm)
+        publisher.publisherName.toLowerCase().includes(lowerCaseTerm),
     );
     const filteredCategories = bookCategories.filter(
       (category: { bookCategoName: string }) =>
-        category.bookCategoName.toLowerCase().includes(lowerCaseTerm)
+        category.bookCategoName.toLowerCase().includes(lowerCaseTerm),
     );
 
     setResults([
-      ...filteredBooks.map((b) => ({ type: 'Book', item: b })),
-      ...filteredAuthors.map((a) => ({ type: 'Author', item: a })),
-      ...filteredPublishers.map((p) => ({ type: 'Publisher', item: p })),
-      ...filteredCategories.map((c) => ({ type: 'Category', item: c })),
+      ...filteredBooks.map(b => ({ type: 'Livre', item: b })),
+      ...filteredAuthors.map(a => ({ type: 'Auteur', item: a })),
+      ...filteredPublishers.map(p => ({ type: 'Éditeur', item: p })),
+      ...filteredCategories.map(c => ({ type: 'Catégorie', item: c })),
     ]);
     setSelectedIndex(null);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'ArrowDown' && results.length > 0) {
-      setSelectedIndex((prev) =>
-        prev === null ? 0 : Math.min(prev + 1, results.length - 1)
+    if (e.key === 'ArrowDown' && combinedResults.length > 0) {
+      e.preventDefault();
+      setSelectedIndex(prev =>
+        prev === null ? 0 : Math.min(prev + 1, combinedResults.length - 1),
       );
-    } else if (e.key === 'ArrowUp' && results.length > 0) {
-      setSelectedIndex((prev) =>
-        prev === null ? results.length - 1 : Math.max(prev - 1, 0)
+    } else if (e.key === 'ArrowUp' && combinedResults.length > 0) {
+      e.preventDefault();
+      setSelectedIndex(prev =>
+        prev === null ? combinedResults.length - 1 : Math.max(prev - 1, 0),
       );
-    } else if (e.key === 'Enter' && selectedIndex !== null) {
-      const selected = results[selectedIndex];
-      setSearchTerm(
-        selected.item.bookTitle ||
-          selected.item.authorName ||
-          selected.item.publisherName ||
-          selected.item.bookCategoName
-      );
-      setHistory((prev) => [...new Set([searchTerm, ...prev])]);
-      setResults([]);
+    } else if (e.key === 'Enter') {
+      // Redirect to first result if no item is selected
+      if (selectedIndex !== null) {
+        // If an item is selected, redirect
+        const selected = combinedResults[selectedIndex];
+        if (selected) {
+          if (selected.type === 'History') {
+            setSearchTerm(selected.item);
+            handleSearch(selected.item);
+          } else {
+            setSearchTerm(
+              selected.item.bookTitle ||
+                selected.item.authorName ||
+                selected.item.publisherName ||
+                selected.item.bookCategoName,
+            );
+          }
+          goToSearch(selectedIndex);
+        }
+      } else if (results.length > 0) {
+        // If no item is selected but there are results, redirect to the first result
+        goToSearch(0);
+      } else {
+        console.log('No results to navigate to.');
+      }
+      if (searchTerm) {
+        setHistory(prev => [...new Set([searchTerm, ...prev])]);
+      }
     } else if (e.key === 'Escape') {
       toggleSearch();
+    } else if (e.key === 'Delete' && selectedIndex !== null) {
+      deleteRecentSearches(selectedIndex);
+    }
+  };
+
+  const deleteRecentSearches = (index?: number) => {
+    if (index !== undefined) {
+      const selected = combinedResults[index];
+
+      if (selected.type === 'History') {
+        const updatedHistory = history.filter(item => item !== selected.item);
+        setHistory(updatedHistory);
+        clearSearch();
+      }
+    }
+  };
+
+  const goToSearch = (index: number) => {
+    const selected = index == 0 ? results[index] : combinedResults[index];
+    if (!selected) return;
+
+    switch (selected.type) {
+      case 'Livre':
+        router.push(`/book/${selected.item.bookId}`);
+        break;
+      case 'Auteur':
+        router.push(`/author/${selected.item.authorId}`);
+        break;
+      case 'Éditeur':
+        router.push(`/publisher/${selected.item.publisherId}`);
+        break;
+      case 'Catégorie':
+        router.push(`/bookcategory/${selected.item.bookCategoId}`);
+        break;
+      default:
+        console.warn('Unknown type, cannot navigate');
+        break;
     }
   };
 
   const toggleSearch = () => {
-    setIsOpen((prev) => !prev);
+    setIsOpen(prev => !prev);
     if (!isOpen && inputRef.current) {
       inputRef.current.focus();
     }
@@ -192,98 +160,80 @@ const SearchBar: React.FC = () => {
     setResults([]);
   };
 
+  const resultImage = (result: SearchResult) => {
+    let img = '';
+    switch (result.type) {
+      case 'Livre':
+        img = result.item.bookImageLink;
+        break;
+      case 'Auteur':
+      case 'Éditeur':
+      case 'Catégorie':
+        img =
+          'https://img.freepik.com/premium-vector/user-profile-icon-flat-style-member-avatar-vector-illustration-isolated-background-human-permission-sign-business-concept_157943-15752.jpg';
+        break;
+      default:
+        break;
+    }
+    return img;
+  };
+
+  const handleClickOutside = (event: MouseEvent) => {
+    if (
+      searchBarRef.current &&
+      overlayRef.current &&
+      !searchBarRef.current.contains(event.target as Node) &&
+      !overlayRef.current.contains(event.target as Node)
+    ) {
+      setIsOpen(false);
+    }
+  };
+
+  const handleGlobalKeyDown = (e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      setIsOpen(false);
+    }
+    if (e.ctrlKey && e.key === 'k') {
+      e.preventDefault();
+      setIsOpen(true);
+    }
+  };
+
   useEffect(() => {
     if (isOpen) {
-      const handleGlobalKeyDown = (e: KeyboardEvent) => {
-        if (e.key === 'Escape') {
-          e.preventDefault();
-          setIsOpen(false);
-        }
-      };
-      window.addEventListener('keydown', handleGlobalKeyDown);
-      return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+      document.addEventListener('mousedown', handleClickOutside);
     }
     if (!isOpen) {
-      const handleGlobalKeyDown = (e: KeyboardEvent) => {
-        if (e.ctrlKey && e.key === 'k') {
-          e.preventDefault();
-          setIsOpen(true);
-        }
-      };
-      window.addEventListener('keydown', handleGlobalKeyDown);
-      return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+      document.removeEventListener('mousedown', handleClickOutside);
     }
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleGlobalKeyDown);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, [isOpen]);
 
   return (
-    <div>
-      <SearchContainer $isOpen={isOpen}>
-        <SearchIconButton onClick={toggleSearch}>
-          <span role="img" aria-label="search">
-            🔍 {!isOpen && " : ctrl + k"}
-          </span>
-        </SearchIconButton>
-        {isOpen && (
-          <>
-            <SearchInput
-              ref={inputRef}
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                handleSearch(e.target.value);
-              }}
-              onKeyDown={handleKeyDown}
-              autoFocus={true}
-              placeholder="Search books, authors, categories..."
-            />
-            <CloseButton onClick={toggleSearch}>
-              <span role="img" aria-label="close">
-                ❌
-              </span>
-            </CloseButton>
-          </>
-        )}
-      </SearchContainer>
-      {isOpen && (
-        <Overlay>
-          {history.length > 0 && (
-            <>
-              <div style={{ padding: '8px 16px', fontWeight: 'bold' }}>Search History</div>
-              {history.map((item, index) => (
-                <ResultItem
-                  key={index}
-                  $isSelected={false}
-                  onClick={() => selectHistoryItem(item)}
-                >
-                  <strong>History:</strong> {item}
-                </ResultItem>
-              ))}
-            </>
-          )}
-          {searchTerm && (
-          results.length ? (
-            results.map((result, index) => (
-              <ResultItem
-                key={index}
-                $isSelected={index === selectedIndex}
-                onClick={() =>
-                  setSearchTerm(
-                    result.item.bookTitle ||
-                      result.item.authorName ||
-                      result.item.publisherName ||
-                      result.item.bookCategoName
-                  )
-                }
-              >
-                <strong>{result.type}:</strong> {result.item.bookTitle || result.item.authorName || result.item.publisherName || result.item.bookCategoName}
-              </ResultItem>
-            ))
-          ) : (
-            <NoResults>No results found</NoResults>
-          ))}
-        </Overlay>
-      )}
-    </div>
+    <SearchItem
+      isOpen={isOpen}
+      searchBarRef={searchBarRef}
+      inputRef={inputRef}
+      searchTerm={searchTerm}
+      combinedResults={combinedResults}
+      overlayRef={overlayRef}
+      selectedIndex={selectedIndex}
+      setSearchTerm={term => setSearchTerm(term)}
+      handleSearch={term => handleSearch(term)}
+      deleteRecentSearches={index => deleteRecentSearches(index)}
+      resultImage={result => resultImage(result)}
+      handleKeyDown={e => handleKeyDown(e)}
+      clearSearch={() => clearSearch()}
+      toggleSearch={() => toggleSearch()}
+      goToSearch={(index) => goToSearch(index)}
+      selectHistoryItem={(item) => selectHistoryItem(item)}
+      setHistory={(item) => setHistory(item)}
+    />
   );
 };
 

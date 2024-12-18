@@ -45,8 +45,8 @@ export const fetchBookById = createAsyncThunk(
        // Decrypt the data
        const decryptedData = decryptPayload(encryptedData, iv);
  
-      // Parse decrypted data as an array of Book objects
-      const book = JSON.parse(decryptedData as unknown as string) as Book;
+      const book = camelCaseKeys(decryptedData, {deep: true}) as unknown as Book;
+      
       return book;
     } catch (error) {
       console.error('Failed to fetch book:', error);

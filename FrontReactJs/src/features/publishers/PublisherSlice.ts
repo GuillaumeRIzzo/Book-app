@@ -45,8 +45,7 @@ export const fetchPublisherById = createAsyncThunk(
        // Decrypt the data
        const decryptedData = decryptPayload(encryptedData, iv);
  
-      // Parse decrypted data as an array of Publisher objects
-      const publisher = JSON.parse(decryptedData as unknown as string) as Publisher;
+      const publisher = camelCaseKeys(decryptedData, {deep: true}) as unknown as Publisher;
       return publisher;
     } catch (error) {
       console.error('Failed to fetch publisher:', error);
