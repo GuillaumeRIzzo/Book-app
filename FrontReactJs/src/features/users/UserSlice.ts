@@ -23,7 +23,6 @@ export const fetchUsersAsync = createAsyncThunk('users/getUsers', async () => {
       console.error('Failed to parse decrypted data:', decryptedData);
       throw new Error('Decrypted data is not valid JSON');
     }
-    // console.log('Parsed Users:', users);
     return users;
 
   } catch (error) {
