@@ -163,6 +163,7 @@ const Navbar: React.FC = () => {
                               )}
                               onClick={() => {
                                 signOut();
+                                localStorage.clear();
                               }}
                             >
                               Se déconnecter

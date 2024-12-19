@@ -119,6 +119,7 @@ const UserForm: React.FC<FormProps> = ({ title }) => {
             ? 'Prénom requis'
             : ''
         }
+        autoFocus={true}
         required
       />
       <Input
