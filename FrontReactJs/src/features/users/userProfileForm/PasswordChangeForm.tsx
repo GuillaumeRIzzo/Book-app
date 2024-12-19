@@ -1,7 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import { useState } from 'react';
+
 import Input from '@/components/common/Input';
 import CustomButton from '@/components/common/Button';
+
 import { User } from '@/models/user/user';
+
 import usePasswordValidator from '@/hooks/usePasswordValidator';
 import useConfirmPasswordValidator from '@/hooks/useConfirmPasswordValidator';
 

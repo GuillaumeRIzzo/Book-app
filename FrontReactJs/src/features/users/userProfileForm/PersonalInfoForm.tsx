@@ -1,16 +1,21 @@
 import { useState, useEffect } from 'react';
+import { MenuItem, Select } from '@mui/material';
+import { SelectChangeEvent } from '@mui/material';
+
 import Input from '@/components/common/Input';
 import CustomButton from '@/components/common/Button';
 import { User } from '@/models/user/user';
+
 import useEmailValidator from '@/hooks/useEmailValidator';
 import useLoginValidator from '@/hooks/useLoginValidator';
 
 interface PersonalInfoFormProps {
   user: User | undefined;
+  right: string;
   onSubmit: (formData: any, event: React.FormEvent<HTMLFormElement>) => void;
 }
 
-const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ user, onSubmit }) => {
+const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ user, right, onSubmit }) => {
   const [formData, setFormData] = useState({
     UserId: user?.userId || 0,
     UserFirstname: user?.userFirstname || '',
@@ -25,6 +30,7 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ user, onSubmit }) =
     userLastname: false,
     userLogin: false,
     userEmail: false,
+    userRight: false
   });
 
   const emailError = useEmailValidator(formData.UserEmail);
@@ -38,13 +44,19 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ user, onSubmit }) =
         UserLastname: user.userLastname,
         UserLogin: user.userLogin,
         UserEmail: user.userEmail,
-        UserRight: user.userRight || 'User',
+        UserRight: user.userRight,
       });
     }
   }, [user]);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+  
+  const handleSelectChange = (event: SelectChangeEvent<string>) => {
+    const { name, value } = event.target;
+    if (!name) return;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -57,10 +69,11 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ user, onSubmit }) =
   };
 
   const formValidator =
-    !emailError &&
-    !loginError &&
-    !!formData.UserFirstname &&
-    !!formData.UserLastname;
+  !emailError &&
+  !loginError &&
+  !!formData.UserFirstname &&
+  !!formData.UserLastname &&
+  !!formData.UserRight;
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault(); // Prevent page reload
@@ -125,6 +138,21 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ user, onSubmit }) =
         helperText={touched.userEmail ? emailError : ''}
         required
       />
+      {right !== "User" &&
+        <Select
+        label="Right"
+        name="UserRight"
+        value={formData.UserRight}
+        onChange={handleSelectChange}
+        onBlur={handleBlur}
+        required
+      >
+        <MenuItem value="Admin">Admin</MenuItem>
+        <MenuItem value="User">User</MenuItem>
+      </Select>
+      }
+
+      
       <CustomButton text="Submit" type="submit" disable={!formValidator} />
     </form>
   );

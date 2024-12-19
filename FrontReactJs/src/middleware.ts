@@ -24,10 +24,27 @@ export async function middleware(req: NextRequest) {
   const isProtectedRoute = protectedRoutes.some(route => 
     new RegExp(`^${route.replace(/:\w+/g, '[^/]+')}$`).test(pathname)
   );
+  
+  const authRoutes = [
+    '/login',
+    '/signin'
+  ]
+
+  const isAuth = authRoutes.some(route => 
+    new RegExp(`^${route.replace(/:\w+/g, '[^/]+')}$`).test(pathname)
+   ); 
 
   if (isProtectedRoute) {
     // If no token exists or the token doesn't have the required rights, redirect to the home page
     if (!token || !['Super Admin', 'Admin'].includes(token.right)) {
+      const url = req.nextUrl.clone();
+      url.pathname = '/';
+      return NextResponse.redirect(url);
+    }
+  }
+  
+  if (isAuth) {
+    if (token) {
       const url = req.nextUrl.clone();
       url.pathname = '/';
       return NextResponse.redirect(url);
@@ -49,5 +66,7 @@ export const config = {
     '/publisher/add',
     '/users',
     '/user/:id',
+    '/login',
+    '/signin'
   ],
 };

@@ -14,9 +14,9 @@ import Loading from '@/components/common/Loading';
 import PersonalInfoForm from './PersonalInfoForm';
 import PasswordChangeForm from './PasswordChangeForm';
 import AccountDeletionForm from './AccountDeletionForm';
-import { fetchUserById, updateUserInState } from '../UserSlice';
+import { fetchUserById, fetchUsersAsync, updateUserInState } from '../UserSlice';
 import { updateUserInfos, updateUserPassword } from '@/api/userApi';
-import { EncryptedPayload, encryptPayload } from '@/utils/encryptUtils';
+import { decryptPayload, EncryptedPayload, encryptPayload } from '@/utils/encryptUtils';
 
 const FormWrapper = styled.div`
   ${tw`w-2/4 p-6`}
@@ -31,31 +31,67 @@ interface FormProps {
 
 const UserProfileForm: React.FC<FormProps> = ({ title }) => {
   const { data: session, status } = useSession();
+  const users = useSelector((state: RootState) => state.users.users);
+  const UserStatus = useSelector((state: RootState) => state.users.status);
+  
   const router = useRouter();
   const { id } = router.query;
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(true);
+  
+  const userFind = (session !== null) ? users.find((u: User) => u.userId === Number(id)) : undefined;
+  let right: string = '';
+  let sessionId: string = '';
 
-  const user = useSelector((state: RootState) =>
-    state.users.users.find((u: User) => u.userId === Number(id)),
-  );
+// Check if the session is available and contains the encrypted session
+  if (session && session.user && session.user.encryptedSession) {
+    const encryptedSession = session.user.encryptedSession; // Retrieve encrypted session data
+
+    // Extract encrypted data and IV (if needed)
+    const { encryptedData, iv } = encryptedSession;
+
+    // Decrypt the session data
+    try {
+      const decryptedSessionData = decryptPayload(encryptedData, iv);
+
+      // Cast the decrypted session data to the expected structure
+      const { id: decryptedId, right: decryptedRight } =
+        decryptedSessionData as {
+          right: string;
+          id: string
+        };
+
+      right = decryptedRight;
+      sessionId = decryptedId;
+    } catch (error) {
+      console.error('Failed to decrypt session data:', error);
+    }
+  }
 
   useEffect(() => {
-    if (id && !user) {
+    if (UserStatus === 'idle') {
+      store.dispatch(fetchUsersAsync());
+    }
+  }, [dispatch, UserStatus]);
+  
+  useEffect(() => {
+    if (userFind && (userFind.userRight === "Super Admin" && right !== "Super Admin") || right === "User" && (id != sessionId)) router.push('/');
+    if (id && !userFind) {
       const userId = Number(id);
       if (!isNaN(userId)) {
         setLoading(true);
-        if (session && userId !== Number(id)) {
+        if (session !== null && userId !== Number(id)) {
           router.push(`/user/${userId}`);
+          store.dispatch(fetchUserById(userId)).finally(() => setLoading(false));
         }
-        store.dispatch(fetchUserById(userId)).finally(() => setLoading(false));
+        router.push('/');
       } else {
         setLoading(false);
       }
     } else {
       setLoading(false);
     }
-  }, [dispatch, id, user, status]);
+  }, [dispatch, id, userFind, status]);
 
   const handlePersonalInfoSubmit = async (
     formData: any,
@@ -136,17 +172,20 @@ const UserProfileForm: React.FC<FormProps> = ({ title }) => {
     <FormWrapper>
       <h2 className='text-2xl mb-6 text-center font-semibold'>{title}</h2>
       <PersonalInfoForm
-        user={user}
+        user={userFind}
+        right={right}
         onSubmit={(formData, event) =>
           handlePersonalInfoSubmit(formData, event)
         }
       />
+      {userFind && userFind.userId === Number(sessionId) &&
       <PasswordChangeForm
-        user={user}
+        user={userFind}
         onSubmit={(formData, event) =>
           handlePasswordChangeSubmit(formData, event)
         }
       />
+      }
       <AccountDeletionForm onDelete={handleDeleteAccount} />
     </FormWrapper>
   );
