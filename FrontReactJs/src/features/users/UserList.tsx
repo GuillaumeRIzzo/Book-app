@@ -137,13 +137,14 @@ const UserList: React.FC = () => {
             >
               <EditIcon />
             </IconButton>
-            <IconButton
+            {userRight !== "Super Admin" &&
+              <IconButton
               color='secondary'
               aria-label='delete user'
               onClick={() => handleDelete(params.row)}
             >
               <DeleteIcon />
-            </IconButton>
+            </IconButton>}
           </>
         );
       },
@@ -155,7 +156,7 @@ const UserList: React.FC = () => {
       <DataGrid
         rows={rows}
         columns={columns}
-        checkboxSelection
+        // checkboxSelection
         autoHeight
         autosizeOnMount
         density='comfortable'

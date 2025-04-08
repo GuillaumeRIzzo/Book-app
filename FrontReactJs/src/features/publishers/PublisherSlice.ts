@@ -2,7 +2,7 @@ import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
 import camelCaseKeys from 'camelcase-keys';
 
-import { Publisher } from '@/models/publisher/Publisher';
+import { Publisher } from '@/models/publisher/publisher';
 import { PublisherState } from '@/models/publisher/PublisherState';
 import { getPublisher, getPublishers } from '@/api/publisherApi';
 import { decryptPayload } from '@/utils/encryptUtils';

@@ -3,8 +3,9 @@ import { useRouter } from 'next/router';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSession } from 'next-auth/react';
 
-import { Box, IconButton } from '@mui/material';
+import { Box, Fab, IconButton } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
@@ -13,14 +14,14 @@ import store, { RootState } from '@/redux/store';
 import { fetchPublishersAsync } from './PublisherSlice';
 import { Dialog } from '@/components/common/dialog';
 import { decryptPayload } from '@/utils/encryptUtils';
-import { Publisher } from '@/models/publisher/Publisher';
+import { Publisher } from '@/models/publisher/publisher';
 
 const PublisherList: React.FC = () => {
   const dispatch = useDispatch();
   const publishers = useSelector((state: RootState) => state.publishers.publishers);
   const status = useSelector((state: RootState) => state.publishers.status);
   const error = useSelector((state: RootState) => state.publishers.error);
-const router = useRouter();
+  const router = useRouter();
 
   const { data: session } = useSession();
   let token: string = '';
@@ -140,7 +141,23 @@ const router = useRouter();
   
   return (
     <Box>
-      <DataGrid 
+      {right && (
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        >
+          <Fab
+            color='primary'
+            aria-label='add'
+            onClick={() => router.push(`/publisher/add`)}
+          >
+            <AddIcon />
+          </Fab>
+        </Box>
+      )}
+      <DataGrid
         rows={rows}
         columns={columns}
         // checkboxSelection
@@ -148,6 +165,8 @@ const router = useRouter();
         autosizeOnMount
         density='comfortable'
         hideFooterPagination
+        hideFooter
+        disableRowSelectionOnClick
       />
       {selectedPublisher && (
         <Dialog

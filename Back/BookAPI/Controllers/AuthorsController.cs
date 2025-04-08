@@ -76,70 +76,108 @@ namespace BookAPI.Controllers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [Authorize(Policy = IdentityData.UserPolicyName)]
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutAuthor(int id, ModelViewAuthor model)
+        public async Task<IActionResult> PutAuthor(int id, EncryptedPayload payload)
         {
-            if (id != model.AuthorId)
-            {
-                return BadRequest();
-            }
-
-            if (AuthorNameExists(model.AuthorName, id))
-            {
-                return BadRequest("Name already exists");
-            }
-
-            var author = await _context.Authors.FindAsync(id);
-
-            if (author != null)
-            {
-                author.AuthorId = model.AuthorId;
-                author.AuthorName = model.AuthorName;
-            }
-
             try
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!AuthorExists(id))
+                string decryptedData = EncryptionHelper.DecryptData(payload.EncryptedData, payload.Iv);
+                var options = new JsonSerializerOptions
                 {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+                    PropertyNameCaseInsensitive = true // Enable case-insensitive matching
+                };
+                var model = JsonSerializer.Deserialize<ModelViewAuthor>(decryptedData, options);
 
-            return NoContent();
+                if (model == null) { return NotFound(); }
+
+                if (id != model.AuthorId)
+                {
+                    return BadRequest();
+                }
+
+                if (AuthorNameExists(model.AuthorName, id))
+                {
+                    return BadRequest("Name already exists");
+                }
+
+                var author = await _context.Authors.FindAsync(id);
+
+                if (author != null)
+                {
+                    author.AuthorId = model.AuthorId;
+                    author.AuthorName = model.AuthorName;
+                }
+
+                try
+                {
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!AuthorExists(id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+
+                return NoContent();
+            }
+            catch (JsonException ex)
+            {
+                // Handle JSON deserialization errors
+                return BadRequest(new { message = "Invalid JSON format.", details = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                // Handle other errors
+                return StatusCode(500, new { message = "An error occurred.", details = ex.Message });
+            }
         }
 
         // POST: api/Authors
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [Authorize(Policy = IdentityData.UserPolicyName)]
         [HttpPost]
-        public async Task<ActionResult<ModelViewAuthor>> PostAuthor(ModelViewAuthor model)
+        public async Task<ActionResult<EncryptedPayload>> PostAuthor(EncryptedPayload payload)
         {
-            if (model == null)
+            try
             {
-                return NoContent();
+                string decryptedData = EncryptionHelper.DecryptData(payload.EncryptedData, payload.Iv);
+                var model = JsonSerializer.Deserialize<ModelViewAuthor>(decryptedData);
+
+                if (model == null)
+                {
+                    return NoContent();
+                }
+
+                if (AuthorNameExists(model.AuthorName, 0))
+                {
+                    return BadRequest("Name already exists");
+                }
+
+                var author = new Author()
+                {
+                    AuthorName = model.AuthorName
+                };
+
+                _context.Authors.Add(author);
+                await _context.SaveChangesAsync();
+
+                return CreatedAtAction("GetAuthor", new { id = model.AuthorId }, model);
             }
-
-            if (AuthorNameExists(model.AuthorName, 0))
+            catch (JsonException ex)
             {
-                return BadRequest("Name already exists");
+                // Handle JSON deserialization errors
+                return BadRequest(new { message = "Invalid JSON format.", details = ex.Message });
             }
-
-            var author = new Author()
+            catch (Exception ex)
             {
-                AuthorName = model.AuthorName
-            };
-
-            _context.Authors.Add(author);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetAuthor", new { id = model.AuthorId }, model);
+                // Handle other errors
+                return StatusCode(500, new { message = "An error occurred.", details = ex.Message });
+            }
         }
 
         // DELETE: api/Authors/5
