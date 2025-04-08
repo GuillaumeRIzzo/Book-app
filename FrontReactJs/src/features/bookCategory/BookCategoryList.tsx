@@ -3,24 +3,26 @@ import { useRouter } from 'next/router';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSession } from 'next-auth/react';
 
-import { Box, IconButton } from '@mui/material';
+import { Box, Fab, IconButton } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-import Loading from '@/components/common/Loading';
 import store, { RootState } from '@/redux/store';
-import { fetchBookCategoriesAsync } from './BookCategorySlice';
-import { Dialog } from '@/components/common/dialog';
-import { decryptPayload } from '@/utils/encryptUtils';
 import { BookCategory } from '@/models/book-category/BookCategory';
+import Loading from '@/components/common/Loading';
+import { Dialog } from '@/components/common/dialog';
+import { fetchBookCategoriesAsync } from './BookCategorySlice';
+import { decryptPayload } from '@/utils/encryptUtils';
 
 const BookCategoryList: React.FC = () => {
   const dispatch = useDispatch();
-  const bookCategories = useSelector((state: RootState) => state.bookCategories.bookCategories);
+  const bookCategories = useSelector(
+    (state: RootState) => state.bookCategories.bookCategories,
+  );
   const status = useSelector((state: RootState) => state.bookCategories.status);
   const error = useSelector((state: RootState) => state.bookCategories.error);
-
   const router = useRouter();
 
   const { data: session } = useSession();
@@ -28,7 +30,8 @@ const BookCategoryList: React.FC = () => {
   let right: string = '';
 
   const [openDialog, setOpenDialog] = useState(false);
-  const [selectedBookCategory, setSelectedBookCategory] = useState<BookCategory | null>(null);
+  const [selectedBookCategory, setSelectedBookCategory] =
+    useState<BookCategory | null>(null);
   const [dialogTitle, setDialogTitle] = useState('');
   const [dialogContent, setDialogContent] = useState('');
   const [dialogAction, setDialogAction] = useState<() => void>(() => {});
@@ -45,13 +48,11 @@ const BookCategoryList: React.FC = () => {
       const decryptedSessionData = decryptPayload(encryptedData, iv);
 
       // Cast the decrypted session data to the expected structure
-      const {
-        token: decryptedToken,
-        right: decryptedRight,
-      } = decryptedSessionData as {
-        token: string;
-        right: string;
-      };
+      const { token: decryptedToken, right: decryptedRight } =
+        decryptedSessionData as {
+          token: string;
+          right: string;
+        };
 
       token = decryptedToken;
       right = decryptedRight;
@@ -59,7 +60,7 @@ const BookCategoryList: React.FC = () => {
       console.error('Failed to decrypt session data:', error);
     }
   }
-  
+
   const handleEdit = (categorie: BookCategory) => {
     setSelectedBookCategory(categorie);
     setDialogTitle('Edit BookCategory');
@@ -74,7 +75,9 @@ const BookCategoryList: React.FC = () => {
   const handleDelete = (categorie: BookCategory) => {
     setSelectedBookCategory(categorie);
     setDialogTitle('Delete BookCategory');
-    setDialogContent(`Are you sure you want to delete categorie: ${categorie.bookCategoName}?`);
+    setDialogContent(
+      `Are you sure you want to delete categorie: ${categorie.bookCategoName}?`,
+    );
     setDialogAction(() => () => {
       // dispatch(deleteBookCategory(categorie.bookCategoId));
       handleCloseDialog();
@@ -107,41 +110,65 @@ const BookCategoryList: React.FC = () => {
   }));
 
   const columns: GridColDef[] = [
-    ...(right !== null && (right === "Admin" || right === "Super Admin")
-    ? [{ field: 'bookCategoId', headerName: 'ID' }]
-    : []),
-    { field: 'bookCategoName', headerName: 'Nom'},
-    { field: 'bookCategoDescription', headerName: 'Decription', width:500},
-    ...(right !== null && (right === "Admin" || right === "Super Admin")
-    ? [{
-      field: 'actions',
-      headerName: 'Actions',
-      width: 150,
-      sortable: false,
-      renderCell: (params: any) => (
-        <>
-          <IconButton
-            color="primary"
-            aria-label="edit category"
-            onClick={() => handleEdit(params.row)}
-          >
-            <EditIcon />
-          </IconButton>
-          <IconButton
-            color="secondary"
-            aria-label="delete category"
-            onClick={() => handleDelete(params.row)}
-          >
-            <DeleteIcon />
-          </IconButton>
-        </>
-      )
-    }] : [])
+    ...(right !== null && (right === 'Admin' || right === 'Super Admin')
+      ? [{ field: 'bookCategoId', headerName: 'ID' }]
+      : []),
+    { field: 'bookCategoName', headerName: 'Nom' },
+    {
+      field: 'bookCategoDescription',
+      headerName: 'Decription',
+      minWidth: 800,
+      maxWidth: 1000,
+    },
+    ...(right !== null && (right === 'Admin' || right === 'Super Admin')
+      ? [
+          {
+            field: 'actions',
+            headerName: 'Actions',
+            width: 150,
+            sortable: false,
+            renderCell: (params: any) => (
+              <>
+                <IconButton
+                  color='primary'
+                  aria-label='edit category'
+                  onClick={() => handleEdit(params.row)}
+                >
+                  <EditIcon />
+                </IconButton>
+                <IconButton
+                  color='secondary'
+                  aria-label='delete category'
+                  onClick={() => handleDelete(params.row)}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </>
+            ),
+          },
+        ]
+      : []),
   ];
 
   return (
     <Box>
-      <DataGrid 
+      {right && (
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        >
+          <Fab
+            color='primary'
+            aria-label='add'
+            onClick={() => router.push(`/bookcategory/add`)}
+          >
+            <AddIcon />
+          </Fab>
+        </Box>
+      )}
+      <DataGrid
         rows={rows}
         columns={columns}
         // checkboxSelection
@@ -149,8 +176,10 @@ const BookCategoryList: React.FC = () => {
         autosizeOnMount
         density='comfortable'
         hideFooterPagination
+        hideFooter
+        disableRowSelectionOnClick
       />
-      
+
       {selectedBookCategory && (
         <Dialog
           open={openDialog}

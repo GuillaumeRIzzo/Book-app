@@ -2,9 +2,9 @@ import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
 import camelCaseKeys from 'camelcase-keys';
 
+import { getBookCategories } from '@/api/bookcategoryApi';
 import { BookCategory } from '@/models/book-category/BookCategory';
 import { BookCategoryState } from '@/models/book-category/BookCategoryState';
-import { getBookCategories } from '@/api/bookcategoryApi';
 import { decryptPayload } from '@/utils/encryptUtils';
 
 export const fetchBookCategoriesAsync = createAsyncThunk('bookCategories/getBooks', async () => {

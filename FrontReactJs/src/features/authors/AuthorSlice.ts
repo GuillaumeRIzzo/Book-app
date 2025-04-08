@@ -2,9 +2,9 @@ import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
 import camelCaseKeys from 'camelcase-keys';
 
-import { Author } from '@/models/author/Author';
-import { AuthorState } from '@/models/author/AuthorState';
 import { getAuthor, getAuthors } from '@/api/authorApi';
+import { Author } from '@/models/author/author';
+import { AuthorState } from '@/models/author/AuthorState';
 import { decryptPayload } from '@/utils/encryptUtils';
 
 export const fetchAuthorsAsync = createAsyncThunk('authors/getAuthors', async () => {

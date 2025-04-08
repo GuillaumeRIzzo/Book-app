@@ -3,17 +3,18 @@ import { useRouter } from 'next/router';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSession } from 'next-auth/react';
 
-import { Box, IconButton } from '@mui/material';
+import { Box, Fab, IconButton } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-import Loading from '@/components/common/Loading';
 import store, { RootState } from '@/redux/store';
-import { fetchAuthorsAsync } from './AuthorSlice';
+import { Author } from '@/models/author/author';
+import Loading from '@/components/common/Loading';
 import { Dialog } from '@/components/common/dialog';
+import { fetchAuthorsAsync } from './AuthorSlice';
 import { decryptPayload } from '@/utils/encryptUtils';
-import { Author } from '@/models/author/Author';
 
 const AuthorList: React.FC = () => {
   const dispatch = useDispatch();
@@ -44,13 +45,11 @@ const AuthorList: React.FC = () => {
       const decryptedSessionData = decryptPayload(encryptedData, iv);
 
       // Cast the decrypted session data to the expected structure
-      const {
-        token: decryptedToken,
-        right: decryptedRight,
-      } = decryptedSessionData as {
-        token: string;
-        right: string;
-      };
+      const { token: decryptedToken, right: decryptedRight } =
+        decryptedSessionData as {
+          token: string;
+          right: string;
+        };
 
       token = decryptedToken;
       right = decryptedRight;
@@ -73,7 +72,9 @@ const AuthorList: React.FC = () => {
   const handleDelete = (author: Author) => {
     setSelectedAuthor(author);
     setDialogTitle('Delete Author');
-    setDialogContent(`Are you sure you want to delete author: ${author.authorName}?`);
+    setDialogContent(
+      `Are you sure you want to delete author: ${author.authorName}?`,
+    );
     setDialogAction(() => () => {
       // dispatch(deleteAuthor(author.authorId));
       handleCloseDialog();
@@ -106,47 +107,68 @@ const AuthorList: React.FC = () => {
   }));
 
   const columns: GridColDef[] = [
-    ...(right !== null && (right === "Admin" || right === "Super Admin")
-    ? [{ field: 'authorId', headerName: 'ID' }]
-    : []),
-    { field: 'authorName', headerName: 'Nom', width: 150},
-    ...(right !== null && (right === "Admin" || right === "Super Admin")
-    ? [{
-      field: 'actions',
-      headerName: 'Actions',
-      width: 150,
-      sortable: false,
-      renderCell: (params: any) => (
-        <>
-          <IconButton
-            color="primary"
-            aria-label="edit author"
-            onClick={() => handleEdit(params.row)}
-          >
-            <EditIcon />
-          </IconButton>
-          <IconButton
-            color="secondary"
-            aria-label="delete author"
-            onClick={() => handleDelete(params.row)}
-          >
-            <DeleteIcon />
-          </IconButton>
-        </>
-      )
-    }] : [])
+    ...(right !== null && (right === 'Admin' || right === 'Super Admin')
+      ? [{ field: 'authorId', headerName: 'ID' }]
+      : []),
+    { field: 'authorName', headerName: 'Nom', width: 150, minWidth: 150 },
+    ...(right !== null && (right === 'Admin' || right === 'Super Admin')
+      ? [
+          {
+            field: 'actions',
+            headerName: 'Actions',
+            width: 150,
+            sortable: false,
+            renderCell: (params: any) => (
+              <>
+                <IconButton
+                  color='primary'
+                  aria-label='edit author'
+                  onClick={() => handleEdit(params.row)}
+                >
+                  <EditIcon />
+                </IconButton>
+                <IconButton
+                  color='secondary'
+                  aria-label='delete author'
+                  onClick={() => handleDelete(params.row)}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </>
+            ),
+          },
+        ]
+      : []),
   ];
 
   return (
     <Box>
-      <DataGrid 
+      {right && (
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        >
+          <Fab
+            color='primary'
+            aria-label='add'
+            onClick={() => router.push(`/author/add`)}
+          >
+            <AddIcon />
+          </Fab>
+        </Box>
+      )}
+      <DataGrid
         rows={rows}
         columns={columns}
         // checkboxSelection
         autoHeight
         autosizeOnMount
         density='comfortable'
+        hideFooter
         hideFooterPagination
+        disableRowSelectionOnClick
       />
       {selectedAuthor && (
         <Dialog
