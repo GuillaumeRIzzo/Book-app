@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSession } from 'next-auth/react';
@@ -9,23 +9,22 @@ import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-import store, { RootState } from '@/redux/store';
+import { AppDispatch, RootState } from '@/redux/store';
 import { Author } from '@/models/author/author';
 import Loading from '@/components/common/Loading';
 import { Dialog } from '@/components/common/dialog';
 import { fetchAuthorsAsync } from './AuthorSlice';
 import { decryptPayload } from '@/utils/encryptUtils';
+import Link from 'next/link';
 
 const AuthorList: React.FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const authors = useSelector((state: RootState) => state.authors.authors);
   const status = useSelector((state: RootState) => state.authors.status);
   const error = useSelector((state: RootState) => state.authors.error);
   const router = useRouter();
 
   const { data: session } = useSession();
-  let token: string = '';
-  let right: string = '';
 
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedAuthor, setSelectedAuthor] = useState<Author | null>(null);
@@ -34,36 +33,31 @@ const AuthorList: React.FC = () => {
   const [dialogAction, setDialogAction] = useState<() => void>(() => {});
 
   // Check if the session is available and contains the encrypted session
-  if (session && session.user && session.user.encryptedSession) {
-    const encryptedSession = session.user.encryptedSession; // Retrieve encrypted session data
-
-    // Extract encrypted data and IV (if needed)
-    const { encryptedData, iv } = encryptedSession;
-
-    // Decrypt the session data
-    try {
-      const decryptedSessionData = decryptPayload(encryptedData, iv);
-
-      // Cast the decrypted session data to the expected structure
-      const { token: decryptedToken, right: decryptedRight } =
-        decryptedSessionData as {
-          token: string;
-          right: string;
+  const { right, token } = useMemo(() => {
+    if (session?.user?.encryptedSession) {
+      const { encryptedData, iv } = session.user.encryptedSession;
+      try {
+        const { right: decryptedRight, token: decryptToken } = decryptPayload(
+          encryptedData,
+          iv,
+        );
+        return {
+          right: decryptedRight as string,
+          token: decryptToken as string,
         };
-
-      token = decryptedToken;
-      right = decryptedRight;
-    } catch (error) {
-      console.error('Failed to decrypt session data:', error);
+      } catch (error) {
+        console.error('Failed to decrypt session data:', error);
+      }
     }
-  }
+    return { right: '', sessionId: '' };
+  }, [session]);
 
   const handleEdit = (author: Author) => {
     setSelectedAuthor(author);
     setDialogTitle('Edit Author');
     setDialogContent(`Edit author: ${author.authorName}`);
     setDialogAction(() => () => {
-      router.push(`/author/${author.authorId}`);
+      router.push(`/author/${author.authorId}/edit`);
       handleCloseDialog();
     });
     setOpenDialog(true);
@@ -89,7 +83,7 @@ const AuthorList: React.FC = () => {
 
   useEffect(() => {
     if (status === 'idle') {
-      store.dispatch(fetchAuthorsAsync());
+      dispatch(fetchAuthorsAsync());
     }
   }, [dispatch, status]);
 
@@ -110,7 +104,24 @@ const AuthorList: React.FC = () => {
     ...(right !== null && (right === 'Admin' || right === 'Super Admin')
       ? [{ field: 'authorId', headerName: 'ID' }]
       : []),
-    { field: 'authorName', headerName: 'Nom', width: 150, minWidth: 150 },
+    {
+      field: 'authorName',
+      headerName: 'Nom',
+      width: 150,
+      minWidth: 150,
+      renderCell: (params: any) => (
+        <Link
+          href={`/author/${params.row.authorId}`}
+          style={{
+            color: '#1976d2',
+            textDecoration: 'underline',
+            cursor: 'pointer',
+          }}
+        >
+          {params.value}
+        </Link>
+      ),
+    },
     ...(right !== null && (right === 'Admin' || right === 'Super Admin')
       ? [
           {
@@ -143,7 +154,7 @@ const AuthorList: React.FC = () => {
 
   return (
     <Box>
-      {right && (
+      {right && (right === 'Admin' || right === 'Super Admin') && (
         <Box
           sx={{
             display: 'flex',

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -9,7 +9,7 @@ import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-import store, { RootState } from '@/redux/store';
+import { AppDispatch, RootState } from '@/redux/store';
 import { fetchUsersAsync } from './UserSlice';
 import Loading from '@/components/common/Loading';
 import { Dialog } from '@/components/common/dialog';
@@ -17,15 +17,13 @@ import { User } from '@/models/user/user';
 import { decryptPayload } from '@/utils/encryptUtils';
 
 const UserList: React.FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const users = useSelector((state: RootState) => state.users.users);
   const status = useSelector((state: RootState) => state.users.status);
   const error = useSelector((state: RootState) => state.users.error);
   const router = useRouter();
 
   const { data: session } = useSession();
-  let token: string = '';
-  let right: string = '';
 
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -35,7 +33,7 @@ const UserList: React.FC = () => {
 
   useEffect(() => {
     if (status === 'idle') {
-      store.dispatch(fetchUsersAsync());
+      dispatch(fetchUsersAsync());
     }
   }, [dispatch, status]);
 
@@ -47,30 +45,18 @@ const UserList: React.FC = () => {
     return <div>Error: {error}</div>;
   }
 
-  // Check if the session is available and contains the encrypted session
-  if (session && session.user && session.user.encryptedSession) {
-    const encryptedSession = session.user.encryptedSession; // Retrieve encrypted session data
-
-    // Extract encrypted data and IV (if needed)
-    const { encryptedData, iv } = encryptedSession;
-
-    // Decrypt the session data
-    try {
-      const decryptedSessionData = decryptPayload(encryptedData, iv);
-
-      // Cast the decrypted session data to the expected structure
-      const { token: decryptedToken, right: decryptedRight } =
-        decryptedSessionData as {
-          token: string;
-          right: string;
-        };
-
-      token = decryptedToken;
-      right = decryptedRight;
-    } catch (error) {
-      console.error('Failed to decrypt session data:', error);
-    }
-  }
+  const { right, token } = useMemo(() => {
+      if (session?.user?.encryptedSession) {
+        const { encryptedData, iv } = session.user.encryptedSession;
+        try {
+          const { right: decryptedRight, token: decryptToken } = decryptPayload(encryptedData, iv);
+          return { right: decryptedRight as string, token: decryptToken as string };
+        } catch (error) {
+          console.error('Failed to decrypt session data:', error);
+        }
+      }
+      return { right: '', sessionId: '' };
+    }, [session]);
 
   const handleEdit = (user: User) => {
     setSelectedUser(user);

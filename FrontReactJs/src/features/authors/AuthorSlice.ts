@@ -2,10 +2,10 @@ import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
 import camelCaseKeys from 'camelcase-keys';
 
-import { getAuthor, getAuthors } from '@/api/authorApi';
+import { getAuthor, getAuthors, addAuthor, updateAuthor } from '@/api/authorApi';
 import { Author } from '@/models/author/author';
 import { AuthorState } from '@/models/author/AuthorState';
-import { decryptPayload } from '@/utils/encryptUtils';
+import { decryptPayload, EncryptedPayload } from '@/utils/encryptUtils';
 
 export const fetchAuthorsAsync = createAsyncThunk('authors/getAuthors', async () => {
   try {
@@ -26,7 +26,7 @@ export const fetchAuthorsAsync = createAsyncThunk('authors/getAuthors', async ()
     return authors;
 
   } catch (error) {
-    console.error('Failed to fetch books:', error);
+    console.error('Failed to fetch authors:', error);
     throw error;
   }
 });
@@ -35,7 +35,7 @@ export const fetchAuthorById = createAsyncThunk(
   'authors/fetchById',
   async (authorId: number) => {
     try {
-      // Call API to fetch encrypted book data
+      // Call API to fetch encrypted author data
       const response = await getAuthor(authorId);
 
        // Ensure data types for encrypted payload
@@ -54,6 +54,37 @@ export const fetchAuthorById = createAsyncThunk(
   }
 );
 
+export const createAuthor = createAsyncThunk(
+  'authors/createAuthor',
+  async (payload: EncryptedPayload, { rejectWithValue }) => {
+    try {
+      const response = await addAuthor(payload);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+type UpdateAuthorParams = {
+  authorId: number;
+  payload: EncryptedPayload;
+};
+
+export const updateAuthorAsync = createAsyncThunk(
+  'authors/updateAuthor',
+  async ({ authorId, payload }: UpdateAuthorParams) => {
+    try {
+      const response = await updateAuthor(authorId, payload);
+      return response.data;
+    } catch (error: any) {
+      console.error('Failed to delete author:', error);
+      // Throw error to handle it in UI
+      throw error; 
+    }
+  }
+);
+
 const initialState: AuthorState = {
   authors: [],
   status: 'idle',
@@ -64,7 +95,7 @@ const authorsSlice = createSlice({
   name: 'authors',
   initialState,
   reducers: {
-    addAuthor: (state, action: PayloadAction<Author>) => {
+    addAuthorLocal: (state, action: PayloadAction<Author>) => {
       state.authors.push(action.payload);
     },
     setAuthors: (state, action: PayloadAction<Author[]>) => {
@@ -79,6 +110,7 @@ const authorsSlice = createSlice({
   },
   extraReducers: builder => {
     builder
+      // Fetch all
       .addCase(fetchAuthorsAsync.pending, state => {
         state.status = 'loading';
       })
@@ -90,6 +122,8 @@ const authorsSlice = createSlice({
         state.status = 'failed';
         state.error = action.error.message || null;
       })
+
+      //Fetch one
       .addCase(fetchAuthorById.pending, (state) => {
         state.status = 'loading';
       })
@@ -100,10 +134,39 @@ const authorsSlice = createSlice({
       .addCase(fetchAuthorById.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message || null;
+      })
+
+      // Create
+      .addCase(createAuthor.pending, state => {
+        state.status = 'loading';
+      })
+      .addCase(createAuthor.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.authors.push(action.payload);
+      })
+      .addCase(createAuthor.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message || null;
+      })
+      
+      // Update
+      .addCase(updateAuthorAsync.pending, state => {
+        state.status = 'loading';
+      })
+      .addCase(updateAuthorAsync.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        const index = state.authors.findIndex(author => author.authorId === action.payload.authorId);
+        if (index !== -1) {
+          state.authors[index] = action.payload;
+        }
+      })
+      .addCase(updateAuthorAsync.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message || null;
       });
   },
 });
 
-export const { addAuthor, setAuthors, setStatus, setError } = authorsSlice.actions;
+export const { addAuthorLocal, setAuthors, setStatus, setError } = authorsSlice.actions;
 
 export default authorsSlice.reducer;

@@ -6,7 +6,7 @@ import { useRouter } from 'next/router';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSession } from 'next-auth/react';
 
-import store, { RootState } from '@/redux/store';
+import { AppDispatch, RootState } from '@/redux/store';
 
 import { User } from '@/models/user/user';
 import Loading from '@/components/common/Loading';
@@ -14,9 +14,17 @@ import Loading from '@/components/common/Loading';
 import PersonalInfoForm from './PersonalInfoForm';
 import PasswordChangeForm from './PasswordChangeForm';
 import AccountDeletionForm from './AccountDeletionForm';
-import { fetchUserById, fetchUsersAsync, updateUserInState } from '../UserSlice';
+import {
+  fetchUserById,
+  fetchUsersAsync,
+  updateUserInState,
+} from '../UserSlice';
 import { updateUserInfos, updateUserPassword } from '@/api/userApi';
-import { decryptPayload, EncryptedPayload, encryptPayload } from '@/utils/encryptUtils';
+import {
+  decryptPayload,
+  EncryptedPayload,
+  encryptPayload,
+} from '@/utils/encryptUtils';
 
 const FormWrapper = styled.div`
   ${tw`w-2/4 p-6`}
@@ -36,12 +44,14 @@ const UserProfileForm: React.FC<FormProps> = ({ title }) => {
 
   const router = useRouter();
   const { id } = router.query;
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const [loading, setLoading] = useState(true);
 
   // Memoized userFind logic
   const userFind = useMemo(() => {
-    return session ? users.find((u: User) => u.userId === Number(id)) : undefined;
+    return session
+      ? users.find((u: User) => u.userId === Number(id))
+      : undefined;
   }, [session, users, id]);
 
   // Memoized session decryption
@@ -49,7 +59,10 @@ const UserProfileForm: React.FC<FormProps> = ({ title }) => {
     if (session?.user?.encryptedSession) {
       const { encryptedData, iv } = session.user.encryptedSession;
       try {
-        const { id: decryptedId, right: decryptedRight } = decryptPayload(encryptedData, iv);
+        const { id: decryptedId, right: decryptedRight } = decryptPayload(
+          encryptedData,
+          iv,
+        );
         return { right: decryptedRight as string, sessionId: decryptedId };
       } catch (error) {
         console.error('Failed to decrypt session data:', error);
@@ -61,18 +74,19 @@ const UserProfileForm: React.FC<FormProps> = ({ title }) => {
   // Fetch users when UserStatus is idle
   useEffect(() => {
     if (UserStatus === 'idle') {
-      store.dispatch(fetchUsersAsync());
+      dispatch(fetchUsersAsync());
     }
   }, [UserStatus, dispatch]);
 
   // User validation and redirection
   useEffect(() => {
     if (
-      userFind &&
-      ((userFind.userRight === 'Super Admin' && right !== 'Super Admin') ||
-        (right === 'User' && id !== sessionId))
+      (userFind?.userRight === 'Super Admin' && right !== 'Super Admin') ||
+      (right === 'User' && id != sessionId)
     ) {
-      router.push('/');
+      if (typeof window !== 'undefined') {
+        router.replace('/');
+      }
     }
   }, [userFind, right, id, sessionId, router]);
 
@@ -82,7 +96,7 @@ const UserProfileForm: React.FC<FormProps> = ({ title }) => {
       const userId = Number(id);
       if (!isNaN(userId)) {
         setLoading(true);
-        store.dispatch(fetchUserById(userId)).finally(() => setLoading(false));
+        dispatch(fetchUserById(userId)).finally(() => setLoading(false));
       } else {
         setLoading(false);
         router.push('/');
@@ -150,7 +164,7 @@ const UserProfileForm: React.FC<FormProps> = ({ title }) => {
 
   return (
     <FormWrapper>
-      <h1 className="text-2xl mb-6 text-center font-semibold">{title}</h1>
+      <h1 className='text-2xl mb-6 text-center font-semibold'>{title}</h1>
       <PersonalInfoForm
         user={userFind}
         right={right}
@@ -162,7 +176,9 @@ const UserProfileForm: React.FC<FormProps> = ({ title }) => {
           onSubmit={handlePasswordChangeSubmit}
         />
       )}
-      {userFind?.userRight !== 'Super Admin' && <AccountDeletionForm onDelete={handleDeleteAccount} />}
+      {userFind?.userRight !== 'Super Admin' && (
+        <AccountDeletionForm onDelete={handleDeleteAccount} />
+      )}
     </FormWrapper>
   );
 };

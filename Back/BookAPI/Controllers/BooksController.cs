@@ -131,7 +131,7 @@ namespace BookAPI.Controllers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [Authorize(Policy = IdentityData.UserPolicyName)]
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutBook(int id, EncryptedPayload payload)
+        public async Task<ActionResult<EncryptedPayload>> PutBook(int id, EncryptedPayload payload)
         {
             try
             {
@@ -201,40 +201,61 @@ namespace BookAPI.Controllers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [Authorize(Policy = IdentityData.UserPolicyName)]
         [HttpPost]
-        public async Task<ActionResult<ModelViewBook>> PostBook(ModelViewBook model)
+        public async Task<ActionResult<EncryptedPayload>> PostBook(EncryptedPayload payload)
         {
-            if (model == null)
+            try
             {
-                return NoContent();
+                string decryptedData = EncryptionHelper.DecryptData(payload.EncryptedData, payload.Iv);
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true // Enable case-insensitive matching
+                };
+                var model = JsonSerializer.Deserialize<ModelViewBook>(decryptedData, options);
+
+
+                if (model == null)
+                {
+                    return NoContent();
+                }
+
+                var book = new Book()
+                {
+                    BookTitle = model.BookTitle,
+                    BookDescription = model.BookDescription,
+                    BookPublishDate = model.BookPublishDate,
+                    BookPageCount = model.BookPageCount,
+                    BookAverageRating = model.BookAverageRating,
+                    BookRatingCount = model.BookRatingCount,
+                    BookImageLink = model.BookImageLink,
+                    BookLanguage = model.BookLanguage,
+                    PublisherId = model.PublisherId,
+                    AuthorId = model.AuthorId
+                };
+
+                _context.Books.Add(book);
+                await _context.SaveChangesAsync();
+
+                model.BookId = book.BookId;
+
+                var categoryModels = model.Categories.Select(categoId => new ModelViewCategoryList
+                {
+                    BookId = model.BookId,
+                    BookCategoId = categoId.BookCategoId
+                }).ToList();
+
+                await _categoryListsController.PostCategorieList(categoryModels);
+                return CreatedAtAction("GetBook", new { id = model.BookId }, model);
             }
-
-            var book = new Book()
+            catch (JsonException ex)
             {
-                BookTitle = model.BookTitle,
-                BookDescription = model.BookDescription,
-                BookPublishDate = model.BookPublishDate,
-                BookPageCount = model.BookPageCount,
-                BookAverageRating = model.BookAverageRating,
-                BookRatingCount = model.BookRatingCount,
-                BookImageLink = model.BookImageLink,
-                BookLanguage = model.BookLanguage,
-                PublisherId = model.PublisherId,
-                AuthorId = model.AuthorId
-            };
-
-            _context.Books.Add(book);
-            await _context.SaveChangesAsync();
-
-            model.BookId = book.BookId;
-
-            var categoryModels = model.Categories.Select(categoId => new ModelViewCategoryList
+                // Handle JSON deserialization errors
+                return BadRequest(new { message = "Invalid JSON format.", details = ex.Message });
+            }
+            catch (Exception ex)
             {
-                BookId = model.BookId,
-                BookCategoId = categoId.BookCategoId
-            }).ToList();
-
-            await _categoryListsController.PostCategorieList(categoryModels);
-            return CreatedAtAction("GetBook", new { id = model.BookId }, model);
+                // Handle other errors
+                return StatusCode(500, new { message = "An error occurred.", details = ex.Message });
+            }
         }
 
         // DELETE: api/Books/5

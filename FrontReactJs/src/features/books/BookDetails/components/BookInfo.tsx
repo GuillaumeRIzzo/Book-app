@@ -4,8 +4,8 @@ import styled from 'styled-components';
 import tw from 'twin.macro';
 
 import { Book } from '@/models/book/Book';
-import { Author } from '@/models/author/Author';
-import { Publisher } from '@/models/publisher/Publisher';
+import { Author } from '@/models/author/author';
+import { Publisher } from '@/models/publisher/publisher';
 
 const BookInfoWrapper = styled.div`
   ${tw`w-full md:w-2/3`}
@@ -16,10 +16,9 @@ type BookInfoProps = {
   book: Book;
   author: Author;
   publisher: Publisher;
-  formattedDate: string;
 };
 
-const BookInfo: React.FC<BookInfoProps> = ({ book, author, publisher, formattedDate }) => {
+const BookInfo: React.FC<BookInfoProps> = ({ book, author, publisher }) => {
   return (
     <BookInfoWrapper>
       <Typography variant='h4' component='h1'>
@@ -31,16 +30,16 @@ const BookInfo: React.FC<BookInfoProps> = ({ book, author, publisher, formattedD
       <Typography variant='subtitle1' component='p'>
         <strong>Éditeur:</strong> {publisher.publisherName}
       </Typography>
-        <Typography variant='body1' component='p'>
-          {book.bookDescription}
-        </Typography>
+      <Typography variant='body1' component='p'>
+        {book.bookDescription}
+      </Typography>
       <Box>
         <Typography variant='subtitle1' component='p'>
           <strong>Catégories:</strong>{' '}
           {book.categories.map((category, index) => (
             <Fragment key={category.bookCategoId}>
               {index > 0 && ', '}
-              <Link href={`/category/${category.bookCategoId}`}>
+              <Link href={`/bookcategory/${category.bookCategoId}`}>
                 {category.bookCategoName}
               </Link>
             </Fragment>
@@ -51,7 +50,12 @@ const BookInfo: React.FC<BookInfoProps> = ({ book, author, publisher, formattedD
         <strong>{book.bookPageCount} pages</strong>
       </Typography>
       <Typography variant='subtitle1' component='p'>
-        <strong>Publié le:</strong> {formattedDate}
+        <strong>Publié le:</strong>{' '}
+        {new Date(book.bookPublishDate).toLocaleDateString('fr-FR', {
+          day: '2-digit',
+          month: 'long',
+          year: 'numeric',
+        })}
       </Typography>
     </BookInfoWrapper>
   );

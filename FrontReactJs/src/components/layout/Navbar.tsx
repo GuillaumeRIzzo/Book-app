@@ -1,6 +1,5 @@
 import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
 
 import {
   Disclosure,
@@ -69,7 +68,7 @@ const Navbar: React.FC = () => {
   }
 
   return (
-    <Disclosure as='nav' className='bg-[#333]'>
+    <Disclosure id="app-header" as='nav' className='bg-[#333]'>
       {({ open }) => (
         <>
           <div className='mx-auto max-w-7xl px-2 sm:px-6 lg:px-8'>
@@ -165,7 +164,6 @@ const Navbar: React.FC = () => {
                               onClick={() => {
                                 signOut();
                                 localStorage.clear();
-                                redirect('/')
                               }}
                             >
                               Se déconnecter

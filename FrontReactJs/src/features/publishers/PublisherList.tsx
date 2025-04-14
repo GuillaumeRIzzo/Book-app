@@ -10,14 +10,15 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
 import Loading from '@/components/common/Loading';
-import store, { RootState } from '@/redux/store';
+import { AppDispatch, RootState } from '@/redux/store';
 import { fetchPublishersAsync } from './PublisherSlice';
 import { Dialog } from '@/components/common/dialog';
 import { decryptPayload } from '@/utils/encryptUtils';
 import { Publisher } from '@/models/publisher/publisher';
+import Link from 'next/link';
 
 const PublisherList: React.FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const publishers = useSelector((state: RootState) => state.publishers.publishers);
   const status = useSelector((state: RootState) => state.publishers.status);
   const error = useSelector((state: RootState) => state.publishers.error);
@@ -65,7 +66,7 @@ const PublisherList: React.FC = () => {
     setDialogTitle('Edit Publisher');
     setDialogContent(`Edit publisher: ${publisher.publisherName}`);
     setDialogAction(() => () => {
-      router.push(`/publisher/${publisher.publisherId}`);
+      router.push(`/publisher/${publisher.publisherId}/edit`);
       handleCloseDialog();
     });
     setOpenDialog(true);
@@ -89,7 +90,7 @@ const PublisherList: React.FC = () => {
 
   useEffect(() => {
     if (status === 'idle') {
-      store.dispatch(fetchPublishersAsync());
+      dispatch(fetchPublishersAsync());
     }
   }, [dispatch, status]);
 
@@ -110,7 +111,19 @@ const PublisherList: React.FC = () => {
     ...(right !== null && (right === "Admin" || right === "Super Admin")
     ? [{ field: 'publisherId', headerName: 'ID' }]
     : []),
-    { field: 'publisherName', headerName: 'Nom', width: 150},
+    { field: 'publisherName', headerName: 'Nom', width: 150,
+      renderCell: (params: any) => (
+        <Link
+          href={`/publisher/${params.row.publisherId}`}
+          style={{
+            color: '#1976d2',
+            textDecoration: 'underline',
+            cursor: 'pointer',
+          }}
+        >
+          {params.value}
+        </Link>
+      ),},
     ...(right !== null && (right === "Admin" || right === "Super Admin")
     ? [{
       field: 'actions',
@@ -141,7 +154,7 @@ const PublisherList: React.FC = () => {
   
   return (
     <Box>
-      {right && (
+      {right && (right === 'Admin' || right === 'Super Admin') && (
         <Box
           sx={{
             display: 'flex',

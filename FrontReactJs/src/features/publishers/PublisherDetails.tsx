@@ -5,32 +5,26 @@ import { useSession } from 'next-auth/react';
 import styled from 'styled-components';
 import tw from 'twin.macro';
 
-import { Box, Container, Fab } from '@mui/material';
+import { Box, Container, Fab, Typography } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
 import { AppDispatch, RootState } from '@/redux/store';
-import { Book } from '@/models/book/Book';
-import { Author } from '@/models/author/author';
 import { Publisher } from '@/models/publisher/publisher';
 
 import { Dialog } from '@/components/common/dialog';
-import BookImage from './components/BookImage';
-import BookInfo from './components/BookInfo';
 import Loading from '@/components/common/Loading';
-import { deleteBookAsync, fetchBookById } from '@/features/books/bookSlice';
-import { fetchAuthorById } from '@/features/authors/AuthorSlice';
 import { fetchPublisherById } from '@/features/publishers/PublisherSlice';
 import { decryptPayload } from '@/utils/encryptUtils';
 
-const BookDetailsWrapper = styled.div`
+const PublisherDetailsWrapper = styled.div`
   ${tw`mt-20 flex flex-col md:flex-row`}
   gap: 2rem;
 `;
 
-const BookDetails: React.FC = () => {
+const PublisherDetails: React.FC = () => {
   const [openDialog, setOpenDialog] = useState(false);
-  const [selectedBook, setSelectedBook] = useState<Book | null>(null);
+  const [selectedPublisher, setSelectedPublisher] = useState<Publisher | null>(null);
   const [dialogTitle, setDialogTitle] = useState('');
   const [dialogContent, setDialogContent] = useState('');
   const [dialogAction, setDialogAction] = useState<() => void>(() => {});
@@ -39,18 +33,8 @@ const BookDetails: React.FC = () => {
   const { id } = router.query;
   const dispatch = useDispatch<AppDispatch>();
 
-  const book = useSelector((state: RootState) =>
-    state.books.books.find((b: Book) => b.bookId === Number(id)),
-  );
-
-  const author = useSelector((state: RootState) =>
-    state.authors.authors.find((a: Author) => a.authorId === book?.authorId),
-  );
-
   const publisher = useSelector((state: RootState) =>
-    state.publishers.publishers.find(
-      (p: Publisher) => p.publisherId === book?.publisherId,
-    ),
+    state.publishers.publishers.find((a: Publisher) => a.publisherId === Number(id)),
   );
 
   const { data: session } = useSession();
@@ -69,51 +53,38 @@ const BookDetails: React.FC = () => {
   }, [session]);  
 
   useEffect(() => {
-    if (id && !book) {
-      dispatch(fetchBookById(Number(id)));
+    if (id && !publisher) {
+      dispatch(fetchPublisherById(Number(id)));
     }
-  }, [id, book, dispatch]);
+  }, [id, publisher, dispatch]);
   
-  useEffect(() => {
-    if (book && !author) {
-      dispatch(fetchAuthorById(book.authorId));
-    }
-  }, [book, author, dispatch]);
-  
-  useEffect(() => {
-    if (book && !publisher) {
-      dispatch(fetchPublisherById(book.publisherId));
-    }
-  }, [book, publisher, dispatch]);
-  
-
-  if (!book || !author || !publisher) {
+  if (!publisher) {
     return <Loading />;
   }
 
- const handleEdit = (book: Book) => {
-  setSelectedBook(book);
-    setDialogTitle('Edit Book');
-    setDialogContent(`Edit book: ${book.bookId}`);
+ const handleEdit = (publisher: Publisher) => {
+  setSelectedPublisher(publisher);
+    setDialogTitle('Edit Publisher');
+    setDialogContent(`Edit publisher: ${publisher.publisherName}`);
     setDialogAction(() => () => {
-      router.push(`/book/${book.bookId}/edit`);
+      router.push(`/publisher/${publisher.publisherId}/edit`);
       handleCloseDialog();
     });
     setOpenDialog(true);
   };
 
-  const handleDelete = (book: Book) => {
-    setSelectedBook(book);
-    setDialogTitle('Delete Book');
+  const handleDelete = (publisher: Publisher) => {
+    setSelectedPublisher(publisher);
+    setDialogTitle('Delete Publisher');
     setDialogContent(
-      `Are you sure you want to delete book: ${book.bookTitle}?`,
+      `Are you sure you want to delete publisher: ${publisher.publisherName}?`,
     );
     setDialogAction(() => async () => {
       try {
-        dispatch(deleteBookAsync(book.bookId)).unwrap(); // unwrap to catch errors if needed
+        // dispatch(deletePublisherAsync(publisher.publisherId)).unwrap(); // unwrap to catch errors if needed
         router.push('/');
       } catch (error) {
-        console.error('Failed to delete book:', error);
+        console.error('Failed to delete publisher:', error);
         // Optionally show error feedback to the user
       } finally {
         handleCloseDialog();
@@ -124,7 +95,7 @@ const BookDetails: React.FC = () => {
 
   const handleCloseDialog = () => {
     setOpenDialog(false);
-    setSelectedBook(null);
+    setSelectedPublisher(null);
   };
   return (
     <Container maxWidth='xl'>
@@ -137,22 +108,22 @@ const BookDetails: React.FC = () => {
         >
           <Fab
             color='primary'
-            aria-label='edit book'
-            onClick={() => handleEdit(book)}
+            aria-label='edit publisher'
+            onClick={() => handleEdit(publisher)}
           >
             <EditIcon />
           </Fab>
           <Fab
             color='warning'
-            aria-label='del book'
-            onClick={() => handleDelete(book)}
+            aria-label='del publisher'
+            onClick={() => handleDelete(publisher)}
           >
             <DeleteIcon />
           </Fab>
         </Box>
       )}
       
-      {selectedBook && (
+      {selectedPublisher && (
         <Dialog
           open={openDialog}
           title={dialogTitle}
@@ -161,12 +132,13 @@ const BookDetails: React.FC = () => {
           onSuccess={dialogAction}
         />
       )}
-      <BookDetailsWrapper>
-        <BookImage src={book.bookImageLink} alt={book.bookTitle} />
-        <BookInfo book={book} author={author} publisher={publisher} />
-      </BookDetailsWrapper>
+      <PublisherDetailsWrapper>
+        <Typography variant='subtitle1' component='p'>
+          <strong>Auteur:</strong> {publisher.publisherName}
+        </Typography>
+      </PublisherDetailsWrapper>
     </Container>
   );
 };
 
-export default BookDetails;
+export default PublisherDetails;

@@ -4,8 +4,8 @@ import camelCaseKeys from 'camelcase-keys';
 
 import { Publisher } from '@/models/publisher/publisher';
 import { PublisherState } from '@/models/publisher/PublisherState';
-import { getPublisher, getPublishers } from '@/api/publisherApi';
-import { decryptPayload } from '@/utils/encryptUtils';
+import { getPublisher, getPublishers, addPublisher, updatePublisher } from '@/api/publisherApi';
+import { decryptPayload, EncryptedPayload } from '@/utils/encryptUtils';
 
 export const fetchPublishersAsync = createAsyncThunk('publishers/getPublishers', async () => {
   try {
@@ -54,6 +54,36 @@ export const fetchPublisherById = createAsyncThunk(
   }
 );
 
+export const createPublisher = createAsyncThunk(
+  'publishers/createPublisher',
+  async (payload: EncryptedPayload, { rejectWithValue }) => {
+    try {
+      const response = await addPublisher(payload);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+type UpdatePublisherParams = {
+  publisherId: number;
+  payload: EncryptedPayload;
+};
+
+export const updatePublisherAsync = createAsyncThunk(
+  'publishers/updatePublisher',
+  async ({ publisherId, payload }: UpdatePublisherParams) => {
+    try {
+      const response = await updatePublisher(publisherId, payload);
+      return response.data;
+    } catch (error: any) {
+      console.error('Failed to delete publisher:', error);
+      // Throw error to handle it in UI
+      throw error; 
+    }
+  }
+);
 const initialState: PublisherState = {
   publishers: [],
   status: 'idle',
@@ -64,7 +94,7 @@ const publishersSlice = createSlice({
   name: 'publishers',
   initialState,
   reducers: {
-    addPublisher: (state, action: PayloadAction<Publisher>) => {
+    addPublisherLocal: (state, action: PayloadAction<Publisher>) => {
       state.publishers.push(action.payload);
     },
     setPublishers: (state, action: PayloadAction<Publisher[]>) => {
@@ -104,6 +134,6 @@ const publishersSlice = createSlice({
   },
 });
 
-export const { addPublisher, setPublishers, setStatus, setError } = publishersSlice.actions;
+export const { addPublisherLocal, setPublishers, setStatus, setError } = publishersSlice.actions;
 
 export default publishersSlice.reducer;

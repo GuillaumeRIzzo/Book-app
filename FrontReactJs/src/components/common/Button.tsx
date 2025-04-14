@@ -1,6 +1,5 @@
 import styled from 'twin.macro';
 import Button from '@mui/material/Button';
-import { ArrowRightIcon } from '@heroicons/react/24/solid';
 import { ButtonBaseProps } from '@mui/material';
 
 const StyledButtonWrapper = styled.div`
@@ -11,7 +10,7 @@ const StyledButtonWrapper = styled.div`
 
 interface ButtonProps extends ButtonBaseProps {
   text: string;
-  onClick?: () => void;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
   variant?: 'contained' | 'outlined' | 'text';
   color?:
     | 'primary'
@@ -23,6 +22,8 @@ interface ButtonProps extends ButtonBaseProps {
     | 'warning';
   disable?: boolean;
   type?: 'button' | 'submit' | 'reset';
+  icon?: React.ReactNode;
+  iconPosition?: 'left' | 'right' | 'top' | 'bottom';
 }
 
 const CustomButton: React.FC<ButtonProps> = ({
@@ -32,30 +33,37 @@ const CustomButton: React.FC<ButtonProps> = ({
   color = 'primary',
   disable = false,
   type = 'submit',
+  icon,
+  iconPosition = 'left',
   ...rest
 }) => {
   return (
     <StyledButtonWrapper>
       <Button
-        className=' 
-        w-full 
-        rounded-md 
-        font-semibold 
-        leading-6 
-        shadow-sm 
-        focus-visible:outline 
-        focus-visible:outline-2 
-        focus-visible:outline-offset-2 
+        className='
+          w-full 
+          rounded-md 
+          font-semibold 
+          leading-6 
+          shadow-sm 
+          focus-visible:outline 
+          focus-visible:outline-2 
+          focus-visible:outline-offset-2 
         '
         variant={variant}
         color={color}
-        endIcon={<ArrowRightIcon className='w-5 h-5' />}
         onClick={onClick}
         disabled={disable}
         type={type}
         {...rest}
       >
+        {icon && iconPosition === 'left' && (
+          <span className="mr-2">{icon}</span>
+        )}
         {text}
+        {icon && iconPosition === 'right' && (
+          <span className="ml-2">{icon}</span>
+        )}
       </Button>
     </StyledButtonWrapper>
   );

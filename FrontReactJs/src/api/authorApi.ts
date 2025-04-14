@@ -7,6 +7,6 @@ export const getAuthors = (): AxiosPromise<EncryptedPayload> => apiClient.get<En
 
 export const getAuthor = (authorId: number): AxiosPromise<EncryptedPayload> => apiClient.get<EncryptedPayload>(`Authors/${authorId}`);
 
-export const addAuthor = (payload: EncryptedPayload): AxiosPromise<EncryptedPayload> => apiClient.post<EncryptedPayload>('Authors', payload);
+export const addAuthor = (payload: EncryptedPayload): AxiosPromise => apiClient.post('Authors', payload);
 
-export const updateAuthor = (payload: EncryptedPayload): AxiosPromise<EncryptedPayload> => apiClient.put<EncryptedPayload>('Authors', payload);
+export const updateAuthor = (authorId: number, payload: EncryptedPayload): AxiosPromise => apiClient.put(`Authors/${authorId}`, payload);

@@ -16,6 +16,8 @@ type ExtendedVariant = StandardTextFieldProps['variant'] | CustomVariant;
 interface InputProps extends Omit<StandardTextFieldProps, 'variant'> {
   infoText?: string;
   variant?: ExtendedVariant;
+  multiline?: boolean;
+  rows?: number;
 }
 
 const Input: React.FC<InputProps> = ({
@@ -31,11 +33,13 @@ const Input: React.FC<InputProps> = ({
   variant = 'outlined',
   color = 'primary',
   size = 'medium',
+  multiline = false,
+  rows = 4,
   ...rest
 }) => {
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleClickShowPassword = () => setShowPassword(show => !show);
+  const handleClickShowPassword = () => setShowPassword((show) => !show);
 
   const handleMouseDownPassword = (
     event: React.MouseEvent<HTMLButtonElement>,
@@ -43,11 +47,13 @@ const Input: React.FC<InputProps> = ({
     event.preventDefault();
   };
 
+  const isPassword = type === 'password';
+
   return (
     <StyledInputWrapper className={className}>
       <TextField
         label={label}
-        type={type === 'password' && showPassword ? 'text' : type}
+        type={isPassword && showPassword ? 'text' : type}
         placeholder={placeholder}
         value={value}
         name={name}
@@ -57,8 +63,10 @@ const Input: React.FC<InputProps> = ({
         color={color}
         fullWidth
         size={size}
+        multiline={multiline}
+        rows={multiline ? rows : undefined}
         InputProps={
-          type === 'password'
+          isPassword
             ? {
                 endAdornment: (
                   <InputAdornment position="end">

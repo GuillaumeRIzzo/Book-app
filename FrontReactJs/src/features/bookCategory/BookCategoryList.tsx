@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSession } from 'next-auth/react';
@@ -9,25 +9,23 @@ import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-import store, { RootState } from '@/redux/store';
+import { AppDispatch, RootState } from '@/redux/store';
 import { BookCategory } from '@/models/book-category/BookCategory';
 import Loading from '@/components/common/Loading';
 import { Dialog } from '@/components/common/dialog';
 import { fetchBookCategoriesAsync } from './BookCategorySlice';
 import { decryptPayload } from '@/utils/encryptUtils';
+import Link from 'next/link';
 
 const BookCategoryList: React.FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const bookCategories = useSelector(
     (state: RootState) => state.bookCategories.bookCategories,
   );
   const status = useSelector((state: RootState) => state.bookCategories.status);
   const error = useSelector((state: RootState) => state.bookCategories.error);
   const router = useRouter();
-
   const { data: session } = useSession();
-  let token: string = '';
-  let right: string = '';
 
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedBookCategory, setSelectedBookCategory] =
@@ -37,29 +35,18 @@ const BookCategoryList: React.FC = () => {
   const [dialogAction, setDialogAction] = useState<() => void>(() => {});
 
   // Check if the session is available and contains the encrypted session
-  if (session && session.user && session.user.encryptedSession) {
-    const encryptedSession = session.user.encryptedSession; // Retrieve encrypted session data
-
-    // Extract encrypted data and IV (if needed)
-    const { encryptedData, iv } = encryptedSession;
-
-    // Decrypt the session data
-    try {
-      const decryptedSessionData = decryptPayload(encryptedData, iv);
-
-      // Cast the decrypted session data to the expected structure
-      const { token: decryptedToken, right: decryptedRight } =
-        decryptedSessionData as {
-          token: string;
-          right: string;
-        };
-
-      token = decryptedToken;
-      right = decryptedRight;
-    } catch (error) {
-      console.error('Failed to decrypt session data:', error);
-    }
-  }
+  const { right, token } = useMemo(() => {
+      if (session?.user?.encryptedSession) {
+        const { encryptedData, iv } = session.user.encryptedSession;
+        try {
+          const { right: decryptedRight, token: decryptToken } = decryptPayload(encryptedData, iv);
+          return { right: decryptedRight as string, token: decryptToken as string };
+        } catch (error) {
+          console.error('Failed to decrypt session data:', error);
+        }
+      }
+      return { right: '', sessionId: '' };
+    }, [session]);
 
   const handleEdit = (categorie: BookCategory) => {
     setSelectedBookCategory(categorie);
@@ -92,7 +79,7 @@ const BookCategoryList: React.FC = () => {
 
   useEffect(() => {
     if (status === 'idle') {
-      store.dispatch(fetchBookCategoriesAsync());
+      dispatch(fetchBookCategoriesAsync());
     }
   }, [dispatch, status]);
 
@@ -113,7 +100,19 @@ const BookCategoryList: React.FC = () => {
     ...(right !== null && (right === 'Admin' || right === 'Super Admin')
       ? [{ field: 'bookCategoId', headerName: 'ID' }]
       : []),
-    { field: 'bookCategoName', headerName: 'Nom' },
+    { field: 'bookCategoName', headerName: 'Nom',
+          renderCell: (params: any) => (
+            <Link
+              href={`/bookcategory/${params.row.bookCategoId}`}
+              style={{
+                color: '#1976d2',
+                textDecoration: 'underline',
+                cursor: 'pointer',
+              }}
+            >
+              {params.value}
+            </Link>
+          ), },
     {
       field: 'bookCategoDescription',
       headerName: 'Decription',
@@ -152,7 +151,7 @@ const BookCategoryList: React.FC = () => {
 
   return (
     <Box>
-      {right && (
+      {right && (right === 'Admin' || right === 'Super Admin') && (
         <Box
           sx={{
             display: 'flex',
