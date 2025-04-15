@@ -5,51 +5,39 @@ import { useSession } from 'next-auth/react';
 import styled from 'styled-components';
 import tw from 'twin.macro';
 
-import { Box, Container, Fab } from '@mui/material';
+import { Box, Container, Fab, Typography } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
 import { AppDispatch, RootState } from '@/redux/store';
-import { Book } from '@/models/book/Book';
-import { Author } from '@/models/author/author';
-import { Publisher } from '@/models/publisher/publisher';
+import { BookCategory } from '@/models/book-category/BookCategory';
 
 import { Dialog } from '@/components/common/dialog';
-import BookImage from './components/BookImage';
-import BookInfo from './components/BookInfo';
 import Loading from '@/components/common/Loading';
-import { deleteBookAsync, fetchBookById } from '@/features/books/bookSlice';
-import { fetchAuthorById } from '@/features/authors/AuthorSlice';
-import { fetchPublisherById } from '@/features/publishers/PublisherSlice';
+import { fetchBookCategoryById } from '@/features/bookCategory/BookCategorySlice';
 import { decryptPayload } from '@/utils/encryptUtils';
 
-const BookDetailsWrapper = styled.div`
-  ${tw`mt-20 flex flex-col md:flex-row`}
-  gap: 2rem;
+const BookCategoryDetailsWrapper = styled.div`
+  ${tw`w-full md:w-2/3`}
+  ${tw`space-y-4`}
+  ${tw `mt-8`}
 `;
 
-const BookDetails: React.FC = () => {
+const BookCategoryDetails: React.FC = () => {
   const [openDialog, setOpenDialog] = useState(false);
-  const [selectedBook, setSelectedBook] = useState<Book | null>(null);
+  const [selectedBookCategory, setSelectedBookCategory] =
+    useState<BookCategory | null>(null);
   const [dialogTitle, setDialogTitle] = useState('');
   const [dialogContent, setDialogContent] = useState('');
   const [dialogAction, setDialogAction] = useState<() => void>(() => {});
-  
+
   const router = useRouter();
   const { id } = router.query;
   const dispatch = useDispatch<AppDispatch>();
 
-  const book = useSelector((state: RootState) =>
-    state.books.books.find((b: Book) => b.bookId === Number(id)),
-  );
-
-  const author = useSelector((state: RootState) =>
-    state.authors.authors.find((a: Author) => a.authorId === book?.authorId),
-  );
-
-  const publisher = useSelector((state: RootState) =>
-    state.publishers.publishers.find(
-      (p: Publisher) => p.publisherId === book?.publisherId,
+  const bookCategory = useSelector((state: RootState) =>
+    state.bookCategories.bookCategories.find(
+      (a: BookCategory) => a.bookCategoId === Number(id),
     ),
   );
 
@@ -57,7 +45,7 @@ const BookDetails: React.FC = () => {
 
   const right = useMemo(() => {
     if (!session?.user?.encryptedSession) return '';
-  
+
     const { encryptedData, iv } = session.user.encryptedSession;
     try {
       const { right: decryptedRight } = decryptPayload(encryptedData, iv);
@@ -66,54 +54,41 @@ const BookDetails: React.FC = () => {
       console.error('Failed to decrypt session data:', error);
       return '';
     }
-  }, [session]);  
+  }, [session]);
 
   useEffect(() => {
-    if (id && !book) {
-      dispatch(fetchBookById(Number(id)));
+    if (id && !bookCategory) {
+      dispatch(fetchBookCategoryById(Number(id)));
     }
-  }, [id, book, dispatch]);
-  
-  useEffect(() => {
-    if (book && !author) {
-      dispatch(fetchAuthorById(book.authorId));
-    }
-  }, [book, author, dispatch]);
-  
-  useEffect(() => {
-    if (book && !publisher) {
-      dispatch(fetchPublisherById(book.publisherId));
-    }
-  }, [book, publisher, dispatch]);
-  
+  }, [id, bookCategory, dispatch]);
 
-  if (!book || !author || !publisher) {
+  if (!bookCategory) {
     return <Loading />;
   }
 
- const handleEdit = (book: Book) => {
-  setSelectedBook(book);
-    setDialogTitle('Edit Book');
-    setDialogContent(`Edit book: ${book.bookId}`);
+  const handleEdit = (bookCatego: BookCategory) => {
+    setSelectedBookCategory(bookCatego);
+    setDialogTitle('Edit category');
+    setDialogContent(`Edit bookCatego: ${bookCatego.bookCategoName}`);
     setDialogAction(() => () => {
-      router.push(`/book/${book.bookId}/edit`);
+      router.push(`/bookcategory/${bookCatego.bookCategoId}/edit`);
       handleCloseDialog();
     });
     setOpenDialog(true);
   };
 
-  const handleDelete = (book: Book) => {
-    setSelectedBook(book);
-    setDialogTitle('Delete Book');
+  const handleDelete = (bookCatego: BookCategory) => {
+    setSelectedBookCategory(bookCatego);
+    setDialogTitle('Delete BookCategory');
     setDialogContent(
-      `Are you sure you want to delete book: ${book.bookTitle}?`,
+      `Are you sure you want to delete bookCatego: ${bookCatego.bookCategoName}?`,
     );
     setDialogAction(() => async () => {
       try {
-        dispatch(deleteBookAsync(book.bookId)).unwrap(); // unwrap to catch errors if needed
+        // dispatch(deleteBookCategoryAsync(bookCatego.bookCategoId)).unwrap(); // unwrap to catch errors if needed
         router.push('/');
       } catch (error) {
-        console.error('Failed to delete book:', error);
+        console.error('Failed to delete bookCatego:', error);
         // Optionally show error feedback to the user
       } finally {
         handleCloseDialog();
@@ -124,7 +99,7 @@ const BookDetails: React.FC = () => {
 
   const handleCloseDialog = () => {
     setOpenDialog(false);
-    setSelectedBook(null);
+    setSelectedBookCategory(null);
   };
   return (
     <Container maxWidth='xl'>
@@ -137,22 +112,22 @@ const BookDetails: React.FC = () => {
         >
           <Fab
             color='primary'
-            aria-label='edit book'
-            onClick={() => handleEdit(book)}
+            aria-label='edit book category'
+            onClick={() => handleEdit(bookCategory)}
           >
             <EditIcon />
           </Fab>
           <Fab
             color='warning'
-            aria-label='del book'
-            onClick={() => handleDelete(book)}
+            aria-label='del book category'
+            onClick={() => handleDelete(bookCategory)}
           >
             <DeleteIcon />
           </Fab>
         </Box>
       )}
-      
-      {selectedBook && (
+
+      {selectedBookCategory && (
         <Dialog
           open={openDialog}
           title={dialogTitle}
@@ -161,12 +136,16 @@ const BookDetails: React.FC = () => {
           onSuccess={dialogAction}
         />
       )}
-      <BookDetailsWrapper>
-        <BookImage src={book.bookImageLink} alt={book.bookTitle} />
-        <BookInfo book={book} author={author} publisher={publisher} />
-      </BookDetailsWrapper>
+      <BookCategoryDetailsWrapper>
+        <Typography variant='subtitle1' component='p'>
+          <strong>Catégorie:</strong> {bookCategory.bookCategoName}
+        </Typography>
+        <Typography variant='body1' component='p'>
+          {bookCategory.bookCategoDescription}
+        </Typography>
+      </BookCategoryDetailsWrapper>
     </Container>
   );
 };
 
-export default BookDetails;
+export default BookCategoryDetails;

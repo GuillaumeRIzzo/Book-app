@@ -5,9 +5,17 @@ export const saveSessionLocally = (session: Session) => {
   if (typeof window !== 'undefined') {
     try {
       localStorage.setItem('session', JSON.stringify(session));
-      const token = session.user.encryptedSession?.EncryptedData; // Extract token if required
-      if (token) {
-        localStorage.setItem('sessionToken', token);
+      const encryptedSession = session.user.encryptedSession; // Extract token if required
+      if (encryptedSession) {
+        const { encryptedData, iv } = encryptedSession;
+
+        // Decrypt the payload
+        const decryptedSession = decryptPayload(encryptedData, iv);
+
+       const { token: decryptedToken } = decryptedSession as {
+        token: string;
+       };
+        localStorage.setItem('sessionToken', decryptedToken);
       }
     } catch (error) {
       console.error('Failed to save session locally:', error);

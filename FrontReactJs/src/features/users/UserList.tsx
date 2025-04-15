@@ -1,24 +1,29 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/router';
+import { useSession } from 'next-auth/react';
 import { useDispatch, useSelector } from 'react-redux';
+
 import { Box, IconButton } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-import store, { RootState } from '@/redux/store';
+import { AppDispatch, RootState } from '@/redux/store';
 import { fetchUsersAsync } from './UserSlice';
 import Loading from '@/components/common/Loading';
 import { Dialog } from '@/components/common/dialog';
 import { User } from '@/models/user/user';
-import { useRouter } from 'next/router';
+import { decryptPayload } from '@/utils/encryptUtils';
 
 const UserList: React.FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const users = useSelector((state: RootState) => state.users.users);
   const status = useSelector((state: RootState) => state.users.status);
   const error = useSelector((state: RootState) => state.users.error);
   const router = useRouter();
+
+  const { data: session } = useSession();
 
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -28,7 +33,7 @@ const UserList: React.FC = () => {
 
   useEffect(() => {
     if (status === 'idle') {
-      store.dispatch(fetchUsersAsync());
+      dispatch(fetchUsersAsync());
     }
   }, [dispatch, status]);
 
@@ -39,6 +44,19 @@ const UserList: React.FC = () => {
   if (status === 'failed') {
     return <div>Error: {error}</div>;
   }
+
+  const { right, token } = useMemo(() => {
+      if (session?.user?.encryptedSession) {
+        const { encryptedData, iv } = session.user.encryptedSession;
+        try {
+          const { right: decryptedRight, token: decryptToken } = decryptPayload(encryptedData, iv);
+          return { right: decryptedRight as string, token: decryptToken as string };
+        } catch (error) {
+          console.error('Failed to decrypt session data:', error);
+        }
+      }
+      return { right: '', sessionId: '' };
+    }, [session]);
 
   const handleEdit = (user: User) => {
     setSelectedUser(user);
@@ -54,7 +72,9 @@ const UserList: React.FC = () => {
   const handleDelete = (user: User) => {
     setSelectedUser(user);
     setDialogTitle('Delete User');
-    setDialogContent(`Are you sure you want to delete user: ${user.userLogin}?`);
+    setDialogContent(
+      `Are you sure you want to delete user: ${user.userLogin}?`,
+    );
     setDialogAction(() => () => {
       // dispatch(deleteUser(user.userId));
       handleCloseDialog();
@@ -73,44 +93,56 @@ const UserList: React.FC = () => {
   }));
 
   const columns: GridColDef[] = [
-    { field: 'userId', headerName: 'ID' },
+    ...(right !== null && (right === 'Admin' || right === 'Super Admin')
+      ? [{ field: 'userId', headerName: 'ID' }]
+      : []),
     { field: 'userFirstname', headerName: 'Prénom' },
     { field: 'userLastname', headerName: 'Nom' },
     { field: 'userLogin', headerName: 'Login' },
     { field: 'userEmail', headerName: 'E-mail', width: 200 },
-    { field: 'userRight', headerName: 'Droit' },
+    { field: 'userRight', headerName: 'Droit', width: 130 },
     {
       field: 'actions',
       headerName: 'Actions',
       width: 150,
       sortable: false,
-      renderCell: (params) => (
-        <>
-          <IconButton
-            color="primary"
-            aria-label="edit user"
-            onClick={() => handleEdit(params.row)}
-          >
-            <EditIcon />
-          </IconButton>
-          <IconButton
-            color="secondary"
-            aria-label="delete user"
-            onClick={() => handleDelete(params.row)}
-          >
-            <DeleteIcon />
-          </IconButton>
-        </>
-      ),
+      renderCell: params => {
+        // Only show action buttons based on logged-in user's rights
+        const userRight = params.row.userRight;
+
+        // Admin cannot modify Super Admin users
+        if (right === 'Admin' && userRight === 'Super Admin') {
+          return null;
+        }
+        return (
+          <>
+            <IconButton
+              color='primary'
+              aria-label='edit user'
+              onClick={() => handleEdit(params.row)}
+            >
+              <EditIcon />
+            </IconButton>
+            {userRight !== "Super Admin" &&
+              <IconButton
+              color='secondary'
+              aria-label='delete user'
+              onClick={() => handleDelete(params.row)}
+            >
+              <DeleteIcon />
+            </IconButton>}
+          </>
+        );
+      },
     },
   ];
 
   return (
     <Box>
-      <DataGrid 
+      <DataGrid
         rows={rows}
         columns={columns}
-        checkboxSelection
+        // checkboxSelection
         autoHeight
         autosizeOnMount
         density='comfortable'

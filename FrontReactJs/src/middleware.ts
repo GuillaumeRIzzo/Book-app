@@ -9,19 +9,28 @@ export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   const protectedRoutes = [
-    '/edit/author/:id',
+    '/author/:id/edit',
     '/author/add',
-    '/edit/book/:id',
+    '/book/:id/edit',
     '/book/add',
-    '/edit/bookcategory/:id',
+    '/bookcategory/:id/edit',
     '/bookcategory/add',
-    '/edit/publisher/:id',
+    '/publisher/:id/edit',
     '/publisher/add',
     '/users',
     '/user/:id'
   ];
 
-  const isProtectedRoute = protectedRoutes.some(route => 
+  const isProtectedRoute = protectedRoutes.some(route =>
+    new RegExp(`^${route.replace(/:\w+/g, '[^/]+')}$`).test(pathname)
+  );
+
+  const authRoutes = [
+    '/login',
+    '/signin'
+  ]
+
+  const isAuth = authRoutes.some(route =>
     new RegExp(`^${route.replace(/:\w+/g, '[^/]+')}$`).test(pathname)
   );
 
@@ -34,20 +43,30 @@ export async function middleware(req: NextRequest) {
     }
   }
 
+  if (isAuth) {
+    if (token) {
+      const url = req.nextUrl.clone();
+      url.pathname = '/';
+      return NextResponse.redirect(url);
+    }
+  }
+
   return NextResponse.next();
 }
 
 export const config = {
   matcher: [
-    '/edit/author/:id*',
+    '/author/:id*/edit',
     '/author/add',
-    '/edit/book/:id*',
+    '/book/:id*/edit/',
     '/book/add',
-    '/edit/bookcategory/:id*',
+    '/bookcategory/:id*/edit',
     '/bookcategory/add',
-    '/edit/publisher/:id*',
+    '/publisher/:id*/edit',
     '/publisher/add',
     '/users',
     '/user/:id',
+    '/login',
+    '/signin'
   ],
 };

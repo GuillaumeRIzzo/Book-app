@@ -2,10 +2,10 @@ import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
 import camelCaseKeys from 'camelcase-keys';
 
-import { Publisher } from '@/models/publisher/Publisher';
+import { Publisher } from '@/models/publisher/publisher';
 import { PublisherState } from '@/models/publisher/PublisherState';
-import { getPublisher, getPublishers } from '@/api/publisherApi';
-import { decryptPayload } from '@/utils/encryptUtils';
+import { getPublisher, getPublishers, addPublisher, updatePublisher } from '@/api/publisherApi';
+import { decryptPayload, EncryptedPayload } from '@/utils/encryptUtils';
 
 export const fetchPublishersAsync = createAsyncThunk('publishers/getPublishers', async () => {
   try {
@@ -54,6 +54,40 @@ export const fetchPublisherById = createAsyncThunk(
   }
 );
 
+export const createPublisher = createAsyncThunk(
+  'publishers/createPublisher',
+  async (payload: EncryptedPayload, { rejectWithValue }) => {
+    try {
+      const response = await addPublisher(payload);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+type UpdatePublisherParams = {
+  publisherId: number;
+  payload: EncryptedPayload;
+};
+
+export const updatePublisherAsync = createAsyncThunk(
+  'publishers/updatePublisher',
+  async ({ publisherId, payload }: UpdatePublisherParams) => {
+    // PUT doesn't return anything, so just call and return what you already know
+    try {
+      await updatePublisher(publisherId, payload);
+      
+      return { publisherId, decrypted: decryptPayload(payload.encryptedData, payload.iv) };
+    }
+    catch (error: any) {
+      console.error('Failed to update publisher:', error);
+      // Throw error to handle it in UI
+      throw error; 
+    }
+  }
+);
+
 const initialState: PublisherState = {
   publishers: [],
   status: 'idle',
@@ -64,7 +98,7 @@ const publishersSlice = createSlice({
   name: 'publishers',
   initialState,
   reducers: {
-    addPublisher: (state, action: PayloadAction<Publisher>) => {
+    addPublisherLocal: (state, action: PayloadAction<Publisher>) => {
       state.publishers.push(action.payload);
     },
     setPublishers: (state, action: PayloadAction<Publisher[]>) => {
@@ -79,6 +113,7 @@ const publishersSlice = createSlice({
   },
   extraReducers: builder => {
     builder
+      // Fetch all
       .addCase(fetchPublishersAsync.pending, state => {
         state.status = 'loading';
       })
@@ -90,6 +125,8 @@ const publishersSlice = createSlice({
         state.status = 'failed';
         state.error = action.error.message || null;
       })
+
+      // Fetch one
       .addCase(fetchPublisherById.pending, (state) => {
         state.status = 'loading';
       })
@@ -100,10 +137,44 @@ const publishersSlice = createSlice({
       .addCase(fetchPublisherById.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message || null;
+      })
+
+      // Create
+      .addCase(createPublisher.pending, state => {
+        state.status = 'loading';
+      })
+      .addCase(createPublisher.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.publishers.push(action.payload);
+      })
+      .addCase(createPublisher.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message || null;
+      })
+      
+      // Update
+      .addCase(updatePublisherAsync.pending, state => {
+        state.status = 'loading';
+      })
+      .addCase(updatePublisherAsync.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        const { publisherId, decrypted } = action.payload;
+        const index = state.publishers.findIndex(p => p.publisherId === publisherId);
+        
+        if (index !== -1) {
+          state.publishers[index] = {
+            ...state.publishers[index],
+            ...decrypted
+          };
+        }
+      })
+      .addCase(updatePublisherAsync.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message || null;
       });
   },
 });
 
-export const { addPublisher, setPublishers, setStatus, setError } = publishersSlice.actions;
+export const { addPublisherLocal, setPublishers, setStatus, setError } = publishersSlice.actions;
 
 export default publishersSlice.reducer;

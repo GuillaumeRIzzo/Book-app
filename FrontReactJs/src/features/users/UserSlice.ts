@@ -18,7 +18,7 @@ export const fetchUsersAsync = createAsyncThunk('users/getUsers', async () => {
 
     let users: User[];
     try {
-      users = camelCaseKeys(decryptedData, {deep: true}) as unknown as User[];
+      users = camelCaseKeys(decryptedData, { deep: true }) as unknown as User[];
     } catch (error) {
       console.error('Failed to parse decrypted data:', decryptedData);
       throw new Error('Decrypted data is not valid JSON');
@@ -31,8 +31,6 @@ export const fetchUsersAsync = createAsyncThunk('users/getUsers', async () => {
   }
 });
 
-
-
 export const fetchUserById = createAsyncThunk(
   'users/getUser',
   async (userId: number) => {
@@ -40,13 +38,13 @@ export const fetchUserById = createAsyncThunk(
       // Call API to fetch encrypted user data
       const response = await getUser(userId);
 
-       // Ensure data types for encrypted payload
-       const encryptedData = response.data.encryptedData as string;
-       const iv = response.data.iv as string;
+      // Ensure data types for encrypted payload
+      const encryptedData = response.data.encryptedData as string;
+      const iv = response.data.iv as string;
 
-       // Decrypt the data
-       const decryptedData = decryptPayload(encryptedData, iv);
- 
+      // Decrypt the data
+      const decryptedData = decryptPayload(encryptedData, iv);
+
       // Parse decrypted data as an array of User objects
       const user = JSON.parse(decryptedData as unknown as string) as User;
       return user;

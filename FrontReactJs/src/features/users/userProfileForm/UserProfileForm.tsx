@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import tw from 'twin.macro';
 
@@ -6,7 +6,7 @@ import { useRouter } from 'next/router';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSession } from 'next-auth/react';
 
-import store, { RootState } from '@/redux/store';
+import { AppDispatch, RootState } from '@/redux/store';
 
 import { User } from '@/models/user/user';
 import Loading from '@/components/common/Loading';
@@ -14,9 +14,17 @@ import Loading from '@/components/common/Loading';
 import PersonalInfoForm from './PersonalInfoForm';
 import PasswordChangeForm from './PasswordChangeForm';
 import AccountDeletionForm from './AccountDeletionForm';
-import { fetchUserById, updateUserInState } from '../UserSlice';
+import {
+  fetchUserById,
+  fetchUsersAsync,
+  updateUserInState,
+} from '../UserSlice';
 import { updateUserInfos, updateUserPassword } from '@/api/userApi';
-import { EncryptedPayload, encryptPayload } from '@/utils/encryptUtils';
+import {
+  decryptPayload,
+  EncryptedPayload,
+  encryptPayload,
+} from '@/utils/encryptUtils';
 
 const FormWrapper = styled.div`
   ${tw`w-2/4 p-6`}
@@ -30,32 +38,73 @@ interface FormProps {
 }
 
 const UserProfileForm: React.FC<FormProps> = ({ title }) => {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
+  const users = useSelector((state: RootState) => state.users.users);
+  const UserStatus = useSelector((state: RootState) => state.users.status);
+
   const router = useRouter();
   const { id } = router.query;
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const [loading, setLoading] = useState(true);
 
-  const user = useSelector((state: RootState) =>
-    state.users.users.find((u: User) => u.userId === Number(id)),
-  );
+  // Memoized userFind logic
+  const userFind = useMemo(() => {
+    return session
+      ? users.find((u: User) => u.userId === Number(id))
+      : undefined;
+  }, [session, users, id]);
 
+  // Memoized session decryption
+  const { right, sessionId } = useMemo(() => {
+    if (session?.user?.encryptedSession) {
+      const { encryptedData, iv } = session.user.encryptedSession;
+      try {
+        const { id: decryptedId, right: decryptedRight } = decryptPayload(
+          encryptedData,
+          iv,
+        );
+        return { right: decryptedRight as string, sessionId: decryptedId as number};
+      } catch (error) {
+        console.error('Failed to decrypt session data:', error);
+      }
+    }
+    return { right: '', sessionId: '' };
+  }, [session]);
+
+  // Fetch users when UserStatus is idle
   useEffect(() => {
-    if (id && !user) {
+    if (UserStatus === 'idle') {
+      dispatch(fetchUsersAsync());
+    }
+  }, [UserStatus, dispatch]);
+
+  // User validation and redirection
+  useEffect(() => {
+    if (
+      (userFind?.userRight === 'Super Admin' && right !== 'Super Admin') ||
+      (right === 'User' && id != sessionId)
+    ) {
+      if (typeof window !== 'undefined') {
+        router.replace('/');
+      }
+    }
+  }, [userFind, right, id, sessionId, router]);
+
+  // Fetch user by ID if not found
+  useEffect(() => {
+    if (id && !userFind) {
       const userId = Number(id);
       if (!isNaN(userId)) {
         setLoading(true);
-        if (session && userId !== Number(id)) {
-          router.push(`/user/${userId}`);
-        }
-        store.dispatch(fetchUserById(userId)).finally(() => setLoading(false));
+        dispatch(fetchUserById(userId)).finally(() => setLoading(false));
       } else {
         setLoading(false);
+        router.push('/');
       }
     } else {
       setLoading(false);
     }
-  }, [dispatch, id, user, status]);
+  }, [id, userFind, dispatch, router]);
 
   const handlePersonalInfoSubmit = async (
     formData: any,
@@ -64,21 +113,15 @@ const UserProfileForm: React.FC<FormProps> = ({ title }) => {
     event.preventDefault();
     try {
       const encryptedPayload: EncryptedPayload = encryptPayload(
-        // Cast User type to Record<string, unknown> for encryption
         formData as Record<string, unknown>,
       );
 
       if (formData.UserId !== undefined) {
-        // Call the API to update user details
         const { data: updatedUser } = await updateUserInfos(
           formData.UserId,
           encryptedPayload,
         );
-      
-        // Dispatch Redux action to update the state
         dispatch(updateUserInState(updatedUser));
-
-        // Notify the user of success
         alert('User information updated successfully!');
       }
     } catch (error: any) {
@@ -92,25 +135,18 @@ const UserProfileForm: React.FC<FormProps> = ({ title }) => {
     event: React.FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
-    // Prevent the default form submission behavior
     try {
-      // Cast User type to Record<string, unknown> for encryption
       const encryptedPayload: EncryptedPayload = encryptPayload(
         formData as Record<string, unknown>,
       );
 
-      // Call the API to update user details
       if (formData.UserId !== undefined) {
         const { data: updatedUser } = await updateUserPassword(
           formData.UserId,
           encryptedPayload,
         );
-
-      // Dispatch Redux action to update the state
-      dispatch(updateUserInState(updatedUser));
-
-      // Notify the user of success
-      alert('User password updated successfully!');
+        dispatch(updateUserInState(updatedUser));
+        alert('User password updated successfully!');
       }
     } catch (error: any) {
       console.error('Error updating user:', error);
@@ -119,13 +155,7 @@ const UserProfileForm: React.FC<FormProps> = ({ title }) => {
   };
 
   const handleDeleteAccount = async () => {
-    // try {
-    //   const result = await deleteUser(user.userId); // Define deleteUser API call
-    //   console.log(result);
-    //   router.push('/'); // Redirect after deletion
-    // } catch (error: any) {
-    //   console.error(error);
-    // }
+    // Placeholder for account deletion logic
   };
 
   if (loading) {
@@ -134,20 +164,21 @@ const UserProfileForm: React.FC<FormProps> = ({ title }) => {
 
   return (
     <FormWrapper>
-      <h2 className='text-2xl mb-6 text-center font-semibold'>{title}</h2>
+      <h1 className='text-2xl mb-6 text-center font-semibold'>{title}</h1>
       <PersonalInfoForm
-        user={user}
-        onSubmit={(formData, event) =>
-          handlePersonalInfoSubmit(formData, event)
-        }
+        user={userFind}
+        right={right}
+        onSubmit={handlePersonalInfoSubmit}
       />
-      <PasswordChangeForm
-        user={user}
-        onSubmit={(formData, event) =>
-          handlePasswordChangeSubmit(formData, event)
-        }
-      />
-      <AccountDeletionForm onDelete={handleDeleteAccount} />
+      {userFind?.userId === Number(sessionId) && (
+        <PasswordChangeForm
+          user={userFind}
+          onSubmit={handlePasswordChangeSubmit}
+        />
+      )}
+      {userFind?.userRight !== 'Super Admin' && (
+        <AccountDeletionForm onDelete={handleDeleteAccount} />
+      )}
     </FormWrapper>
   );
 };

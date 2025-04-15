@@ -139,6 +139,12 @@ namespace BookAPI.Controllers
                     return BadRequest("Invalid data provided.");
                 }
 
+                var bookCategory = await _context.BookCategories.FindAsync(model.BookCategoId);
+                if (bookCategory == null)
+                {
+                    return BadRequest($"BookCategory with ID {model.BookCategoId} does not exist.");
+                }
+
                 var categorieList = new CategoryList()
                 {
                     BookCategoId = model.BookCategoId,
@@ -146,21 +152,15 @@ namespace BookAPI.Controllers
                 };
 
                 _context.CategoryLists.Add(categorieList);
-                try
-                {
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateException)
-                {
-                    if (CategorieListExists(categorieList.BookId))
-                    {
-                        return Conflict($"Conflict occurred for BookId: {categorieList.BookId}");
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+            }
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                return Conflict($"Database update failed: {ex.Message}");
             }
 
             return CreatedAtAction("GetCategoryList", models);
@@ -181,11 +181,6 @@ namespace BookAPI.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
-        }
-
-        private bool CategorieListExists(int id)
-        {
-            return _context.CategoryLists.Any(e => e.BookId == id);
         }
     }
 }

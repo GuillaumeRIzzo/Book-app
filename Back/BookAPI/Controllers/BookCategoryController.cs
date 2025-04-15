@@ -32,6 +32,7 @@ namespace BookAPI.Controllers
                     BookCategoName = x.BookCategoName,
                     BookCategoDescription = x.BookCategoDescription
                 }).ToList();
+
                 // Encrypt the list of categories
                 var encryptedData = EncryptionHelper.EncryptData(JsonSerializer.Serialize(model));
 
@@ -47,7 +48,7 @@ namespace BookAPI.Controllers
 
         // GET: api/BookCategories/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<ModelViewBookCategory>> GetBookCategory(int id)
+        public async Task<ActionResult<EncryptedPayload>> GetBookCategory(int id)
         {
             var bookCategory = await _context.BookCategories.FindAsync(id);
 
@@ -63,79 +64,124 @@ namespace BookAPI.Controllers
                 BookCategoDescription = bookCategory.BookCategoDescription
             };
 
-            return model;
+
+            // Encrypt the list of publishers
+            var encryptedData = EncryptionHelper.EncryptData(JsonSerializer.Serialize(model));
+
+            return Ok(new EncryptedPayload
+            {
+                EncryptedData = encryptedData.EncryptedData,
+                Iv = encryptedData.Iv
+            });
         }
 
         // PUT: api/BookCategories/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [Authorize(Policy = IdentityData.UserPolicyName)]
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutBookCategory(int id, ModelViewBookCategory model)
+        public async Task<IActionResult> PutBookCategory(int id, EncryptedPayload payload)
         {
-            if (id != model.BookCategoId)
-            {
-                return BadRequest();
-            }
-
-            if (BookCategoryNameExists(model.BookCategoName, id))
-            {
-                return BadRequest("Name already exists");
-            }
-
-            var bookCategory = await _context.BookCategories.FindAsync(id);
-            if (bookCategory != null)
-            {
-                bookCategory.BookCategoId = model.BookCategoId;
-                bookCategory.BookCategoName = model.BookCategoName;
-                bookCategory.BookCategoDescription = model.BookCategoDescription;
-                
-            }
-
             try
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!BookCategoryExists(id))
+                string decryptedData = EncryptionHelper.DecryptData(payload.EncryptedData, payload.Iv);
+                var options = new JsonSerializerOptions
                 {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+                    PropertyNameCaseInsensitive = true // Enable case-insensitive matching
+                };
+                var model = JsonSerializer.Deserialize<ModelViewBookCategory>(decryptedData, options);
 
-            return NoContent();
+                if (model == null) { return NotFound(); }
+
+                if (id != model.BookCategoId)
+                {
+                    return BadRequest();
+                }
+
+                if (BookCategoryNameExists(model.BookCategoName, id))
+                {
+                    return BadRequest("Name already exists");
+                }
+
+                var bookCategory = await _context.BookCategories.FindAsync(id);
+                if (bookCategory != null)
+                {
+                    bookCategory.BookCategoId = model.BookCategoId;
+                    bookCategory.BookCategoName = model.BookCategoName;
+                    bookCategory.BookCategoDescription = model.BookCategoDescription;
+                }
+
+                try
+                {
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!BookCategoryExists(id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+
+                return NoContent();
+            }
+            catch (JsonException ex)
+            {
+                // Handle JSON deserialization errors
+                return BadRequest(new { message = "Invalid JSON format.", details = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                // Handle other errors
+                return StatusCode(500, new { message = "An error occurred.", details = ex.Message });
+            }
         }
 
         // POST: api/BookCategories
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [Authorize(Policy = IdentityData.UserPolicyName)]
         [HttpPost]
-        public async Task<ActionResult<ModelViewBookCategory>> PostBookCategory(ModelViewBookCategory model)
+        public async Task<ActionResult<EncryptedPayload>> PostBookCategory(EncryptedPayload payload)
         {
-            if (model == null)
+            try
             {
-                return NoContent();
+                string decryptedData = EncryptionHelper.DecryptData(payload.EncryptedData, payload.Iv);
+                var model = JsonSerializer.Deserialize<ModelViewBookCategory>(decryptedData);
+
+                if (model == null)
+                {
+                    return NoContent();
+                }
+
+                if (BookCategoryNameExists(model.BookCategoName, 0))
+                {
+                    return BadRequest("Name already exists");
+                }
+
+                var bookCategory = new BookCategory()
+                {
+                    BookCategoName = model.BookCategoName,
+                    BookCategoDescription = model.BookCategoDescription
+                };
+
+                _context.BookCategories.Add(bookCategory);
+                await _context.SaveChangesAsync();
+
+                return CreatedAtAction("GetBookCategory", new { id = bookCategory.BookCategoId }, model);
             }
-
-            if (BookCategoryNameExists(model.BookCategoName, 0))
+            catch (JsonException ex)
             {
-                return BadRequest("Name already exists");
+                // Handle JSON deserialization errors
+                return BadRequest(new { message = "Invalid JSON format.", details = ex.Message });
             }
-
-            var bookCategory = new BookCategory()
+            catch (Exception ex)
             {
-                BookCategoName = model.BookCategoName,
-                BookCategoDescription = model.BookCategoDescription
-            };
-
-            _context.BookCategories.Add(bookCategory);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetBookCategory", new { id = bookCategory.BookCategoId }, model);
+                // Handle other errors
+                return StatusCode(500, new { message = "An error occurred.", details = ex.Message });
+            }
         }
 
         // DELETE: api/BookCategories/5

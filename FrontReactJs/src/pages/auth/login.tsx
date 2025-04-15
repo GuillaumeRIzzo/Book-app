@@ -1,10 +1,18 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
+import { getSession, signIn } from 'next-auth/react';
+
+import { saveSessionLocally } from '@api/auth/session';
+
 import Input from '@/components/common/Input';
 import CustomButton from '@/components/common/Button';
 import { encryptPayload } from '@/utils/encryptUtils';
-import { getSession, signIn } from 'next-auth/react';
-import { saveSessionLocally } from '@api/auth/session';
+
+import styled from 'twin.macro';
+
+const FormWrapper = styled.div`
+  p-6 
+`;
 
 const Login: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -56,7 +64,7 @@ const Login: React.FC = () => {
   
 
   return (
-    <>
+    <FormWrapper>
       <div className='flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8'>
         <div className='sm:mx-auto sm:w-full sm:max-w-sm'>
           <h2 className='mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900'>
@@ -74,6 +82,7 @@ const Login: React.FC = () => {
                   name='identifier'
                   value={formData.identifier}
                   onChange={handleChange}
+                  autoFocus={true}
                   required
                 />
               </div>
@@ -110,7 +119,7 @@ const Login: React.FC = () => {
           </form>
         </div>
       </div>
-    </>
+    </FormWrapper>
   );
 };
 

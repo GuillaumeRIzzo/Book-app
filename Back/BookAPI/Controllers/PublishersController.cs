@@ -75,7 +75,7 @@ namespace BookAPI.Controllers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [Authorize]
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutPublisher(int id, EncryptedPayload payload)
+        public async Task<ActionResult<EncryptedPayload>> PutPublisher(int id, EncryptedPayload payload)
         {
             try
             {
@@ -85,6 +85,8 @@ namespace BookAPI.Controllers
                     PropertyNameCaseInsensitive = true // Enable case-insensitive matching
                 };
                 var model = JsonSerializer.Deserialize<ModelViewPublisher>(decryptedData, options);
+
+                if (model == null) { return NotFound(); }
 
                 if (id != model.PublisherId)
                 {
@@ -139,27 +141,44 @@ namespace BookAPI.Controllers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [Authorize]
         [HttpPost]
-        public async Task<ActionResult<ModelViewPublisher>> PostPublisher(ModelViewPublisher model)
+        public async Task<ActionResult<EncryptedPayload>> PostPublisher(EncryptedPayload payload)
         {
-            if (model == null)
+            try
             {
-                return NoContent();
+                string decryptedData = EncryptionHelper.DecryptData(payload.EncryptedData, payload.Iv);
+                var model = JsonSerializer.Deserialize<ModelViewPublisher>(decryptedData);
+
+                if (model == null)
+                {
+                    return NoContent();
+                }
+
+                if (PublisherNameExists(model.PublisherName, 0))
+                {
+                    return BadRequest("Name already exists");
+                }
+
+                var publisher = new Publisher()
+                {
+                    PublisherName = model.PublisherName
+                };
+
+                _context.Publishers.Add(publisher);
+                await _context.SaveChangesAsync();
+
+                return CreatedAtAction("GetPublisher", new { id = model.PublisherId }, model);
+            }
+            catch (JsonException ex)
+            {
+                // Handle JSON deserialization errors
+                return BadRequest(new { message = "Invalid JSON format.", details = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                // Handle other errors
+                return StatusCode(500, new { message = "An error occurred.", details = ex.Message });
             }
 
-            if (PublisherNameExists(model.PublisherName, 0))
-            {
-                return BadRequest("Name already exists");
-            }
-
-            var publisher = new Publisher()
-            {
-                PublisherName = model.PublisherName
-            };
-
-            _context.Publishers.Add(publisher);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetPublisher", new { id = model.PublisherId }, model);
         }
 
         // DELETE: api/Publishers/5

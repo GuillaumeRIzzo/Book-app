@@ -233,11 +233,13 @@ public partial class BookDbContext : DbContext
 
             entity.HasOne(cl => cl.Book)
                 .WithMany(b => b.CategorieLists)
-                .HasForeignKey(cl => cl.BookId);
+                .HasForeignKey(cl => cl.BookId)
+                .OnDelete(DeleteBehavior.Cascade); // cascade when Book is deleted
 
             entity.HasOne(cl => cl.BookCategory)
                 .WithMany(bc => bc.CategorieLists)
-                .HasForeignKey(cl => cl.BookCategoId);
+                .HasForeignKey(cl => cl.BookCategoId)
+                .OnDelete(DeleteBehavior.Cascade); // cascade when BookCategory is deleted
         });
 
 

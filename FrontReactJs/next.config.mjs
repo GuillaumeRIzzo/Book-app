@@ -36,6 +36,18 @@ const nextConfig = {
         destination: '/book-category/bookcategories',
       },
       {
+        source: '/bookcategory/add',
+        destination: '/book-category/add',
+      },
+      {
+        source: '/bookcategory/:id',
+        destination: '/book-category/:id',
+      },
+      {
+        source: '/bookcategory/:id/edit',
+        destination: '/book-category/:id/edit',
+      },
+      {
         source: '/users',
         destination: '/user/users',
       }
