@@ -63,7 +63,7 @@ const UserProfileForm: React.FC<FormProps> = ({ title }) => {
           encryptedData,
           iv,
         );
-        return { right: decryptedRight as string, sessionId: decryptedId };
+        return { right: decryptedRight as string, sessionId: decryptedId as number};
       } catch (error) {
         console.error('Failed to decrypt session data:', error);
       }
@@ -170,7 +170,7 @@ const UserProfileForm: React.FC<FormProps> = ({ title }) => {
         right={right}
         onSubmit={handlePersonalInfoSubmit}
       />
-      {userFind && userFind.userId === Number(sessionId) && (
+      {userFind?.userId === Number(sessionId) && (
         <PasswordChangeForm
           user={userFind}
           onSubmit={handlePasswordChangeSubmit}

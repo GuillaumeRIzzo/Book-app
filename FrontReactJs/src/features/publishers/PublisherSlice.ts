@@ -74,16 +74,20 @@ type UpdatePublisherParams = {
 export const updatePublisherAsync = createAsyncThunk(
   'publishers/updatePublisher',
   async ({ publisherId, payload }: UpdatePublisherParams) => {
+    // PUT doesn't return anything, so just call and return what you already know
     try {
-      const response = await updatePublisher(publisherId, payload);
-      return response.data;
-    } catch (error: any) {
-      console.error('Failed to delete publisher:', error);
+      await updatePublisher(publisherId, payload);
+      
+      return { publisherId, decrypted: decryptPayload(payload.encryptedData, payload.iv) };
+    }
+    catch (error: any) {
+      console.error('Failed to update publisher:', error);
       // Throw error to handle it in UI
       throw error; 
     }
   }
 );
+
 const initialState: PublisherState = {
   publishers: [],
   status: 'idle',
@@ -109,6 +113,7 @@ const publishersSlice = createSlice({
   },
   extraReducers: builder => {
     builder
+      // Fetch all
       .addCase(fetchPublishersAsync.pending, state => {
         state.status = 'loading';
       })
@@ -120,6 +125,8 @@ const publishersSlice = createSlice({
         state.status = 'failed';
         state.error = action.error.message || null;
       })
+
+      // Fetch one
       .addCase(fetchPublisherById.pending, (state) => {
         state.status = 'loading';
       })
@@ -128,6 +135,40 @@ const publishersSlice = createSlice({
         state.publishers.push(action.payload);
       })
       .addCase(fetchPublisherById.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message || null;
+      })
+
+      // Create
+      .addCase(createPublisher.pending, state => {
+        state.status = 'loading';
+      })
+      .addCase(createPublisher.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.publishers.push(action.payload);
+      })
+      .addCase(createPublisher.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message || null;
+      })
+      
+      // Update
+      .addCase(updatePublisherAsync.pending, state => {
+        state.status = 'loading';
+      })
+      .addCase(updatePublisherAsync.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        const { publisherId, decrypted } = action.payload;
+        const index = state.publishers.findIndex(p => p.publisherId === publisherId);
+        
+        if (index !== -1) {
+          state.publishers[index] = {
+            ...state.publishers[index],
+            ...decrypted
+          };
+        }
+      })
+      .addCase(updatePublisherAsync.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message || null;
       });

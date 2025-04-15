@@ -75,10 +75,11 @@ export const updateBookCategoryAsync = createAsyncThunk(
   'bookCategory/updateBookCategory',
   async ({ bookCategoId, payload }: UpdateBookCategoryParams) => {
     try {
-      const response = await updateBookCategory(bookCategoId, payload);
-      return response.data;
+      await updateBookCategory(bookCategoId, payload);
+      
+      return { bookCategoId, decrypted: decryptPayload(payload.encryptedData, payload.iv) };
     } catch (error: any) {
-      console.error('Failed to delete author:', error);
+      console.error('Failed to update book category:', error);
       // Throw error to handle it in UI
       throw error; 
     }
@@ -155,9 +156,13 @@ const bookCategorySlice = createSlice({
       })
       .addCase(updateBookCategoryAsync.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        const index = state.bookCategories.findIndex(bookCategory => bookCategory.bookCategoId === action.payload.bookCategoId);
+        const { bookCategoId, decrypted } = action.payload;
+        const index = state.bookCategories.findIndex(bookCategory => bookCategory.bookCategoId === bookCategoId);
         if (index !== -1) {
-          state.bookCategories[index] = action.payload;
+          state.bookCategories[index] = {
+            ...state.bookCategories[index],
+            ...decrypted
+          };
         }
       })
       .addCase(updateBookCategoryAsync.rejected, (state, action) => {

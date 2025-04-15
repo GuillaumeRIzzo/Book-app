@@ -58,13 +58,13 @@ const BookCategoryForm: React.FC<BookCategoryProps> = ({ title }) => {
 
       if (formData.BookCategoId === 0) {
         dispatch(createBookCategory(encryptedPayload)).unwrap();
-        router.push('/bookCategos');
+        router.push('/bookCategories');
       } else {
         dispatch(updateBookCategoryAsync({
           bookCategoId: formData.BookCategoId,
           payload: encryptedPayload,
         })).unwrap();
-
+        router.push(`/bookcategory/${formData.BookCategoId}`);
       }
     } catch (error: any) {}
   };

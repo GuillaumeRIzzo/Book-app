@@ -57,12 +57,11 @@ const PublisherForm: React.FC<PublisherProps> = ({ title }) => {
         dispatch(createPublisher(encryptedPayload)).unwrap();
         router.push('/publishers');
       } else {
-        // const result = await updatePublisher(encryptedPayload);
         dispatch(updatePublisherAsync({
           publisherId: formData.PublisherId,
           payload: encryptedPayload,
         })).unwrap();
-
+        router.push(`/publisher/${formData.PublisherId}`)
       }
     } catch (error: any) {}
   };

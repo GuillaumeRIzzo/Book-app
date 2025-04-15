@@ -57,12 +57,11 @@ const AuthorForm: React.FC<AuthorProps> = ({ title }) => {
         dispatch(createAuthor(encryptedPayload)).unwrap();
         router.push('/authors');
       } else {
-        // const result = await updateAuthor(encryptedPayload);
         dispatch(updateAuthorAsync({
           authorId: formData.AuthorId,
           payload: encryptedPayload,
         })).unwrap();
-
+        router.push(`/author/${formData.AuthorId}`);
       }
     } catch (error: any) {}
   };

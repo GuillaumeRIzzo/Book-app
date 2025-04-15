@@ -75,7 +75,7 @@ namespace BookAPI.Controllers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [Authorize]
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutPublisher(int id, EncryptedPayload payload)
+        public async Task<ActionResult<EncryptedPayload>> PutPublisher(int id, EncryptedPayload payload)
         {
             try
             {

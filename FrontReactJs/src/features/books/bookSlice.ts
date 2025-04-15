@@ -77,10 +77,11 @@ export const updateBookAsync = createAsyncThunk(
   'books/updateBook',
   async ({ bookId, payload }: UpdateBookParams) => {
     try {
-      const response = await updateBook(bookId, payload);
-      return response.data;
+      await updateBook(bookId, payload);
+      
+      return { bookId, decryped : decryptPayload(payload.encryptedData, payload.iv) };
     } catch (error: any) {
-      console.error('Failed to delete book:', error);
+      console.error('Failed to update book:', error);
       // Throw error to handle it in UI
       throw error; 
     }
@@ -171,9 +172,13 @@ const booksSlice = createSlice({
       })
       .addCase(updateBookAsync.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        const index = state.books.findIndex(book => book.bookId === action.payload.bookId);
+        const { bookId, decryped } = action.payload;
+        const index = state.books.findIndex(book => book.bookId === bookId);
         if (index !== -1) {
-          state.books[index] = action.payload;
+          state.books[index] = {
+            ...state.books[index],
+            ...decryped
+          };
         }
       })
       .addCase(updateBookAsync.rejected, (state, action) => {

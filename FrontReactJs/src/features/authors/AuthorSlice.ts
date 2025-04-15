@@ -18,7 +18,7 @@ export const fetchAuthorsAsync = createAsyncThunk('authors/getAuthors', async ()
 
     let authors: Author[];
     try {
-      authors = camelCaseKeys(decryptedData, {deep: true}) as unknown as Author[];
+      authors = camelCaseKeys(decryptedData, { deep: true }) as unknown as Author[];
     } catch (error) {
       console.error('Failed to parse decrypted data:', decryptedData);
       throw new Error('Decrypted data is not valid JSON');
@@ -38,14 +38,14 @@ export const fetchAuthorById = createAsyncThunk(
       // Call API to fetch encrypted author data
       const response = await getAuthor(authorId);
 
-       // Ensure data types for encrypted payload
-       const encryptedData = response.data.encryptedData as string;
-       const iv = response.data.iv as string;
+      // Ensure data types for encrypted payload
+      const encryptedData = response.data.encryptedData as string;
+      const iv = response.data.iv as string;
 
-       // Decrypt the data
-       const decryptedData = decryptPayload(encryptedData, iv);
- 
-      const author = camelCaseKeys(decryptedData, {deep: true}) as unknown as Author;
+      // Decrypt the data
+      const decryptedData = decryptPayload(encryptedData, iv);
+
+      const author = camelCaseKeys(decryptedData, { deep: true }) as unknown as Author;
       return author;
     } catch (error) {
       console.error('Failed to fetch author:', error);
@@ -75,12 +75,13 @@ export const updateAuthorAsync = createAsyncThunk(
   'authors/updateAuthor',
   async ({ authorId, payload }: UpdateAuthorParams) => {
     try {
-      const response = await updateAuthor(authorId, payload);
-      return response.data;
+      await updateAuthor(authorId, payload);
+
+      return { authorId, decrypted: decryptPayload(payload.encryptedData, payload.iv) };
     } catch (error: any) {
-      console.error('Failed to delete author:', error);
+      console.error('Failed to update author:', error);
       // Throw error to handle it in UI
-      throw error; 
+      throw error;
     }
   }
 );
@@ -123,7 +124,7 @@ const authorsSlice = createSlice({
         state.error = action.error.message || null;
       })
 
-      //Fetch one
+      // Fetch one
       .addCase(fetchAuthorById.pending, (state) => {
         state.status = 'loading';
       })
@@ -148,16 +149,20 @@ const authorsSlice = createSlice({
         state.status = 'failed';
         state.error = action.error.message || null;
       })
-      
+
       // Update
       .addCase(updateAuthorAsync.pending, state => {
         state.status = 'loading';
       })
       .addCase(updateAuthorAsync.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        const index = state.authors.findIndex(author => author.authorId === action.payload.authorId);
+        const { authorId, decrypted } = action.payload;
+        const index = state.authors.findIndex(author => author.authorId === authorId);
         if (index !== -1) {
-          state.authors[index] = action.payload;
+          state.authors[index] = {
+            ...state.authors[index],
+            ...decrypted
+          };
         }
       })
       .addCase(updateAuthorAsync.rejected, (state, action) => {
