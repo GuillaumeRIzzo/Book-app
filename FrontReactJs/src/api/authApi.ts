@@ -1,10 +1,9 @@
 import axios, { AxiosPromise } from 'axios';
 
-import { environment } from 'environments/environment';
 import { EncryptedPayload } from '@/utils/encryptUtils';
 
 export const apiClient = axios.create({
-  baseURL: environment.API_BASE_URL,
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
 });
 
 apiClient.interceptors.request.use((config) => {

@@ -1,5 +1,4 @@
 import CryptoJS from "crypto-js";
-import { environment } from "environments/environment";
 
 // Define types for the encryption output
 export interface EncryptedPayload {
@@ -8,7 +7,7 @@ export interface EncryptedPayload {
 }
 
 // Define a constant for the encryption key
-const encryptionKey = environment.ENCRYPT_KEY; // Ensure secure storage for sensitive keys
+const encryptionKey = process.env.NEXT_PUBLIC_ENCRYPT_KEY as string; // Ensure secure storage for sensitive keys
 
 // Function to ensure the key has the correct length
 const getCorrectKeySize = (key: string): CryptoJS.lib.WordArray => {
