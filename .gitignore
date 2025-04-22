@@ -4,4 +4,5 @@ Front/src/assets/env.js
 /Back/BookAPI/.vs/BookAPI/v17/TestStore/0/testlog.manifest
 data/
 .env
+.env.local
 /node_modules

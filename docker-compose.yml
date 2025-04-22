@@ -15,6 +15,20 @@ services:
       - sqlnetwork
     command: /bin/bash -c "/opt/mssql/bin/sqlservr & sleep 30 & /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P YourStrong!Passw0rd -i /docker-entrypoint-initdb.d/init.sql"
 
+  strapi-db:
+    image: postgres:15
+    container_name: strapi-db
+    ports:
+    - "5432:5432"
+    environment:
+      POSTGRES_DB: strapi
+      POSTGRES_USER: strapi
+      POSTGRES_PASSWORD: strapi
+    volumes:
+      - strapi-data:/var/lib/postgresql/data
+    networks:
+      - sqlnetwork
+      
   strapi:
     build:
       context: ./Back/StrapiCMS
@@ -24,6 +38,8 @@ services:
       - "1337:1337"
     env_file:
       - .env
+    depends_on:
+      - strapi-db
     volumes:
       - ./Back/StrapiCMS:/app
       - /app/node_modules
@@ -110,3 +126,4 @@ networks:
 
 volumes:
   jenkins_home:
+  strapi-data:
