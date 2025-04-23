@@ -1,0 +1,943 @@
+
+```
+book-app
+├─ Back
+│  ├─ BookAPI
+│  │  ├─ appsettings.Development.json
+│  │  ├─ appsettings.json
+│  │  ├─ BookAPI.csproj
+│  │  ├─ BookAPI.csproj.user
+│  │  ├─ BookAPI.http
+│  │  ├─ BookAPI.sln
+│  │  ├─ Controllers
+│  │  │  ├─ AuthorsController.cs
+│  │  │  ├─ BookCategoryController.cs
+│  │  │  ├─ BooksController.cs
+│  │  │  ├─ CategorieListsController.cs
+│  │  │  ├─ IdentityController.cs
+│  │  │  ├─ PublishersController.cs
+│  │  │  ├─ ReadlistsController.cs
+│  │  │  └─ UsersController.cs
+│  │  ├─ Data
+│  │  │  ├─ Author.cs
+│  │  │  ├─ Book.cs
+│  │  │  ├─ BookAction.cs
+│  │  │  ├─ BookCategory.cs
+│  │  │  ├─ BookDbContext.cs
+│  │  │  ├─ CategoryList.cs
+│  │  │  ├─ Modify.cs
+│  │  │  ├─ Publisher.cs
+│  │  │  ├─ Readlist.cs
+│  │  │  └─ User.cs
+│  │  ├─ Identity
+│  │  │  ├─ IdentityData.cs
+│  │  │  ├─ LoginResponseDto.cs
+│  │  │  ├─ RequiresCustomClaimAttribute.cs
+│  │  │  └─ RequiresCustomClaimAttributeHandler.cs
+│  │  ├─ Migrations
+│  │  │  ├─ 20250411101958_EnableCascadeDeleteOnCategoryList.cs
+│  │  │  ├─ 20250411101958_EnableCascadeDeleteOnCategoryList.Designer.cs
+│  │  │  └─ BookDbContextModelSnapshot.cs
+│  │  ├─ Models
+│  │  │  ├─ ChangePasswordRequest.cs
+│  │  │  ├─ ChangeUserInfosRequest.cs
+│  │  │  ├─ LoginViewModel.cs
+│  │  │  ├─ ModelViewAuthor.cs
+│  │  │  ├─ ModelViewBook.cs
+│  │  │  ├─ ModelViewBookCategory.cs
+│  │  │  ├─ ModelViewCategoryList.cs
+│  │  │  ├─ ModelViewPublisher.cs
+│  │  │  ├─ ModelViewReadlist.cs
+│  │  │  └─ ModelViewUser.cs
+│  │  ├─ packages
+│  │  │  ├─ xunit.2.7.0
+│  │  │  │  ├─ .signature.p7s
+│  │  │  │  ├─ xunit.2.7.0.nupkg
+│  │  │  │  └─ _content
+│  │  │  │     ├─ logo-128-transparent.png
+│  │  │  │     └─ README.md
+│  │  │  ├─ xunit.abstractions.2.0.3
+│  │  │  │  ├─ .signature.p7s
+│  │  │  │  ├─ lib
+│  │  │  │  │  ├─ net35
+│  │  │  │  │  │  ├─ xunit.abstractions.dll
+│  │  │  │  │  │  └─ xunit.abstractions.xml
+│  │  │  │  │  ├─ netstandard1.0
+│  │  │  │  │  │  ├─ xunit.abstractions.dll
+│  │  │  │  │  │  └─ xunit.abstractions.xml
+│  │  │  │  │  └─ netstandard2.0
+│  │  │  │  │     ├─ xunit.abstractions.dll
+│  │  │  │  │     └─ xunit.abstractions.xml
+│  │  │  │  └─ xunit.abstractions.2.0.3.nupkg
+│  │  │  ├─ xunit.analyzers.1.11.0
+│  │  │  │  ├─ .signature.p7s
+│  │  │  │  ├─ analyzers
+│  │  │  │  │  └─ dotnet
+│  │  │  │  │     ├─ roslyn3.11
+│  │  │  │  │     │  └─ cs
+│  │  │  │  │     │     ├─ xunit.analyzers.dll
+│  │  │  │  │     │     └─ xunit.analyzers.fixes.dll
+│  │  │  │  │     ├─ roslyn4.4
+│  │  │  │  │     │  └─ cs
+│  │  │  │  │     │     ├─ xunit.analyzers.dll
+│  │  │  │  │     │     └─ xunit.analyzers.fixes.dll
+│  │  │  │  │     ├─ roslyn4.6
+│  │  │  │  │     │  └─ cs
+│  │  │  │  │     │     ├─ xunit.analyzers.dll
+│  │  │  │  │     │     └─ xunit.analyzers.fixes.dll
+│  │  │  │  │     └─ roslyn4.8
+│  │  │  │  │        └─ cs
+│  │  │  │  │           ├─ xunit.analyzers.dll
+│  │  │  │  │           └─ xunit.analyzers.fixes.dll
+│  │  │  │  ├─ tools
+│  │  │  │  │  ├─ install.ps1
+│  │  │  │  │  └─ uninstall.ps1
+│  │  │  │  ├─ xunit.analyzers.1.11.0.nupkg
+│  │  │  │  └─ _content
+│  │  │  │     ├─ logo-128-transparent.png
+│  │  │  │     └─ README.md
+│  │  │  ├─ xunit.assert.2.7.0
+│  │  │  │  ├─ .signature.p7s
+│  │  │  │  ├─ lib
+│  │  │  │  │  ├─ net6.0
+│  │  │  │  │  │  ├─ xunit.assert.dll
+│  │  │  │  │  │  └─ xunit.assert.xml
+│  │  │  │  │  └─ netstandard1.1
+│  │  │  │  │     ├─ xunit.assert.dll
+│  │  │  │  │     └─ xunit.assert.xml
+│  │  │  │  ├─ xunit.assert.2.7.0.nupkg
+│  │  │  │  └─ _content
+│  │  │  │     ├─ logo-128-transparent.png
+│  │  │  │     └─ README.md
+│  │  │  ├─ xunit.core.2.7.0
+│  │  │  │  ├─ .signature.p7s
+│  │  │  │  ├─ build
+│  │  │  │  │  ├─ xunit.core.props
+│  │  │  │  │  └─ xunit.core.targets
+│  │  │  │  ├─ buildMultiTargeting
+│  │  │  │  │  ├─ xunit.core.props
+│  │  │  │  │  └─ xunit.core.targets
+│  │  │  │  ├─ xunit.core.2.7.0.nupkg
+│  │  │  │  └─ _content
+│  │  │  │     ├─ logo-128-transparent.png
+│  │  │  │     └─ README.md
+│  │  │  ├─ xunit.extensibility.core.2.7.0
+│  │  │  │  ├─ .signature.p7s
+│  │  │  │  ├─ lib
+│  │  │  │  │  ├─ net452
+│  │  │  │  │  │  ├─ xunit.core.dll
+│  │  │  │  │  │  ├─ xunit.core.dll.tdnet
+│  │  │  │  │  │  ├─ xunit.core.xml
+│  │  │  │  │  │  ├─ xunit.runner.tdnet.dll
+│  │  │  │  │  │  └─ xunit.runner.utility.net452.dll
+│  │  │  │  │  └─ netstandard1.1
+│  │  │  │  │     ├─ xunit.core.dll
+│  │  │  │  │     └─ xunit.core.xml
+│  │  │  │  ├─ xunit.extensibility.core.2.7.0.nupkg
+│  │  │  │  └─ _content
+│  │  │  │     ├─ logo-128-transparent.png
+│  │  │  │     └─ README.md
+│  │  │  ├─ xunit.extensibility.execution.2.7.0
+│  │  │  │  ├─ .signature.p7s
+│  │  │  │  ├─ lib
+│  │  │  │  │  ├─ net452
+│  │  │  │  │  │  ├─ xunit.execution.desktop.dll
+│  │  │  │  │  │  └─ xunit.execution.desktop.xml
+│  │  │  │  │  └─ netstandard1.1
+│  │  │  │  │     ├─ xunit.execution.dotnet.dll
+│  │  │  │  │     └─ xunit.execution.dotnet.xml
+│  │  │  │  ├─ xunit.extensibility.execution.2.7.0.nupkg
+│  │  │  │  └─ _content
+│  │  │  │     ├─ logo-128-transparent.png
+│  │  │  │     └─ README.md
+│  │  │  └─ xunit.runner.console.2.7.0
+│  │  │     ├─ .signature.p7s
+│  │  │     ├─ build
+│  │  │     │  └─ xunit.runner.console.props
+│  │  │     ├─ tools
+│  │  │     │  ├─ net452
+│  │  │     │  │  ├─ xunit.abstractions.dll
+│  │  │     │  │  ├─ xunit.console.exe
+│  │  │     │  │  ├─ xunit.console.exe.config
+│  │  │     │  │  ├─ xunit.console.x86.exe
+│  │  │     │  │  ├─ xunit.console.x86.exe.config
+│  │  │     │  │  ├─ xunit.runner.reporters.net452.dll
+│  │  │     │  │  └─ xunit.runner.utility.net452.dll
+│  │  │     │  ├─ net46
+│  │  │     │  │  ├─ xunit.abstractions.dll
+│  │  │     │  │  ├─ xunit.console.exe
+│  │  │     │  │  ├─ xunit.console.exe.config
+│  │  │     │  │  ├─ xunit.console.x86.exe
+│  │  │     │  │  ├─ xunit.console.x86.exe.config
+│  │  │     │  │  ├─ xunit.runner.reporters.net452.dll
+│  │  │     │  │  └─ xunit.runner.utility.net452.dll
+│  │  │     │  ├─ net461
+│  │  │     │  │  ├─ xunit.abstractions.dll
+│  │  │     │  │  ├─ xunit.console.exe
+│  │  │     │  │  ├─ xunit.console.exe.config
+│  │  │     │  │  ├─ xunit.console.x86.exe
+│  │  │     │  │  ├─ xunit.console.x86.exe.config
+│  │  │     │  │  ├─ xunit.runner.reporters.net452.dll
+│  │  │     │  │  └─ xunit.runner.utility.net452.dll
+│  │  │     │  ├─ net462
+│  │  │     │  │  ├─ xunit.abstractions.dll
+│  │  │     │  │  ├─ xunit.console.exe
+│  │  │     │  │  ├─ xunit.console.exe.config
+│  │  │     │  │  ├─ xunit.console.x86.exe
+│  │  │     │  │  ├─ xunit.console.x86.exe.config
+│  │  │     │  │  ├─ xunit.runner.reporters.net452.dll
+│  │  │     │  │  └─ xunit.runner.utility.net452.dll
+│  │  │     │  ├─ net47
+│  │  │     │  │  ├─ xunit.abstractions.dll
+│  │  │     │  │  ├─ xunit.console.exe
+│  │  │     │  │  ├─ xunit.console.exe.config
+│  │  │     │  │  ├─ xunit.console.x86.exe
+│  │  │     │  │  ├─ xunit.console.x86.exe.config
+│  │  │     │  │  ├─ xunit.runner.reporters.net452.dll
+│  │  │     │  │  └─ xunit.runner.utility.net452.dll
+│  │  │     │  ├─ net471
+│  │  │     │  │  ├─ xunit.abstractions.dll
+│  │  │     │  │  ├─ xunit.console.exe
+│  │  │     │  │  ├─ xunit.console.exe.config
+│  │  │     │  │  ├─ xunit.console.x86.exe
+│  │  │     │  │  ├─ xunit.console.x86.exe.config
+│  │  │     │  │  ├─ xunit.runner.reporters.net452.dll
+│  │  │     │  │  └─ xunit.runner.utility.net452.dll
+│  │  │     │  ├─ net472
+│  │  │     │  │  ├─ xunit.abstractions.dll
+│  │  │     │  │  ├─ xunit.console.exe
+│  │  │     │  │  ├─ xunit.console.exe.config
+│  │  │     │  │  ├─ xunit.console.x86.exe
+│  │  │     │  │  ├─ xunit.console.x86.exe.config
+│  │  │     │  │  ├─ xunit.runner.reporters.net452.dll
+│  │  │     │  │  └─ xunit.runner.utility.net452.dll
+│  │  │     │  ├─ net48
+│  │  │     │  │  ├─ xunit.abstractions.dll
+│  │  │     │  │  ├─ xunit.console.exe
+│  │  │     │  │  ├─ xunit.console.exe.config
+│  │  │     │  │  ├─ xunit.console.x86.exe
+│  │  │     │  │  ├─ xunit.console.x86.exe.config
+│  │  │     │  │  ├─ xunit.runner.reporters.net452.dll
+│  │  │     │  │  └─ xunit.runner.utility.net452.dll
+│  │  │     │  ├─ net481
+│  │  │     │  │  ├─ xunit.abstractions.dll
+│  │  │     │  │  ├─ xunit.console.exe
+│  │  │     │  │  ├─ xunit.console.exe.config
+│  │  │     │  │  ├─ xunit.console.x86.exe
+│  │  │     │  │  ├─ xunit.console.x86.exe.config
+│  │  │     │  │  ├─ xunit.runner.reporters.net452.dll
+│  │  │     │  │  └─ xunit.runner.utility.net452.dll
+│  │  │     │  ├─ net6.0
+│  │  │     │  │  ├─ xunit.abstractions.dll
+│  │  │     │  │  ├─ xunit.console.deps.json
+│  │  │     │  │  ├─ xunit.console.dll
+│  │  │     │  │  ├─ xunit.console.dll.config
+│  │  │     │  │  ├─ xunit.console.exe
+│  │  │     │  │  ├─ xunit.console.runtimeconfig.json
+│  │  │     │  │  ├─ xunit.runner.reporters.netcoreapp10.dll
+│  │  │     │  │  └─ xunit.runner.utility.netcoreapp10.dll
+│  │  │     │  ├─ netcoreapp1.0
+│  │  │     │  │  ├─ xunit.abstractions.dll
+│  │  │     │  │  ├─ xunit.console.deps.json
+│  │  │     │  │  ├─ xunit.console.dll
+│  │  │     │  │  ├─ xunit.console.dll.config
+│  │  │     │  │  ├─ xunit.console.runtimeconfig.json
+│  │  │     │  │  ├─ xunit.runner.reporters.netcoreapp10.dll
+│  │  │     │  │  └─ xunit.runner.utility.netcoreapp10.dll
+│  │  │     │  └─ netcoreapp2.0
+│  │  │     │     ├─ xunit.abstractions.dll
+│  │  │     │     ├─ xunit.console.deps.json
+│  │  │     │     ├─ xunit.console.dll
+│  │  │     │     ├─ xunit.console.dll.config
+│  │  │     │     ├─ xunit.console.runtimeconfig.json
+│  │  │     │     ├─ xunit.runner.reporters.netcoreapp10.dll
+│  │  │     │     └─ xunit.runner.utility.netcoreapp10.dll
+│  │  │     ├─ xunit.runner.console.2.7.0.nupkg
+│  │  │     └─ _content
+│  │  │        ├─ logo-128-transparent.png
+│  │  │        └─ README.md
+│  │  ├─ Program.cs
+│  │  ├─ Properties
+│  │  │  └─ launchSettings.json
+│  │  ├─ Swagger
+│  │  │  └─ ConfigureSwaggerOptions.cs
+│  │  └─ Utils
+│  │     ├─ EncryptedPayload.cs
+│  │     └─ EncryptionHelper.cs
+│  ├─ BookAPI.Tests
+│  │  ├─ AuthorsControllerTests.cs
+│  │  ├─ BookAPI.Tests.csproj
+│  │  ├─ BookCategoryControllerTests.cs
+│  │  ├─ BooksControllerTests.cs
+│  │  ├─ CategoryListsControllerTests.cs
+│  │  ├─ IdentityControllerTests.cs
+│  │  ├─ PublishersControllerTests.cs
+│  │  ├─ TestAsyncEnumerable.cs
+│  │  ├─ TestAsyncEnumerator.cs
+│  │  ├─ TestAsyncQueryProvider.cs
+│  │  └─ UsersControllerTests.cs
+│  └─ Dockerfile
+├─ docker-compose.yml
+├─ entrypoint.sh
+├─ Front
+│  ├─ .dockerignore
+│  ├─ angular.json
+│  ├─ Dockerfile.dev
+│  ├─ Dockerfile.nginx
+│  ├─ nginx.conf
+│  ├─ package-lock.json
+│  ├─ package.json
+│  ├─ README.md
+│  ├─ src
+│  │  ├─ .editorconfig
+│  │  ├─ app
+│  │  │  ├─ app-routing.module.ts
+│  │  │  ├─ app.component.css
+│  │  │  ├─ app.component.html
+│  │  │  ├─ app.component.ts
+│  │  │  ├─ app.module.ts
+│  │  │  ├─ auth
+│  │  │  │  ├─ auth.guard.ts
+│  │  │  │  ├─ authService.service.ts
+│  │  │  │  ├─ inscription
+│  │  │  │  │  ├─ inscription.component.css
+│  │  │  │  │  ├─ inscription.component.html
+│  │  │  │  │  └─ inscription.component.ts
+│  │  │  │  └─ login
+│  │  │  │     ├─ login.component.css
+│  │  │  │     ├─ login.component.html
+│  │  │  │     └─ login.component.ts
+│  │  │  ├─ author
+│  │  │  │  ├─ addAuthor
+│  │  │  │  │  ├─ addAuthor.component.css
+│  │  │  │  │  ├─ addAuthor.component.html
+│  │  │  │  │  └─ addAuthor.component.ts
+│  │  │  │  ├─ author.module.ts
+│  │  │  │  ├─ author.service.ts
+│  │  │  │  ├─ author.ts
+│  │  │  │  ├─ authorDetails
+│  │  │  │  │  ├─ authorDetails.component.css
+│  │  │  │  │  ├─ authorDetails.component.html
+│  │  │  │  │  └─ authorDetails.component.ts
+│  │  │  │  ├─ authorForm
+│  │  │  │  │  ├─ authorForm.component.css
+│  │  │  │  │  ├─ authorForm.component.html
+│  │  │  │  │  └─ authorForm.component.ts
+│  │  │  │  ├─ authorsList
+│  │  │  │  │  ├─ authorsList.component.css
+│  │  │  │  │  ├─ authorsList.component.html
+│  │  │  │  │  └─ authorsList.component.ts
+│  │  │  │  └─ editAuthor
+│  │  │  │     ├─ editAuthor.component.css
+│  │  │  │     ├─ editAuthor.component.html
+│  │  │  │     └─ editAuthor.component.ts
+│  │  │  ├─ book
+│  │  │  │  ├─ addBook
+│  │  │  │  │  ├─ addBook.component.css
+│  │  │  │  │  ├─ addBook.component.html
+│  │  │  │  │  └─ addBook.component.ts
+│  │  │  │  ├─ book-filter-service.service.ts
+│  │  │  │  ├─ book.module.ts
+│  │  │  │  ├─ book.service.ts
+│  │  │  │  ├─ book.ts
+│  │  │  │  ├─ bookDetail
+│  │  │  │  │  ├─ bookDetail.component.css
+│  │  │  │  │  ├─ bookDetail.component.html
+│  │  │  │  │  └─ bookDetail.component.ts
+│  │  │  │  ├─ bookForm
+│  │  │  │  │  ├─ bookForm.component.css
+│  │  │  │  │  ├─ bookForm.component.html
+│  │  │  │  │  └─ bookForm.component.ts
+│  │  │  │  ├─ booksList
+│  │  │  │  │  ├─ booksList.component.css
+│  │  │  │  │  ├─ booksList.component.html
+│  │  │  │  │  └─ booksList.component.ts
+│  │  │  │  └─ editBook
+│  │  │  │     ├─ editBook.component.css
+│  │  │  │     ├─ editBook.component.html
+│  │  │  │     └─ editBook.component.ts
+│  │  │  ├─ book-category
+│  │  │  │  ├─ addbookcategory
+│  │  │  │  │  ├─ addbookcategory.component.css
+│  │  │  │  │  ├─ addbookcategory.component.html
+│  │  │  │  │  └─ addbookcategory.component.ts
+│  │  │  │  ├─ book-category.module.ts
+│  │  │  │  ├─ bookCategory.service.ts
+│  │  │  │  ├─ bookCategory.ts
+│  │  │  │  ├─ bookCategoryDetails
+│  │  │  │  │  ├─ bookCategoryDetails.component.css
+│  │  │  │  │  ├─ bookCategoryDetails.component.html
+│  │  │  │  │  └─ bookCategoryDetails.component.ts
+│  │  │  │  ├─ bookCategoryEdit
+│  │  │  │  │  ├─ bookCategoryEdit.component.css
+│  │  │  │  │  ├─ bookCategoryEdit.component.html
+│  │  │  │  │  └─ bookCategoryEdit.component.ts
+│  │  │  │  ├─ bookCategoryForm
+│  │  │  │  │  ├─ bookCategoryForm.component.css
+│  │  │  │  │  ├─ bookCategoryForm.component.html
+│  │  │  │  │  └─ bookCategoryForm.component.ts
+│  │  │  │  └─ bookCategoryList
+│  │  │  │     ├─ bookCategoryList.component.css
+│  │  │  │     ├─ bookCategoryList.component.html
+│  │  │  │     └─ bookCategoryList.component.ts
+│  │  │  ├─ dialog
+│  │  │  │  ├─ dialog.component.css
+│  │  │  │  ├─ dialog.component.html
+│  │  │  │  └─ dialog.component.ts
+│  │  │  ├─ navabar
+│  │  │  │  ├─ navabar.component.css
+│  │  │  │  ├─ navabar.component.html
+│  │  │  │  └─ navabar.component.ts
+│  │  │  ├─ publisher
+│  │  │  │  ├─ addPublisher
+│  │  │  │  │  ├─ addPublisher.component.css
+│  │  │  │  │  ├─ addPublisher.component.html
+│  │  │  │  │  └─ addPublisher.component.ts
+│  │  │  │  ├─ editPublisher
+│  │  │  │  │  ├─ editPublisher.component.css
+│  │  │  │  │  ├─ editPublisher.component.html
+│  │  │  │  │  └─ editPublisher.component.ts
+│  │  │  │  ├─ publisher.module.ts
+│  │  │  │  ├─ publisher.service.ts
+│  │  │  │  ├─ publisher.ts
+│  │  │  │  ├─ publisherDetails
+│  │  │  │  │  ├─ publisherDetails.component.css
+│  │  │  │  │  ├─ publisherDetails.component.html
+│  │  │  │  │  └─ publisherDetails.component.ts
+│  │  │  │  ├─ publisherForm
+│  │  │  │  │  ├─ publisherForm.component.css
+│  │  │  │  │  ├─ publisherForm.component.html
+│  │  │  │  │  └─ publisherForm.component.ts
+│  │  │  │  └─ publisherList
+│  │  │  │     ├─ publisherList.component.css
+│  │  │  │     ├─ publisherList.component.html
+│  │  │  │     └─ publisherList.component.ts
+│  │  │  ├─ rating
+│  │  │  │  ├─ rating.component.css
+│  │  │  │  ├─ rating.component.html
+│  │  │  │  └─ rating.component.ts
+│  │  │  ├─ search
+│  │  │  │  ├─ quickResultsList
+│  │  │  │  │  ├─ quickResultsList.component.css
+│  │  │  │  │  ├─ quickResultsList.component.html
+│  │  │  │  │  └─ quickResultsList.component.ts
+│  │  │  │  ├─ search.component.css
+│  │  │  │  ├─ search.component.html
+│  │  │  │  ├─ search.component.ts
+│  │  │  │  ├─ search.service.ts
+│  │  │  │  ├─ searchOverlay
+│  │  │  │  │  ├─ searchOverlay.component.css
+│  │  │  │  │  ├─ searchOverlay.component.html
+│  │  │  │  │  └─ searchOverlay.component.ts
+│  │  │  │  ├─ searchResults
+│  │  │  │  │  ├─ searchResults.component.css
+│  │  │  │  │  ├─ searchResults.component.html
+│  │  │  │  │  └─ searchResults.component.ts
+│  │  │  │  ├─ searchResults.service.ts
+│  │  │  │  └─ SharedSearchResults.service.ts
+│  │  │  ├─ shared-data.service.ts
+│  │  │  ├─ truncate.pipe.ts
+│  │  │  └─ user
+│  │  │     ├─ user.module.ts
+│  │  │     ├─ user.service.ts
+│  │  │     ├─ user.ts
+│  │  │     ├─ userEdit
+│  │  │     │  ├─ userEdit.component.css
+│  │  │     │  ├─ userEdit.component.html
+│  │  │     │  └─ userEdit.component.ts
+│  │  │     ├─ userForm
+│  │  │     │  ├─ userForm.component.css
+│  │  │     │  ├─ userForm.component.html
+│  │  │     │  └─ userForm.component.ts
+│  │  │     └─ userList
+│  │  │        ├─ userList.component.css
+│  │  │        ├─ userList.component.html
+│  │  │        └─ userList.component.ts
+│  │  ├─ assets
+│  │  ├─ custom-theme.scss
+│  │  ├─ favicon.ico
+│  │  ├─ index.html
+│  │  ├─ main.ts
+│  │  └─ styles.css
+│  ├─ tsconfig.app.json
+│  └─ tsconfig.json
+├─ FrontReactJs
+│  ├─ .babelrc
+│  ├─ .dockerignore
+│  ├─ .eslintrc.json
+│  ├─ .next
+│  │  ├─ build-manifest.json
+│  │  ├─ cache
+│  │  │  ├─ swc
+│  │  │  │  └─ plugins
+│  │  │  │     └─ v7_windows_x86_64_0.106.15
+│  │  │  └─ webpack
+│  │  │     ├─ client-development
+│  │  │     │  ├─ 0.pack.gz
+│  │  │     │  ├─ 1.pack.gz
+│  │  │     │  ├─ 10.pack.gz
+│  │  │     │  ├─ 11.pack.gz
+│  │  │     │  ├─ 12.pack.gz
+│  │  │     │  ├─ 13.pack.gz
+│  │  │     │  ├─ 14.pack.gz
+│  │  │     │  ├─ 15.pack.gz
+│  │  │     │  ├─ 16.pack.gz
+│  │  │     │  ├─ 17.pack.gz
+│  │  │     │  ├─ 18.pack.gz
+│  │  │     │  ├─ 19.pack.gz
+│  │  │     │  ├─ 2.pack.gz
+│  │  │     │  ├─ 20.pack.gz
+│  │  │     │  ├─ 21.pack.gz
+│  │  │     │  ├─ 22.pack.gz
+│  │  │     │  ├─ 23.pack.gz
+│  │  │     │  ├─ 24.pack.gz
+│  │  │     │  ├─ 25.pack.gz
+│  │  │     │  ├─ 26.pack.gz
+│  │  │     │  ├─ 27.pack.gz
+│  │  │     │  ├─ 28.pack.gz
+│  │  │     │  ├─ 3.pack.gz
+│  │  │     │  ├─ 4.pack.gz
+│  │  │     │  ├─ 5.pack.gz
+│  │  │     │  ├─ 6.pack.gz
+│  │  │     │  ├─ 7.pack.gz
+│  │  │     │  ├─ 8.pack.gz
+│  │  │     │  ├─ 9.pack.gz
+│  │  │     │  ├─ index.pack.gz
+│  │  │     │  └─ index.pack.gz.old
+│  │  │     ├─ client-development-fallback
+│  │  │     │  ├─ 0.pack.gz
+│  │  │     │  ├─ 1.pack.gz
+│  │  │     │  ├─ index.pack.gz
+│  │  │     │  └─ index.pack.gz.old
+│  │  │     ├─ edge-server-development
+│  │  │     │  ├─ 0.pack.gz
+│  │  │     │  ├─ 1.pack.gz
+│  │  │     │  ├─ 2.pack.gz
+│  │  │     │  ├─ 3.pack.gz
+│  │  │     │  ├─ 4.pack.gz
+│  │  │     │  ├─ index.pack.gz
+│  │  │     │  └─ index.pack.gz.old
+│  │  │     └─ server-development
+│  │  │        ├─ 0.pack.gz
+│  │  │        ├─ 1.pack.gz
+│  │  │        ├─ 10.pack.gz
+│  │  │        ├─ 11.pack.gz
+│  │  │        ├─ 12.pack.gz
+│  │  │        ├─ 13.pack.gz
+│  │  │        ├─ 14.pack.gz
+│  │  │        ├─ 15.pack.gz
+│  │  │        ├─ 16.pack.gz
+│  │  │        ├─ 17.pack.gz
+│  │  │        ├─ 18.pack.gz
+│  │  │        ├─ 19.pack.gz
+│  │  │        ├─ 2.pack.gz
+│  │  │        ├─ 20.pack.gz
+│  │  │        ├─ 21.pack.gz
+│  │  │        ├─ 22.pack.gz
+│  │  │        ├─ 23.pack.gz
+│  │  │        ├─ 24.pack.gz
+│  │  │        ├─ 25.pack.gz
+│  │  │        ├─ 26.pack.gz
+│  │  │        ├─ 27.pack.gz
+│  │  │        ├─ 3.pack.gz
+│  │  │        ├─ 4.pack.gz
+│  │  │        ├─ 5.pack.gz
+│  │  │        ├─ 6.pack.gz
+│  │  │        ├─ 7.pack.gz
+│  │  │        ├─ 8.pack.gz
+│  │  │        ├─ 9.pack.gz
+│  │  │        ├─ index.pack.gz
+│  │  │        └─ index.pack.gz.old
+│  │  ├─ package.json
+│  │  ├─ react-loadable-manifest.json
+│  │  ├─ server
+│  │  │  ├─ edge-runtime-webpack.js
+│  │  │  ├─ interception-route-rewrite-manifest.js
+│  │  │  ├─ middleware-build-manifest.js
+│  │  │  ├─ middleware-manifest.json
+│  │  │  ├─ middleware-react-loadable-manifest.js
+│  │  │  ├─ next-font-manifest.js
+│  │  │  ├─ next-font-manifest.json
+│  │  │  ├─ pages
+│  │  │  │  ├─ api
+│  │  │  │  │  └─ auth
+│  │  │  │  │     └─ [...nextauth].js
+│  │  │  │  ├─ auth
+│  │  │  │  │  ├─ login.js
+│  │  │  │  │  └─ signin.js
+│  │  │  │  ├─ author
+│  │  │  │  │  └─ authors.js
+│  │  │  │  ├─ book
+│  │  │  │  │  ├─ add.js
+│  │  │  │  │  ├─ [id]
+│  │  │  │  │  │  └─ edit.js
+│  │  │  │  │  └─ [id].js
+│  │  │  │  ├─ book-category
+│  │  │  │  │  ├─ add.js
+│  │  │  │  │  └─ bookcategories.js
+│  │  │  │  ├─ index.js
+│  │  │  │  ├─ user
+│  │  │  │  │  ├─ users.js
+│  │  │  │  │  └─ [id].js
+│  │  │  │  ├─ _app.js
+│  │  │  │  ├─ _document.js
+│  │  │  │  └─ _error.js
+│  │  │  ├─ pages-manifest.json
+│  │  │  ├─ src
+│  │  │  │  └─ middleware.js
+│  │  │  ├─ static
+│  │  │  │  └─ webpack
+│  │  │  │     └─ 633457081244afec._.hot-update.json
+│  │  │  ├─ vendor-chunks
+│  │  │  │  ├─ @swc.js
+│  │  │  │  └─ next.js
+│  │  │  ├─ webpack-api-runtime.js
+│  │  │  ├─ webpack-runtime.js
+│  │  │  └─ _error.js
+│  │  ├─ static
+│  │  │  ├─ chunks
+│  │  │  │  ├─ main.js
+│  │  │  │  ├─ pages
+│  │  │  │  │  ├─ auth
+│  │  │  │  │  │  ├─ login.js
+│  │  │  │  │  │  └─ signin.js
+│  │  │  │  │  ├─ author
+│  │  │  │  │  │  └─ authors.js
+│  │  │  │  │  ├─ book
+│  │  │  │  │  │  ├─ add.js
+│  │  │  │  │  │  ├─ [id]
+│  │  │  │  │  │  │  └─ edit.js
+│  │  │  │  │  │  └─ [id].js
+│  │  │  │  │  ├─ book-category
+│  │  │  │  │  │  ├─ add.js
+│  │  │  │  │  │  └─ bookcategories.js
+│  │  │  │  │  ├─ index.js
+│  │  │  │  │  ├─ user
+│  │  │  │  │  │  ├─ users.js
+│  │  │  │  │  │  └─ [id].js
+│  │  │  │  │  ├─ _app.js
+│  │  │  │  │  └─ _error.js
+│  │  │  │  ├─ polyfills.js
+│  │  │  │  ├─ react-refresh.js
+│  │  │  │  ├─ webpack.js
+│  │  │  │  └─ _error.js
+│  │  │  ├─ development
+│  │  │  │  ├─ _buildManifest.js
+│  │  │  │  └─ _ssgManifest.js
+│  │  │  └─ webpack
+│  │  │     ├─ 0e968a0af8421690.webpack.hot-update.json
+│  │  │     ├─ 0f6ebbe4fc5ab481.webpack.hot-update.json
+│  │  │     ├─ 128659c9e45f595a.webpack.hot-update.json
+│  │  │     ├─ 13a9790bafd85063.webpack.hot-update.json
+│  │  │     ├─ 1bf47d86ad408900.webpack.hot-update.json
+│  │  │     ├─ 1c7c98fcc5d8d806.webpack.hot-update.json
+│  │  │     ├─ 2806f5f7bf738e4f.webpack.hot-update.json
+│  │  │     ├─ 2adea442a933a766.webpack.hot-update.json
+│  │  │     ├─ 3086cf2c7a086617.webpack.hot-update.json
+│  │  │     ├─ 3221ce4b82a7da82.webpack.hot-update.json
+│  │  │     ├─ 32f74c75ed320c69.webpack.hot-update.json
+│  │  │     ├─ 333eab1af7b29b32.webpack.hot-update.json
+│  │  │     ├─ 34e613cce7c34acd.webpack.hot-update.json
+│  │  │     ├─ 34f0021408bd9b27.webpack.hot-update.json
+│  │  │     ├─ 3a140fc6b47db4e0.webpack.hot-update.json
+│  │  │     ├─ 4497da546d1c97d2.webpack.hot-update.json
+│  │  │     ├─ 4d8c230539591946.webpack.hot-update.json
+│  │  │     ├─ 50a16934043d7c88.webpack.hot-update.json
+│  │  │     ├─ 633457081244afec._.hot-update.json
+│  │  │     ├─ 6a39c16b938730c7.webpack.hot-update.json
+│  │  │     ├─ 6dfbb620f0c2ed18.webpack.hot-update.json
+│  │  │     ├─ 6f7febbaf1da9dd6.webpack.hot-update.json
+│  │  │     ├─ 7032a689a9189556.webpack.hot-update.json
+│  │  │     ├─ 72e258341f057002.webpack.hot-update.json
+│  │  │     ├─ 7430a0cb04a8c4af.webpack.hot-update.json
+│  │  │     ├─ 7442af669a745be2.webpack.hot-update.json
+│  │  │     ├─ 774c0e7af4407e2e.webpack.hot-update.json
+│  │  │     ├─ 7a8d863f3076720f.webpack.hot-update.json
+│  │  │     ├─ 7caffeaa3a9b293a.webpack.hot-update.json
+│  │  │     ├─ 7f7ee3c1d9bfb139.webpack.hot-update.json
+│  │  │     ├─ 7fb5987018c65ce4.webpack.hot-update.json
+│  │  │     ├─ 82b4e538e0885489.webpack.hot-update.json
+│  │  │     ├─ 83f8bbae09c3633f.webpack.hot-update.json
+│  │  │     ├─ 86292a09caa1cb66.webpack.hot-update.json
+│  │  │     ├─ 8bec75ccba6ba78d.webpack.hot-update.json
+│  │  │     ├─ 8e5d216eb4cb7f9c.webpack.hot-update.json
+│  │  │     ├─ 8f036d478a0241fa.webpack.hot-update.json
+│  │  │     ├─ 91f2363a477df0af.webpack.hot-update.json
+│  │  │     ├─ 95b8c57e2eee6592.webpack.hot-update.json
+│  │  │     ├─ 965f845ca297d8f5.webpack.hot-update.json
+│  │  │     ├─ 9998a6b0a7a3c285.webpack.hot-update.json
+│  │  │     ├─ 9ab1d0094c88f24c.webpack.hot-update.json
+│  │  │     ├─ 9d5bae165bf5af59.webpack.hot-update.json
+│  │  │     ├─ 9db6ab0484ff931d.webpack.hot-update.json
+│  │  │     ├─ 9fee84c22496b755.webpack.hot-update.json
+│  │  │     ├─ a09c4effe2937011.webpack.hot-update.json
+│  │  │     ├─ a8e269614f0b9bb4.webpack.hot-update.json
+│  │  │     ├─ afd4ac989e1ba208.webpack.hot-update.json
+│  │  │     ├─ b2ef3a51e3686303.webpack.hot-update.json
+│  │  │     ├─ b5481e65bf24cd9a.webpack.hot-update.json
+│  │  │     ├─ b6b7a8a9190c0ac7.webpack.hot-update.json
+│  │  │     ├─ b70879bda2d080b1.webpack.hot-update.json
+│  │  │     ├─ bbd6f511c9c9cb12.webpack.hot-update.json
+│  │  │     ├─ c2cbc7d0c5fabae0.webpack.hot-update.json
+│  │  │     ├─ c68f15f57645a5b7.webpack.hot-update.json
+│  │  │     ├─ c6f125ca2f6bbd5c.webpack.hot-update.json
+│  │  │     ├─ cb1a88c003437e2a.webpack.hot-update.json
+│  │  │     ├─ d696cfb06bdf5a01.webpack.hot-update.json
+│  │  │     ├─ dcc44254254067b3.webpack.hot-update.json
+│  │  │     ├─ def9a55354b00d92.webpack.hot-update.json
+│  │  │     ├─ e87c52d2404f5eac.webpack.hot-update.json
+│  │  │     ├─ ebec5ce7a1b932e6.webpack.hot-update.json
+│  │  │     ├─ ee0ede9d5fef350e.webpack.hot-update.json
+│  │  │     ├─ f51a261c437bee67.webpack.hot-update.json
+│  │  │     ├─ f599b5e80dc3c9ac.webpack.hot-update.json
+│  │  │     ├─ f75ca28b6bd40675.webpack.hot-update.json
+│  │  │     ├─ fd20bfb4ae270e28.webpack.hot-update.json
+│  │  │     ├─ fe2a0921055046c3.webpack.hot-update.json
+│  │  │     ├─ pages
+│  │  │     │  ├─ book
+│  │  │     │  │  ├─ add.965f845ca297d8f5.hot-update.js
+│  │  │     │  │  ├─ [id]
+│  │  │     │  │  │  ├─ edit.0e968a0af8421690.hot-update.js
+│  │  │     │  │  │  ├─ edit.128659c9e45f595a.hot-update.js
+│  │  │     │  │  │  ├─ edit.13a9790bafd85063.hot-update.js
+│  │  │     │  │  │  ├─ edit.7430a0cb04a8c4af.hot-update.js
+│  │  │     │  │  │  ├─ edit.7caffeaa3a9b293a.hot-update.js
+│  │  │     │  │  │  ├─ edit.7f7ee3c1d9bfb139.hot-update.js
+│  │  │     │  │  │  ├─ edit.83f8bbae09c3633f.hot-update.js
+│  │  │     │  │  │  ├─ edit.8bec75ccba6ba78d.hot-update.js
+│  │  │     │  │  │  ├─ edit.8f036d478a0241fa.hot-update.js
+│  │  │     │  │  │  ├─ edit.965f845ca297d8f5.hot-update.js
+│  │  │     │  │  │  ├─ edit.9fee84c22496b755.hot-update.js
+│  │  │     │  │  │  ├─ edit.a09c4effe2937011.hot-update.js
+│  │  │     │  │  │  └─ edit.b70879bda2d080b1.hot-update.js
+│  │  │     │  │  ├─ [id].3086cf2c7a086617.hot-update.js
+│  │  │     │  │  ├─ [id].34f0021408bd9b27.hot-update.js
+│  │  │     │  │  ├─ [id].3a140fc6b47db4e0.hot-update.js
+│  │  │     │  │  ├─ [id].4497da546d1c97d2.hot-update.js
+│  │  │     │  │  ├─ [id].4d8c230539591946.hot-update.js
+│  │  │     │  │  ├─ [id].6a39c16b938730c7.hot-update.js
+│  │  │     │  │  ├─ [id].72e258341f057002.hot-update.js
+│  │  │     │  │  └─ [id].86292a09caa1cb66.hot-update.js
+│  │  │     │  ├─ _app.128659c9e45f595a.hot-update.js
+│  │  │     │  ├─ _app.2adea442a933a766.hot-update.js
+│  │  │     │  ├─ _app.333eab1af7b29b32.hot-update.js
+│  │  │     │  ├─ _app.34f0021408bd9b27.hot-update.js
+│  │  │     │  ├─ _app.6dfbb620f0c2ed18.hot-update.js
+│  │  │     │  ├─ _app.6f7febbaf1da9dd6.hot-update.js
+│  │  │     │  ├─ _app.774c0e7af4407e2e.hot-update.js
+│  │  │     │  ├─ _app.7a8d863f3076720f.hot-update.js
+│  │  │     │  ├─ _app.b5481e65bf24cd9a.hot-update.js
+│  │  │     │  ├─ _app.bbd6f511c9c9cb12.hot-update.js
+│  │  │     │  ├─ _app.e87c52d2404f5eac.hot-update.js
+│  │  │     │  ├─ _app.ee0ede9d5fef350e.hot-update.js
+│  │  │     │  └─ _app.f51a261c437bee67.hot-update.js
+│  │  │     ├─ webpack.0e968a0af8421690.hot-update.js
+│  │  │     ├─ webpack.0f6ebbe4fc5ab481.hot-update.js
+│  │  │     ├─ webpack.128659c9e45f595a.hot-update.js
+│  │  │     ├─ webpack.13a9790bafd85063.hot-update.js
+│  │  │     ├─ webpack.1bf47d86ad408900.hot-update.js
+│  │  │     ├─ webpack.1c7c98fcc5d8d806.hot-update.js
+│  │  │     ├─ webpack.2806f5f7bf738e4f.hot-update.js
+│  │  │     ├─ webpack.2adea442a933a766.hot-update.js
+│  │  │     ├─ webpack.3086cf2c7a086617.hot-update.js
+│  │  │     ├─ webpack.3221ce4b82a7da82.hot-update.js
+│  │  │     ├─ webpack.32f74c75ed320c69.hot-update.js
+│  │  │     ├─ webpack.333eab1af7b29b32.hot-update.js
+│  │  │     ├─ webpack.34e613cce7c34acd.hot-update.js
+│  │  │     ├─ webpack.34f0021408bd9b27.hot-update.js
+│  │  │     ├─ webpack.3a140fc6b47db4e0.hot-update.js
+│  │  │     ├─ webpack.4497da546d1c97d2.hot-update.js
+│  │  │     ├─ webpack.4d8c230539591946.hot-update.js
+│  │  │     ├─ webpack.50a16934043d7c88.hot-update.js
+│  │  │     ├─ webpack.6a39c16b938730c7.hot-update.js
+│  │  │     ├─ webpack.6dfbb620f0c2ed18.hot-update.js
+│  │  │     ├─ webpack.6f7febbaf1da9dd6.hot-update.js
+│  │  │     ├─ webpack.7032a689a9189556.hot-update.js
+│  │  │     ├─ webpack.72e258341f057002.hot-update.js
+│  │  │     ├─ webpack.7430a0cb04a8c4af.hot-update.js
+│  │  │     ├─ webpack.7442af669a745be2.hot-update.js
+│  │  │     ├─ webpack.774c0e7af4407e2e.hot-update.js
+│  │  │     ├─ webpack.7a8d863f3076720f.hot-update.js
+│  │  │     ├─ webpack.7caffeaa3a9b293a.hot-update.js
+│  │  │     ├─ webpack.7f7ee3c1d9bfb139.hot-update.js
+│  │  │     ├─ webpack.7fb5987018c65ce4.hot-update.js
+│  │  │     ├─ webpack.82b4e538e0885489.hot-update.js
+│  │  │     ├─ webpack.83f8bbae09c3633f.hot-update.js
+│  │  │     ├─ webpack.86292a09caa1cb66.hot-update.js
+│  │  │     ├─ webpack.8bec75ccba6ba78d.hot-update.js
+│  │  │     ├─ webpack.8e5d216eb4cb7f9c.hot-update.js
+│  │  │     ├─ webpack.8f036d478a0241fa.hot-update.js
+│  │  │     ├─ webpack.91f2363a477df0af.hot-update.js
+│  │  │     ├─ webpack.95b8c57e2eee6592.hot-update.js
+│  │  │     ├─ webpack.965f845ca297d8f5.hot-update.js
+│  │  │     ├─ webpack.9998a6b0a7a3c285.hot-update.js
+│  │  │     ├─ webpack.9ab1d0094c88f24c.hot-update.js
+│  │  │     ├─ webpack.9d5bae165bf5af59.hot-update.js
+│  │  │     ├─ webpack.9db6ab0484ff931d.hot-update.js
+│  │  │     ├─ webpack.9fee84c22496b755.hot-update.js
+│  │  │     ├─ webpack.a09c4effe2937011.hot-update.js
+│  │  │     ├─ webpack.a8e269614f0b9bb4.hot-update.js
+│  │  │     ├─ webpack.afd4ac989e1ba208.hot-update.js
+│  │  │     ├─ webpack.b2ef3a51e3686303.hot-update.js
+│  │  │     ├─ webpack.b5481e65bf24cd9a.hot-update.js
+│  │  │     ├─ webpack.b6b7a8a9190c0ac7.hot-update.js
+│  │  │     ├─ webpack.b70879bda2d080b1.hot-update.js
+│  │  │     ├─ webpack.bbd6f511c9c9cb12.hot-update.js
+│  │  │     ├─ webpack.c2cbc7d0c5fabae0.hot-update.js
+│  │  │     ├─ webpack.c68f15f57645a5b7.hot-update.js
+│  │  │     ├─ webpack.c6f125ca2f6bbd5c.hot-update.js
+│  │  │     ├─ webpack.cb1a88c003437e2a.hot-update.js
+│  │  │     ├─ webpack.d696cfb06bdf5a01.hot-update.js
+│  │  │     ├─ webpack.dcc44254254067b3.hot-update.js
+│  │  │     ├─ webpack.def9a55354b00d92.hot-update.js
+│  │  │     ├─ webpack.e87c52d2404f5eac.hot-update.js
+│  │  │     ├─ webpack.ebec5ce7a1b932e6.hot-update.js
+│  │  │     ├─ webpack.ee0ede9d5fef350e.hot-update.js
+│  │  │     ├─ webpack.f51a261c437bee67.hot-update.js
+│  │  │     ├─ webpack.f599b5e80dc3c9ac.hot-update.js
+│  │  │     ├─ webpack.f75ca28b6bd40675.hot-update.js
+│  │  │     ├─ webpack.fd20bfb4ae270e28.hot-update.js
+│  │  │     └─ webpack.fe2a0921055046c3.hot-update.js
+│  │  └─ trace
+│  ├─ .prettierrc
+│  ├─ Dockerfile
+│  ├─ environments
+│  │  └─ environment.ts
+│  ├─ next-env.d.ts
+│  ├─ next.config.mjs
+│  ├─ package-lock.json
+│  ├─ package.json
+│  ├─ postcss.config.mjs
+│  ├─ public
+│  │  ├─ favicon.ico
+│  │  ├─ next.svg
+│  │  └─ vercel.svg
+│  ├─ README.md
+│  ├─ src
+│  │  ├─ api
+│  │  │  ├─ auth
+│  │  │  │  └─ session.ts
+│  │  │  ├─ authApi.ts
+│  │  │  ├─ authorApi.ts
+│  │  │  ├─ bookApi.ts
+│  │  │  ├─ bookcategoryApi.ts
+│  │  │  ├─ publisherApi.ts
+│  │  │  └─ userApi.ts
+│  │  ├─ components
+│  │  │  ├─ common
+│  │  │  │  ├─ Button.tsx
+│  │  │  │  ├─ dialog
+│  │  │  │  │  ├─ Dialog.tsx
+│  │  │  │  │  └─ index.ts
+│  │  │  │  ├─ Header
+│  │  │  │  │  ├─ Header.tsx
+│  │  │  │  │  └─ index.ts
+│  │  │  │  ├─ Input.tsx
+│  │  │  │  ├─ Loading.tsx
+│  │  │  │  └─ ProtectedRoute.tsx
+│  │  │  ├─ context
+│  │  │  │  └─ ThemeContext.tsx
+│  │  │  ├─ layout
+│  │  │  │  ├─ index.ts
+│  │  │  │  └─ Navbar.tsx
+│  │  │  └─ SearchBar
+│  │  │     ├─ index.ts
+│  │  │     ├─ SearchBar.tsx
+│  │  │     ├─ SearchItem.tsx
+│  │  │     └─ StyledComponents.ts
+│  │  ├─ features
+│  │  │  ├─ authors
+│  │  │  │  ├─ AuthorForm.tsx
+│  │  │  │  ├─ AuthorList.tsx
+│  │  │  │  └─ AuthorSlice.ts
+│  │  │  ├─ bookCategory
+│  │  │  │  ├─ BookCategoryForm.tsx
+│  │  │  │  ├─ BookCategoryList.tsx
+│  │  │  │  └─ BookCategorySlice.ts
+│  │  │  ├─ books
+│  │  │  │  ├─ BookDetails
+│  │  │  │  │  ├─ BookDetails.tsx
+│  │  │  │  │  └─ components
+│  │  │  │  │     ├─ BookImage.tsx
+│  │  │  │  │     └─ BookInfo.tsx
+│  │  │  │  ├─ BookForm.tsx
+│  │  │  │  ├─ BookList.tsx
+│  │  │  │  └─ bookSlice.ts
+│  │  │  ├─ publishers
+│  │  │  │  ├─ PublisherForm.tsx
+│  │  │  │  ├─ PublisherList.tsx
+│  │  │  │  └─ PublisherSlice.ts
+│  │  │  └─ users
+│  │  │     ├─ UserForm.tsx
+│  │  │     ├─ UserList.tsx
+│  │  │     ├─ userProfileForm
+│  │  │     │  ├─ AccountDeletionForm.tsx
+│  │  │     │  ├─ index.ts
+│  │  │     │  ├─ PasswordChangeForm.tsx
+│  │  │     │  ├─ PersonalInfoForm.tsx
+│  │  │     │  └─ UserProfileForm.tsx
+│  │  │     └─ UserSlice.ts
+│  │  ├─ hooks
+│  │  │  ├─ imgValidator.ts
+│  │  │  ├─ useConfirmPasswordValidator.ts
+│  │  │  ├─ useEmailValidator.ts
+│  │  │  ├─ useLoginValidator.ts
+│  │  │  └─ usePasswordValidator.ts
+│  │  ├─ middleware.ts
+│  │  ├─ models
+│  │  │  ├─ author
+│  │  │  │  ├─ author.ts
+│  │  │  │  └─ AuthorState.ts
+│  │  │  ├─ book
+│  │  │  │  ├─ Book.ts
+│  │  │  │  └─ BookState.ts
+│  │  │  ├─ book-category
+│  │  │  │  ├─ BookCategory.ts
+│  │  │  │  └─ BookCategoryState.ts
+│  │  │  ├─ publisher
+│  │  │  │  ├─ publisher.ts
+│  │  │  │  └─ PublisherState.ts
+│  │  │  └─ user
+│  │  │     ├─ user.ts
+│  │  │     └─ UserState.ts
+│  │  ├─ pages
+│  │  │  ├─ api
+│  │  │  │  └─ auth
+│  │  │  │     └─ [...nextauth].ts
+│  │  │  ├─ auth
+│  │  │  │  ├─ login.tsx
+│  │  │  │  └─ signin.tsx
+│  │  │  ├─ author
+│  │  │  │  ├─ add.tsx
+│  │  │  │  └─ authors.tsx
+│  │  │  ├─ book
+│  │  │  │  ├─ add.tsx
+│  │  │  │  └─ [id]
+│  │  │  │     ├─ edit.tsx
+│  │  │  │     └─ index.tsx
+│  │  │  ├─ book-category
+│  │  │  │  ├─ add.tsx
+│  │  │  │  └─ bookcategories.tsx
+│  │  │  ├─ index.tsx
+│  │  │  ├─ publisher
+│  │  │  │  ├─ add.tsx
+│  │  │  │  └─ publishers.tsx
+│  │  │  ├─ rootLayout.tsx
+│  │  │  ├─ user
+│  │  │  │  ├─ users.tsx
+│  │  │  │  └─ [id].tsx
+│  │  │  └─ _app.tsx
+│  │  ├─ redux
+│  │  │  ├─ reducers.ts
+│  │  │  └─ store.ts
+│  │  ├─ styles
+│  │  │  └─ globals.css
+│  │  ├─ types
+│  │  │  └─ next-auth.d.ts
+│  │  └─ utils
+│  │     └─ encryptUtils.tsx
+│  ├─ tailwind.config.ts
+│  └─ tsconfig.json
+└─ init.sql
+
+```
