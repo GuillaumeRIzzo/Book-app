@@ -1,11 +1,16 @@
 #!/bin/bash
+
+echo "🚀 Starting SQL Server..."
 /opt/mssql/bin/sqlservr &
 
-# Wait for SQL Server to start
-sleep 30s
+echo "⏳ Waiting for SQL Server to be ready..."
+sleep 30
 
-# Run the initialization script
-/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P YourStrong!Passw0rd -d master -i /init.sql
+echo "📥 Running initialization script..."
+if [ -f /opt/mssql-tools/bin/sqlcmd ]; then
+    /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P YourStrong!Passw0rd -d master -i /init.sql
+else
+    echo "⚠️ sqlcmd not found — skipping DB init"
+fi
 
-# Wait to keep the container running
 wait

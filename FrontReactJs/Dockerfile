@@ -1,5 +1,8 @@
 # Use the official Node.js 18 image as a base
-FROM node:18
+FROM node:23-slim
+
+# Add ip command (iproute2)
+RUN apt-get update && apt-get install -y iproute2
 
 # Set the working directory
 WORKDIR /app

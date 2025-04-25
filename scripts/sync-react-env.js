@@ -1,20 +1,26 @@
-const fs = require("fs");
-const path = require("path");
+const fs = require('fs');
+const { execSync } = require('child_process');
 
-// Paths
-const rootEnvPath = path.resolve(__dirname, ".env");
-const reactEnvPath = path.resolve(__dirname, "FrontReactJs/.env");
+function getHostIp() {
+  try {
+    // This returns the default gateway, i.e., Docker host's IP from inside container
+    const output = execSync("ip route | grep default | awk '{print $3}'").toString().trim();
+    return output;
+  } catch (err) {
+    console.error("Failed to get host IP:", err);
+    return 'localhost'; // fallback
+  }
+}
 
-// Read root .env
-const envFile = fs.readFileSync(rootEnvPath, "utf-8");
+function updateEnvFile(ip) {
+  const envPath = '/app/.env'; // make sure this is mounted from host
 
-// Filter only REACT_APP_ variables
-const reactEnv = envFile
-  .split("\n")
-  .filter(line => line.startsWith("NEXT_PUBLIC_"))
-  .join("\n");
+  let env = fs.readFileSync(envPath, 'utf-8');
+  env = env.replace(/NEXT_PUBLIC_API_BASE_URL=http:\/\/.*?:5000\/api\//, `NEXT_PUBLIC_API_BASE_URL=http://${ip}:5000/api/`);
 
-// Write to React's .env
-fs.writeFileSync(reactEnvPath, reactEnv, { encoding: "utf-8" });
+  fs.writeFileSync(envPath, env);
+  console.log(`✅ Updated NEXT_PUBLIC_API_BASE_URL with IP ${ip}`);
+}
 
-console.log(`Synced ${reactEnv.split('\n').length} variables to FrontReactJs/.env`);
+const ip = getHostIp();
+updateEnvFile(ip);

@@ -13,7 +13,6 @@ services:
     entrypoint: ["/bin/bash", "/entrypoint.sh"]
     networks:
       - sqlnetwork
-    command: /bin/bash -c "/opt/mssql/bin/sqlservr & sleep 30 & /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P YourStrong!Passw0rd -i /docker-entrypoint-initdb.d/init.sql"
 
   strapi-db:
     image: postgres:15
@@ -41,7 +40,7 @@ services:
     depends_on:
       - strapi-db
     volumes:
-      - ./Back/StrapiCMS:/app
+      - ./Back/StrapiCMS:/opt/app
       - /app/node_modules
     networks:
       - sqlnetwork
@@ -97,18 +96,21 @@ services:
     build:
       context: ./FrontReactJs
       dockerfile: Dockerfile
-    env_file:
-      - ../.env
     container_name: react
     ports:
       - '3000:3000'
+    environment:
+      - PORT=3000
     volumes:
-      - ./FrontReactJs:/app:delegated
+      - ./FrontReactJs:/app
+      - ./scripts:/scripts:ro
+      - ./.env:/env/.env:ro
     depends_on:
       - api
     networks:
       - sqlnetwork
-    command: sh -c "node /app/../scripts/sync-react-env.js && npm run dev"
+    command: sh -c "node /scripts/sync-react-env.js && npm run dev"
+
 
   jenkins:
     image: jenkins/jenkins:lts-jdk17
