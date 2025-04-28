@@ -11,35 +11,64 @@
     "draftAndPublish": true
   },
   "attributes": {
-    "Title": {
+    "bookTitle": {
       "type": "string",
       "required": true
     },
-    "Summary": {
+    "bookDescription": {
       "type": "text",
       "required": true
     },
-    "Show": {
-      "type": "boolean",
-      "default": false
-    },
-    "Pages": {
-      "type": "integer",
-      "required": true,
-      "min": 10
-    },
-    "Puublish": {
+    "bookPublishDate": {
       "type": "date",
       "required": true
     },
-    "Cover": {
+    "bookPageCount": {
+      "type": "integer",
+      "required": true
+    },
+    "bookAverageRating": {
+      "type": "decimal",
+      "default": 0,
+      "required": false
+    },
+    "bookRatingCount": {
+      "type": "integer",
+      "default": 0
+    },
+    "bookImage": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
       "allowedTypes": [
         "images",
         "files"
-      ],
-      "type": "media",
-      "multiple": true,
+      ]
+    },
+    "bookImageLink": {
+      "type": "string"
+    },
+    "bookLanguage": {
+      "type": "string",
       "required": true
+    },
+    "read": {
+      "type": "boolean",
+      "default": false
+    },
+    "inList": {
+      "type": "boolean",
+      "default": false
+    },
+    "publisherId": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::publisher.publisher"
+    },
+    "authorId": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::author.author"
     }
   }
 }

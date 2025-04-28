@@ -6,6 +6,7 @@ import { Book } from '@/models/book/Book';
 import { BookState } from '@/models/book/BookState';
 import { getBook, getBooks, addBook, updateBook, delBook } from '@/api/bookApi';
 import { decryptPayload, EncryptedPayload } from '@/utils/encryptUtils';
+import { mapIdToCustomKeys, ModelType } from '@/utils/mapIdToCustomKeys';
 
 export const fetchBooksAsync = createAsyncThunk('books/getBooks', async () => {
   try {
@@ -13,21 +14,31 @@ export const fetchBooksAsync = createAsyncThunk('books/getBooks', async () => {
 
     const encryptedData = response.data.encryptedData;
     const iv = response.data.iv;
-
-    const decryptedData = decryptPayload(encryptedData, iv);
+    
+    const decryptedData = decryptPayload<typeof response.data>(encryptedData, iv);
 
     let books: Book[];
+
     try {
-      books = camelCaseKeys(decryptedData, { deep: true }) as unknown as Book[];
+      if (Array.isArray(decryptedData)) {
+        books = mapIdToCustomKeys(
+          camelCaseKeys(decryptedData, { deep: true }) as unknown as Book[],
+          ModelType.Book
+        );
+      } else {
+        console.error('Decrypted data is not an array of books:', decryptedData);
+        throw new Error('Decrypted data is not valid Book[]');
+      }
     } catch (error) {
       console.error('Failed to parse decrypted data:', decryptedData);
       throw new Error('Decrypted data is not valid JSON');
     }
+
     return books;
 
   } catch (error) {
     console.error('Failed to fetch books:', error);
-    throw error; // Throw error to handle it in UI
+    throw error;
   }
 });
 
@@ -35,26 +46,28 @@ export const fetchBookById = createAsyncThunk(
   'books/getBook',
   async (bookId: number) => {
     try {
-      // Call API to fetch encrypted book data
       const response = await getBook(bookId);
 
-      // Ensure data types for encrypted payload
       const encryptedData = response.data.encryptedData as string;
       const iv = response.data.iv as string;
 
-      // Decrypt the data
+      // Decrypt data
       const decryptedData = decryptPayload(encryptedData, iv);
 
-      const book = camelCaseKeys(decryptedData, { deep: true }) as unknown as Book;
+      // DecryptedData is a single Book object here
+      const book = {
+        ...camelCaseKeys(decryptedData, { deep: true }),
+        bookId: (decryptedData as any).id, // manually set the bookId
+      } as Book;
 
       return book;
     } catch (error) {
       console.error('Failed to fetch book:', error);
-      // Throw error to handle it in UI
-      throw error; 
+      throw error;
     }
   }
 );
+
 
 export const createBook = createAsyncThunk(
   'books/createBook',

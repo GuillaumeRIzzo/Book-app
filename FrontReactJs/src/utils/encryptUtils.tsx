@@ -1,7 +1,7 @@
 import CryptoJS from "crypto-js";
 
 // Define types for the encryption output
-export interface EncryptedPayload {
+export interface EncryptedPayload extends Record<string, unknown> {
   encryptedData: string;
   iv: string;
 }
@@ -43,7 +43,7 @@ export const encryptPayload = <T extends Record<string, unknown>>(data: T): Encr
 };
 
 // Function to decrypt payloads
-export const decryptPayload = <T extends Record<string, unknown>>(
+export const decryptPayload = <T extends Record<string, unknown> | Record<string, unknown>[]>(
   encryptedPayload: string,
   iv: string
 ): T => {
@@ -53,7 +53,6 @@ export const decryptPayload = <T extends Record<string, unknown>>(
     padding: CryptoJS.pad.Pkcs7,
   });
 
-  // Parse and return the decrypted JSON object
   const decryptedData = bytes.toString(CryptoJS.enc.Utf8);
 
   if (!decryptedData) {
@@ -62,4 +61,3 @@ export const decryptPayload = <T extends Record<string, unknown>>(
 
   return JSON.parse(decryptedData) as T;
 };
-

@@ -29,14 +29,16 @@ const BookList: React.FC = () => {
     if (session?.user?.encryptedSession) {
       const { encryptedData, iv } = session.user.encryptedSession;
       try {
-        const { right: decryptedRight } = decryptPayload(encryptedData, iv);
-        return { right: decryptedRight as string };
+        // Explicitly cast the decrypted data to the expected type
+        const decryptedData = decryptPayload<{ right: string }>(encryptedData, iv);
+        return { right: decryptedData.right };
       } catch (error) {
         console.error('Failed to decrypt session data:', error);
       }
     }
     return { right: '', sessionId: '' };
   }, [session]);
+  
 
   useEffect(() => {
     if (status === 'idle') {

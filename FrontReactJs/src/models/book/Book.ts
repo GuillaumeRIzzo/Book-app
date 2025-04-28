@@ -9,6 +9,7 @@ export class Book {
   bookAverageRating: number;
   bookRatingCount: number;
   bookImageLink: string;
+  bookImage: string | null;
   bookLanguage: string;
   publisherId: number;
   authorId: number;
@@ -25,6 +26,7 @@ export class Book {
     this.bookAverageRating = 0;
     this.bookRatingCount = 0;
     this.bookImageLink = '';
+    this.bookImage = null;
     this.bookLanguage = '';
     this.publisherId = 0;
     this.authorId = 0;
