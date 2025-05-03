@@ -398,6 +398,36 @@ export interface ApiAuthorAuthor extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiBookCategoryBookCategory
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'book_categories';
+  info: {
+    displayName: 'BookCategory';
+    pluralName: 'book-categories';
+    singularName: 'book-category';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    bookCategoDescription: Schema.Attribute.Text & Schema.Attribute.Required;
+    bookCategoName: Schema.Attribute.String & Schema.Attribute.Required;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::book-category.book-category'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiBookBook extends Struct.CollectionTypeSchema {
   collectionName: 'books';
   info: {
@@ -420,6 +450,10 @@ export interface ApiBookBook extends Struct.CollectionTypeSchema {
     bookPublishDate: Schema.Attribute.Date & Schema.Attribute.Required;
     bookRatingCount: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
     bookTitle: Schema.Attribute.String & Schema.Attribute.Required;
+    categories: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::book-category.book-category'
+    >;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -923,7 +957,6 @@ export interface PluginUsersPermissionsUser
   };
   options: {
     draftAndPublish: false;
-    timestamps: true;
   };
   attributes: {
     blocked: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
@@ -958,12 +991,15 @@ export interface PluginUsersPermissionsUser
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    userFirstname: Schema.Attribute.String & Schema.Attribute.Required;
+    userLastname: Schema.Attribute.String & Schema.Attribute.Required;
     username: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.Unique &
       Schema.Attribute.SetMinMaxLength<{
         minLength: 3;
       }>;
+    userRight: Schema.Attribute.String & Schema.Attribute.DefaultTo<'User'>;
   };
 }
 
@@ -978,6 +1014,7 @@ declare module '@strapi/strapi' {
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
       'api::author.author': ApiAuthorAuthor;
+      'api::book-category.book-category': ApiBookCategoryBookCategory;
       'api::book.book': ApiBookBook;
       'api::publisher.publisher': ApiPublisherPublisher;
       'plugin::content-releases.release': PluginContentReleasesRelease;

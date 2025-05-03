@@ -14,28 +14,37 @@ export default {
 async function ensureImageOrUrl(event: any) {
   const { data } = event.params;
 
-  if ((!data.bookImage || (Array.isArray(data.bookImage) && data.bookImage.length === 0)) && (!data.bookImageLink || data.bookImageLink.trim() === '')) {
+  const noImageProvided =
+    (!data.bookImage || (Array.isArray(data.bookImage) && data.bookImage.length === 0)) &&
+    (!data.bookImageLink || data.bookImageLink.trim() === '');
+
+  if (noImageProvided) {
     throw new Error('At least one of bookImage (file) or bookImageLink (external URL) must be provided.');
   }
 
-  if (!data.bookImage && data.bookImageLink) {
+  // If bookImage is missing, and bookImageLink is provided
+  if ((!data.bookImage || data.bookImage.length === 0) && data.bookImageLink) {
     const isValidUrl = await validateImageUrl(data.bookImageLink);
 
     if (!isValidUrl) {
-      throw new Error('The provided bookImageLink is invalid or not reachable.');
+      console.warn('⚠️ bookImageLink is invalid or not reachable:', data.bookImageLink);
+      // Allow creation without throwing
+      return;
     }
 
-    const uploadedFile = await downloadAndUploadImage(data.bookImageLink);
-
-    if (uploadedFile) {
-      data.bookImage = uploadedFile.id;
-    } else {
-      throw new Error('Failed to download and attach the bookImage from the provided URL.');
+    try {
+      const uploadedFile = await downloadAndUploadImage(data.bookImageLink);
+      if (uploadedFile) {
+        data.bookImage = uploadedFile.id;
+      } else {
+        console.warn('⚠️ Could not upload image, keeping bookImageLink only');
+      }
+    } catch (error) {
+      console.warn('⚠️ Exception during image download/upload:', error);
+      // Don’t throw — we keep bookImageLink even if upload fails
     }
   }
 }
-
-
 
 async function downloadAndUploadImage(url: string) {
   try {

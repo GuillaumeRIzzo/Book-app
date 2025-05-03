@@ -2,10 +2,11 @@ import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
 import camelCaseKeys from 'camelcase-keys';
 
+import { getUser, getUsers, addUser } from '@/api/userApi';
 import { User } from '@/models/user/user';
 import { UserState } from '@/models/user/UserState';
-import { getUser, getUsers } from '@/api/userApi';
-import { decryptPayload } from '@/utils/encryptUtils';
+import { decryptPayload, EncryptedPayload  } from '@/utils/encryptUtils';
+import { mapStrapiUserToUserModel } from '@/utils/mapStrapiUserToUserModel';
 
 export const fetchUsersAsync = createAsyncThunk('users/getUsers', async () => {
   try {
@@ -19,12 +20,15 @@ export const fetchUsersAsync = createAsyncThunk('users/getUsers', async () => {
     let users: User[];
     try {
       users = camelCaseKeys(decryptedData, { deep: true }) as unknown as User[];
+
+      // Use the mapStrapiUserToUserModel to transform each Strapi user
+      users = users.map(user => mapStrapiUserToUserModel(user));
     } catch (error) {
       console.error('Failed to parse decrypted data:', decryptedData);
       throw new Error('Decrypted data is not valid JSON');
     }
-    return users;
 
+    return users;
   } catch (error) {
     console.error('Failed to fetch users:', error);
     throw error;
@@ -35,26 +39,40 @@ export const fetchUserById = createAsyncThunk(
   'users/getUser',
   async (userId: number) => {
     try {
-      // Call API to fetch encrypted user data
       const response = await getUser(userId);
 
-      // Ensure data types for encrypted payload
       const encryptedData = response.data.encryptedData as string;
       const iv = response.data.iv as string;
 
-      // Decrypt the data
       const decryptedData = decryptPayload(encryptedData, iv);
 
-      // Parse decrypted data as an array of User objects
+      // Parse decrypted data as a User object
       const user = JSON.parse(decryptedData as unknown as string) as User;
-      return user;
+
+      // Use the mapStrapiUserToUserModel to map the Strapi user to the local model
+      const mappedUser = mapStrapiUserToUserModel(user);
+
+      return mappedUser;
     } catch (error) {
-      console.error('Failed to fetch users:', error);
-      throw error; // Throw error to handle it in UI
+      console.error('Failed to fetch user by ID:', error);
+      throw error;
     }
   }
 );
 
+export const createUser = createAsyncThunk(
+  'publishers/createUser',
+  async (payload: EncryptedPayload, { rejectWithValue }) => {
+    try {
+      const response = await addUser(payload);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+// Initial state setup
 const initialState: UserState = {
   users: [],
   status: 'idle',
@@ -65,7 +83,7 @@ const usersSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
-    addUser: (state, action: PayloadAction<User>) => {
+    addUserLocal: (state, action: PayloadAction<User>) => {
       state.users.push(action.payload);
     },
     setUsers: (state, action: PayloadAction<User[]>) => {
@@ -111,6 +129,6 @@ const usersSlice = createSlice({
   },
 });
 
-export const { addUser, setUsers, updateUserInState, setStatus, setError } = usersSlice.actions;
+export const { addUserLocal, setUsers, updateUserInState, setStatus, setError } = usersSlice.actions;
 
 export default usersSlice.reducer;

@@ -14,7 +14,7 @@ export const mapIdToCustomKeys = <T>(
     [ModelType.Book]: 'bookId',
     [ModelType.Author]: 'authorId',
     [ModelType.Publisher]: 'publisherId',
-    [ModelType.Category]: 'categoryId',
+    [ModelType.Category]: 'bookCategoId',
     [ModelType.User]: 'userId',
   };
 

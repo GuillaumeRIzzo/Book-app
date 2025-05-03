@@ -6,6 +6,7 @@ import { addBookCategory, getBookCategories, getBookCategory, updateBookCategory
 import { BookCategory } from '@/models/book-category/BookCategory';
 import { BookCategoryState } from '@/models/book-category/BookCategoryState';
 import { decryptPayload, EncryptedPayload } from '@/utils/encryptUtils';
+import { mapIdToCustomKeys, ModelType } from '@/utils/mapIdToCustomKeys';
 
 export const fetchBookCategoriesAsync = createAsyncThunk('bookCategories/getBooks', async () => {
   try {
@@ -14,15 +15,25 @@ export const fetchBookCategoriesAsync = createAsyncThunk('bookCategories/getBook
     const encryptedData = response.data.encryptedData;
     const iv = response.data.iv;
 
-    const decryptedData = decryptPayload(encryptedData, iv);
+    const decryptedData = decryptPayload<typeof response.data>(encryptedData, iv);
 
     let categos: BookCategory[];
+
     try {
-      categos = camelCaseKeys(decryptedData, {deep: true}) as unknown as BookCategory[];
+      if (Array.isArray(decryptedData)) {
+        categos = mapIdToCustomKeys(
+          camelCaseKeys(decryptedData, { deep: true }) as unknown as BookCategory[],
+          ModelType.Category
+        );
+      } else {
+        console.error('Decrypted data is not an array of categos:', decryptedData);
+        throw new Error('Decrypted data is not valid BookCategory[]');
+      }
     } catch (error) {
       console.error('Failed to parse decrypted data:', decryptedData);
       throw new Error('Decrypted data is not valid JSON');
     }
+
     return categos;
 
   } catch (error) {
@@ -45,8 +56,12 @@ export const fetchBookCategoryById = createAsyncThunk(
        // Decrypt the data
        const decryptedData = decryptPayload(encryptedData, iv);
  
-      const author = camelCaseKeys(decryptedData, {deep: true}) as unknown as BookCategory;
-      return author;
+    const author = {
+      ...camelCaseKeys(decryptedData, { deep: true }),
+      bookCategoId: (decryptedData as any).id, // manually set the bookId
+    } as BookCategory;
+    
+    return author;
     } catch (error) {
       console.error('Failed to fetch author:', error);
       throw error; // Throw error to handle it in UI

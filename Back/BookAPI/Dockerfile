@@ -5,14 +5,11 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # Copy csproj and restore as distinct layers
-COPY ["BookAPI/BookAPI.csproj", "BookAPI/"]
-RUN dotnet restore "BookAPI/BookAPI.csproj"
+COPY BookAPI.csproj ./
+RUN dotnet restore "./BookAPI.csproj"
 
-# Copy only the necessary files for building
+# Copy the rest of the source code
 COPY . .
-
-# Set the working directory to the project folder
-WORKDIR "/src/BookAPI"
 
 # Build the project
 RUN dotnet build "BookAPI.csproj" -c Release -o /app/build

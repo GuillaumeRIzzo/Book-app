@@ -29,3 +29,19 @@ export const encryptData = (data: object): EncryptedPayload => {
     iv: iv.toString('hex'),
   };
 }
+
+/**
+ * Decrypts an encrypted string into a JavaScript object.
+ * @param encryptedData - The encrypted data to decrypt
+ * @param iv - The initialization vector (IV) used during encryption
+ * @returns The decrypted JavaScript object
+ */
+export const decryptData = (encryptedData: string, iv: string): object => {
+  const ivBuffer = Buffer.from(iv, 'hex');
+  const decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(ENCRYPTION_KEY, 'utf8'), ivBuffer);
+
+  let decrypted = decipher.update(encryptedData, 'base64', 'utf8');
+  decrypted += decipher.final('utf8');
+
+  return JSON.parse(decrypted);
+};

@@ -7,16 +7,16 @@ services:
     ports:
       - 1433:1433
     volumes:
-      - ./data:/var/opt/mssql/data
+      - ./data/sqlserver:/var/opt/mssql/data
       - ./init.sql:/init.sql
       - ./entrypoint.sh:/entrypoint.sh
     entrypoint: ["/bin/bash", "/entrypoint.sh"]
     networks:
       - sqlnetwork
 
-  strapi-db:
+  postgresql:
     image: postgres:15
-    container_name: strapi-db
+    container_name: postgresql
     ports:
     - "5432:5432"
     environment:
@@ -24,7 +24,7 @@ services:
       POSTGRES_USER: strapi
       POSTGRES_PASSWORD: strapi
     volumes:
-      - strapi-data:/var/lib/postgresql/data
+      - ./data/postgresql:/var/opt/postgresql/data
     networks:
       - sqlnetwork
       
@@ -38,7 +38,7 @@ services:
     env_file:
       - .env
     depends_on:
-      - strapi-db
+      - postgresql
     volumes:
       - ./Back/StrapiCMS:/opt/app
       - /app/node_modules
@@ -47,7 +47,7 @@ services:
 
   api:
     build:
-      context: ./Back
+      context: ./Back/BookAPI
       dockerfile: Dockerfile
     container_name: api
     env_file:
@@ -128,4 +128,3 @@ networks:
 
 volumes:
   jenkins_home:
-  strapi-data:
