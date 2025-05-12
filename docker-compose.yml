@@ -8,9 +8,9 @@ services:
       - 1433:1433
     volumes:
       - ./data/sqlserver:/var/opt/mssql/data
-      - ./init.sql:/init.sql
-      - ./entrypoint.sh:/entrypoint.sh
-    entrypoint: ["/bin/bash", "/entrypoint.sh"]
+      - ./scripts/sqlserver/init.sql:/usr/local/bin/init.sql
+      - ./scripts/sqlserver/entrypoint.sh:/usr/local/bin/entrypoint.sh
+    entrypoint: ["/bin/bash", "/usr/local/bin/entrypoint.sh"]
     networks:
       - sqlnetwork
 
@@ -18,13 +18,17 @@ services:
     image: postgres:15
     container_name: postgresql
     ports:
-    - "5432:5432"
+      - "5432:5432"
     environment:
       POSTGRES_DB: strapi
       POSTGRES_USER: strapi
       POSTGRES_PASSWORD: strapi
     volumes:
-      - ./data/postgresql:/var/opt/postgresql/data
+      - pgdata:/var/lib/postgresql/data
+      - ./scripts/postgres/entrypoint.sh:/usr/local/bin/entrypoint.sh
+      - ./scripts/postgres/backup.sh:/usr/local/bin/backup.sh
+      - ./data/postgresql:/var/backups
+    entrypoint: ["/bin/bash", "/usr/local/bin/entrypoint.sh"]
     networks:
       - sqlnetwork
       
@@ -128,3 +132,4 @@ networks:
 
 volumes:
   jenkins_home:
+  pgdata:
