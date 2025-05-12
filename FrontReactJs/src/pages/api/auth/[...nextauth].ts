@@ -6,7 +6,6 @@ import camelCaseKeys from 'camelcase-keys';
 
 import { login } from '@/api/authApi';
 import { decryptPayload, encryptPayload } from '@/utils/encryptUtils';
-import { environment } from 'environments/environment';
 
 export interface User {
   id: string;
@@ -60,7 +59,7 @@ const authOptions: AuthOptions = {
       },
     }),
   ],
-  secret: environment.NEXTAUTH_SECRET, // Set a strong, random secret key in your environment variables
+  secret: process.env.NEXT_PUBLIC_NEXTAUTH_SECRET, // Set a strong, random secret key in your environment variables
   session: {
     strategy: 'jwt', // Use JSON Web Token (JWT) for sessions
   },

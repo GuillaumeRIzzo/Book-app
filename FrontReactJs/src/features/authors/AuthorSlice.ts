@@ -6,6 +6,7 @@ import { getAuthor, getAuthors, addAuthor, updateAuthor } from '@/api/authorApi'
 import { Author } from '@/models/author/author';
 import { AuthorState } from '@/models/author/AuthorState';
 import { decryptPayload, EncryptedPayload } from '@/utils/encryptUtils';
+import { mapIdToCustomKeys, ModelType } from '@/utils/mapIdToCustomKeys';
 
 export const fetchAuthorsAsync = createAsyncThunk('authors/getAuthors', async () => {
   try {
@@ -14,15 +15,24 @@ export const fetchAuthorsAsync = createAsyncThunk('authors/getAuthors', async ()
     const encryptedData = response.data.encryptedData;
     const iv = response.data.iv;
 
-    const decryptedData = decryptPayload(encryptedData, iv);
+    const decryptedData = decryptPayload<typeof response.data>(encryptedData, iv);
 
     let authors: Author[];
     try {
-      authors = camelCaseKeys(decryptedData, { deep: true }) as unknown as Author[];
+      if (Array.isArray(decryptedData)) {
+        authors = mapIdToCustomKeys(
+          camelCaseKeys(decryptedData, { deep: true }) as unknown as Author[],
+          ModelType.Author
+        );
+      } else {
+        console.error('Decrypted data is not an array of authors:', decryptedData);
+        throw new Error('Decrypted data is not valid Author[]');
+      }
     } catch (error) {
       console.error('Failed to parse decrypted data:', decryptedData);
       throw new Error('Decrypted data is not valid JSON');
     }
+
     return authors;
 
   } catch (error) {
@@ -32,7 +42,7 @@ export const fetchAuthorsAsync = createAsyncThunk('authors/getAuthors', async ()
 });
 
 export const fetchAuthorById = createAsyncThunk(
-  'authors/fetchById',
+  'authors/getAuthor',
   async (authorId: number) => {
     try {
       // Call API to fetch encrypted author data
@@ -44,8 +54,12 @@ export const fetchAuthorById = createAsyncThunk(
 
       // Decrypt the data
       const decryptedData = decryptPayload(encryptedData, iv);
-
-      const author = camelCaseKeys(decryptedData, { deep: true }) as unknown as Author;
+      
+      const author = {
+        ...camelCaseKeys(decryptedData, { deep: true }),
+        authorId: (decryptedData as any).id, // manually set the authorId
+      } as Author;      
+      
       return author;
     } catch (error) {
       console.error('Failed to fetch author:', error);
@@ -157,7 +171,7 @@ const authorsSlice = createSlice({
       .addCase(updateAuthorAsync.fulfilled, (state, action) => {
         state.status = 'succeeded';
         const { authorId, decrypted } = action.payload;
-        const index = state.authors.findIndex(author => author.authorId === authorId);
+        const index = state.authors.findIndex((author: { authorId: number; }) => author.authorId === authorId);
         if (index !== -1) {
           state.authors[index] = {
             ...state.authors[index],

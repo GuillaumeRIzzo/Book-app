@@ -6,6 +6,7 @@ import { Publisher } from '@/models/publisher/publisher';
 import { PublisherState } from '@/models/publisher/PublisherState';
 import { getPublisher, getPublishers, addPublisher, updatePublisher } from '@/api/publisherApi';
 import { decryptPayload, EncryptedPayload } from '@/utils/encryptUtils';
+import { mapIdToCustomKeys, ModelType } from '@/utils/mapIdToCustomKeys';
 
 export const fetchPublishersAsync = createAsyncThunk('publishers/getPublishers', async () => {
   try {
@@ -14,15 +15,25 @@ export const fetchPublishersAsync = createAsyncThunk('publishers/getPublishers',
     const encryptedData = response.data.encryptedData;
     const iv = response.data.iv;
 
-    const decryptedData = decryptPayload(encryptedData, iv);
+    const decryptedData = decryptPayload<typeof response.data>(encryptedData, iv);
 
     let publishers: Publisher[];
+
     try {
-      publishers = camelCaseKeys(decryptedData, {deep: true}) as unknown as Publisher[];
-    } catch (error) {
-      console.error('Failed to parse decrypted data:', decryptedData);
-      throw new Error('Decrypted data is not valid JSON');
-    }
+          if (Array.isArray(decryptedData)) {
+            publishers = mapIdToCustomKeys(
+              camelCaseKeys(decryptedData, { deep: true }) as unknown as Publisher[],
+              ModelType.Publisher
+            );
+          } else {
+            console.error('Decrypted data is not an array of publishers:', decryptedData);
+            throw new Error('Decrypted data is not valid Publisher[]');
+          }
+        } catch (error) {
+          console.error('Failed to parse decrypted data:', decryptedData);
+          throw new Error('Decrypted data is not valid JSON');
+        }
+
     return publishers;
 
   } catch (error) {
@@ -45,7 +56,11 @@ export const fetchPublisherById = createAsyncThunk(
        // Decrypt the data
        const decryptedData = decryptPayload(encryptedData, iv);
  
-      const publisher = camelCaseKeys(decryptedData, {deep: true}) as unknown as Publisher;
+      const publisher = {
+        ...camelCaseKeys(decryptedData, { deep: true }),
+        publisherId: (decryptedData as any).id, // manually set the publisherId
+      } as Publisher;
+
       return publisher;
     } catch (error) {
       console.error('Failed to fetch publisher:', error);
@@ -159,7 +174,7 @@ const publishersSlice = createSlice({
       .addCase(updatePublisherAsync.fulfilled, (state, action) => {
         state.status = 'succeeded';
         const { publisherId, decrypted } = action.payload;
-        const index = state.publishers.findIndex(p => p.publisherId === publisherId);
+        const index = state.publishers.findIndex((publisher: { publisherId: number; }) => publisher.publisherId === publisherId);
         
         if (index !== -1) {
           state.publishers[index] = {

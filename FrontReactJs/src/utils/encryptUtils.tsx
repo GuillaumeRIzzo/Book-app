@@ -1,14 +1,13 @@
 import CryptoJS from "crypto-js";
-import { environment } from "environments/environment";
 
 // Define types for the encryption output
-export interface EncryptedPayload {
+export interface EncryptedPayload extends Record<string, unknown> {
   encryptedData: string;
   iv: string;
 }
 
 // Define a constant for the encryption key
-const encryptionKey = environment.ENCRYPT_KEY; // Ensure secure storage for sensitive keys
+const encryptionKey = process.env.NEXT_PUBLIC_ENCRYPT_KEY as string; // Ensure secure storage for sensitive keys
 
 // Function to ensure the key has the correct length
 const getCorrectKeySize = (key: string): CryptoJS.lib.WordArray => {
@@ -44,7 +43,7 @@ export const encryptPayload = <T extends Record<string, unknown>>(data: T): Encr
 };
 
 // Function to decrypt payloads
-export const decryptPayload = <T extends Record<string, unknown>>(
+export const decryptPayload = <T extends Record<string, unknown> | Record<string, unknown>[]>(
   encryptedPayload: string,
   iv: string
 ): T => {
@@ -54,7 +53,6 @@ export const decryptPayload = <T extends Record<string, unknown>>(
     padding: CryptoJS.pad.Pkcs7,
   });
 
-  // Parse and return the decrypted JSON object
   const decryptedData = bytes.toString(CryptoJS.enc.Utf8);
 
   if (!decryptedData) {
@@ -63,4 +61,3 @@ export const decryptPayload = <T extends Record<string, unknown>>(
 
   return JSON.parse(decryptedData) as T;
 };
-

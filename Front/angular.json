@@ -52,7 +52,8 @@
             "tsConfig": "tsconfig.app.json",
             "assets": [
               "src/favicon.ico",
-              "src/assets"
+              "src/assets",
+              "src/assets/env.js"
             ],
             "styles": [
               "src/custom-theme.scss",

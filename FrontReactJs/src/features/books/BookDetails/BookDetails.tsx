@@ -55,18 +55,19 @@ const BookDetails: React.FC = () => {
 
   const { data: session } = useSession();
 
-  const right = useMemo(() => {
-    if (!session?.user?.encryptedSession) return '';
-  
-    const { encryptedData, iv } = session.user.encryptedSession;
-    try {
-      const { right: decryptedRight } = decryptPayload(encryptedData, iv);
-      return decryptedRight as string;
-    } catch (error) {
-      console.error('Failed to decrypt session data:', error);
-      return '';
+  const { right } = useMemo(() => {
+    if (session?.user?.encryptedSession) {
+      const { encryptedData, iv } = session.user.encryptedSession;
+      try {
+        // Explicitly cast the decrypted data to the expected type
+        const decryptedData = decryptPayload<{ right: string }>(encryptedData, iv);
+        return { right: decryptedData.right };
+      } catch (error) {
+        console.error('Failed to decrypt session data:', error);
+      }
     }
-  }, [session]);  
+    return { right: '', sessionId: '' };
+  }, [session]);
 
   useEffect(() => {
     if (id && !book) {

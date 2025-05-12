@@ -11,7 +11,36 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
-var config = builder.Configuration;
+
+// Load .env in local development only
+if (builder.Environment.IsDevelopment())
+{
+    var envPath = Path.Combine(AppContext.BaseDirectory, "../../../../../.env");
+    if (File.Exists(envPath))
+    {
+        DotNetEnv.Env.Load(envPath);
+        Console.WriteLine("Loaded .env file.");
+    }
+}
+
+// Tell .NET to read environment variables
+builder.Configuration.AddEnvironmentVariables();
+
+// Now access all config using builder.Configuration
+var connectionString = builder.Configuration["ConnectionStrings:DevConnection"];
+var jwtKey = builder.Configuration["Jwt:SecurityKey"];
+var jwtIssuer = builder.Configuration["Jwt:Issuer"];
+var jwtAudience = builder.Configuration["Jwt:Audience"];
+
+if (string.IsNullOrWhiteSpace(connectionString)) throw new Exception("Missing connection string.");
+if (string.IsNullOrWhiteSpace(jwtKey)) throw new Exception("Missing JWT key.");
+
+var encryptionKey = Environment.GetEnvironmentVariable("ENCRYPT_KEY");
+
+builder.Services.AddDbContext<BookDbContext>(options =>
+{
+    options.UseSqlServer(connectionString);
+});
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -32,9 +61,9 @@ builder.Services.AddAuthentication(x =>
 {
     x.TokenValidationParameters = new TokenValidationParameters
     {
-        ValidIssuer = config["Jwt:Issuer"],
-        ValidAudience = config["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:SecurityKey"]!)),
+        ValidIssuer = jwtIssuer,
+        ValidAudience = jwtAudience,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
         ValidateIssuer = true,
         ValidateAudience = true,
         ValidateLifetime = true,
@@ -66,7 +95,6 @@ builder.Services.AddCors(options =>
        });
 });
 
-builder.Services.AddDbContext<BookDbContext>(options => options.UseSqlServer(config.GetConnectionString("DevConnection")));
 builder.Services.AddControllers();
 
 var app = builder.Build();

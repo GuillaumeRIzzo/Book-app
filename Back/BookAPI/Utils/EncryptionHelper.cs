@@ -1,12 +1,11 @@
 ﻿using System.Security.Cryptography;
-using System.Security.Cryptography.Xml;
 using System.Text;
 
 namespace BookAPI.Utils
 {
     public class EncryptionHelper
     {
-        private const string EncryptionKey = "bSpqb6G7fjXL8uowmX8LUZiiwdESV2uD"; // Should match client key
+        private static readonly string EncryptionKey = Environment.GetEnvironmentVariable("ENCRYPT_KEY");
 
         public static string DecryptData(string encryptedData, string ivHex)
         {
