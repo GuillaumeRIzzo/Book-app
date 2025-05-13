@@ -1,12 +1,12 @@
 ﻿namespace BookAPI.Models;
-
 public partial class BookCategory
 {
-    public int BookCategoId { get; set; }
+    public Guid BookUuid { get; set; }
 
-    public string BookCategoName { get; set; } = null!;
+    public int CategoryUuid { get; set; }
 
-    public string BookCategoDescription { get; set; } = null!;
+    public Book Book { get; set; }
 
-    public virtual ICollection<CategoryList> CategorieLists { get; set; } = new List<CategoryList>();
+    public Categories Categories { get; set; }
 }
+

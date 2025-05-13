@@ -7,7 +7,15 @@ public partial class Publisher
 {
     public int PublisherId { get; set; }
 
-    public string PublisherName { get; set; } = null!;
+    public Guid PublicherUuid { get; set; } = Guid.NewGuid();
 
-    public virtual ICollection<Book> Books { get; set; } = new List<Book>();
+    public string PublisherName { get; set; } = "";
+
+    public string ImageUrl { get; set; } = "https://www.creativebookpublishing.ca/wp-content/uploads/2018/04/Major-Newfoundland-book-publishing-houses.jpg";
+
+    public bool IsDeleted { get; set; } = false;
+
+    public DateTimeOffset CreatedAt { get; set; }
+
+    public DateTimeOffset UpdateAt { get; set; }
 }

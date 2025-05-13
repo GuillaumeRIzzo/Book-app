@@ -4,7 +4,11 @@ public partial class Book
 {
     public int BookId { get; set; }
 
+    public Guid BookUuid { get; set; } = Guid.NewGuid();
+
     public string BookTitle { get; set; } = null!;
+
+    public string? BookSubtitle { get; set; }
 
     public string BookDescription { get; set; } = null!;
 
@@ -12,25 +16,17 @@ public partial class Book
 
     public int BookPageCount { get; set; }
 
-    public double BookAverageRating { get; set; }
+    public string? BookIsbn { get; set; }
 
-    public int BookRatingCount { get; set; }
+    public float BookPrice { get; set; } = 0;
 
-    public string BookImageLink { get; set; } = null!;
+    public bool IsDeleted { get; set; } = false;
 
-    public string BookLanguage { get; set; } = null!;
+    public DateTimeOffset CreatedAt { get; set; }
 
-    public int PublisherId { get; set; }
+    public DateTimeOffset UpdateAt { get; set; }
 
-    public int AuthorId { get; set; }
+    public ICollection<Series> Series { get; set; } = new List<Series>(); 
 
-    public virtual Author Author { get; set; } = null!;
-
-    public virtual ICollection<BookAction> BookActions { get; set; } = new List<BookAction>();
-
-    public virtual Publisher Publisher { get; set; } = null!;
-
-    public virtual ICollection<Readlist> Readlists { get; set; } = new List<Readlist>();
-
-    public virtual ICollection<CategoryList> CategorieLists { get; set; } = new List<CategoryList>();
+    public virtual ICollection<BookCategory> BookCategories { get; set; } = new List<BookCategory>();
 }
