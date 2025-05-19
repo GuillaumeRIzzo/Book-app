@@ -1,21 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
-namespace BookAPI.Models;
+namespace BookAPI.Data;
 
-public partial class Readlist
+[Table("READ_LISTS")]
+[Index("ReadListUuid", Name = "UQ__READ_LIS__67AE94D0BD796F09", IsUnique = true)]
+public partial class ReadList
 {
-    public int BookId { get; set; }
+    [Key]
+    [Column("readList_id")]
+    public int ReadListId { get; set; }
 
-    public int UserId { get; set; }
+    [Column("readList_uuid")]
+    public Guid ReadListUuid { get; set; } = Guid.NewGuid();
 
-    public bool ReadListRead { get; set; }
+    [Column("user_uuid")]
+    public Guid UserUuid { get; set; }
 
-    public DateTime ReadListDateAdd { get; set; }
+    [Column("read_list_name")]
+    [StringLength(100)]
+    [Unicode(false)]
+    public string ReadListName { get; set; } = string.Empty;
 
-    public DateTime ReadListDateUpdate { get; set; }
+    [Column("created_at")]
+    public DateTimeOffset CreatedAt { get; set; }
 
-    public virtual Book Book { get; set; } = null!;
+    [Column("updated_at")]
+    public DateTimeOffset UpdatedAt { get; set; }
 
-    public virtual User User { get; set; } = null!;
+    [InverseProperty("ReadListUu")]
+    public virtual ICollection<ReadListBook> ReadListBooks { get; set; } = new List<ReadListBook>();
+
+    [ForeignKey("UserUuid")]
+    [InverseProperty("ReadLists")]
+    public virtual User UserUu { get; set; } = null!;
 }

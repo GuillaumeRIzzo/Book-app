@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using BookAPI.Data;
 using BookAPI.Models;
-using Microsoft.AspNetCore.Authorization;
 using BookAPI.Utils;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 
 namespace BookAPI.Controllers
@@ -26,10 +27,19 @@ namespace BookAPI.Controllers
 
             if (authors.Count >= 1)
             {
-                var model = authors.Select(x => new ModelViewAuthor()
+                var model = authors.Select(x => new AuthorDto()
                 {
                     AuthorId = x.AuthorId,
-                    AuthorName = x.AuthorName
+                    AuthorUuid = x.AuthorUuid,
+                    AuthorFullName = x.AuthorFullName,
+                    AuthorBirthDate = x.AuthorBirthDate,
+                    AuthorBirthPlace = x.AuthorBirthPlace,
+                    AuthorDeathDate = x.AuthorDeathDate,
+                    AuthorDeathPlace = x.AuthorDeathPlace,
+                    AuthorBio = x.AuthorBio,
+                    IsDeleted = x.IsDeleted,
+                    CreatedAt = x.CreatedAt,
+                    UpdatedAt = x.UpdatedAt,
 
                 }).ToList();
 
@@ -56,10 +66,19 @@ namespace BookAPI.Controllers
                 return NotFound();
             }
 
-            var model = new ModelViewAuthor()
+            var model = new AuthorDto()
             {
                 AuthorId = author.AuthorId,
-                AuthorName = author.AuthorName
+                AuthorUuid = author.AuthorUuid,
+                AuthorFullName = author.AuthorFullName,
+                AuthorBirthDate = author.AuthorBirthDate,
+                AuthorBirthPlace = author.AuthorBirthPlace,
+                AuthorDeathDate = author.AuthorDeathDate,
+                AuthorDeathPlace = author.AuthorDeathPlace,
+                AuthorBio = author.AuthorBio,
+                IsDeleted = author.IsDeleted,
+                CreatedAt = author.CreatedAt,
+                UpdatedAt = author.UpdatedAt,
             };
 
             // Encrypt the author data
@@ -85,7 +104,7 @@ namespace BookAPI.Controllers
                 {
                     PropertyNameCaseInsensitive = true // Enable case-insensitive matching
                 };
-                var model = JsonSerializer.Deserialize<ModelViewAuthor>(decryptedData, options);
+                var model = JsonSerializer.Deserialize<AuthorDto>(decryptedData, options);
 
                 if (model == null) { return NotFound(); }
 
@@ -94,7 +113,7 @@ namespace BookAPI.Controllers
                     return BadRequest();
                 }
 
-                if (AuthorNameExists(model.AuthorName, id))
+                if (AuthorFullNameExists(model.AuthorFullName, id))
                 {
                     return BadRequest("Name already exists");
                 }
@@ -104,7 +123,16 @@ namespace BookAPI.Controllers
                 if (author != null)
                 {
                     author.AuthorId = model.AuthorId;
-                    author.AuthorName = model.AuthorName;
+                    author.AuthorUuid = model.AuthorUuid;
+                    author.AuthorFullName = model.AuthorFullName;
+                    author.AuthorBirthDate = model.AuthorBirthDate;
+                    author.AuthorBirthPlace = model.AuthorBirthPlace;
+                    author.AuthorDeathDate = model.AuthorDeathDate;
+                    author.AuthorDeathPlace = model.AuthorDeathPlace;
+                    author.AuthorBio = model.AuthorBio;
+                    author.IsDeleted = model.IsDeleted;
+                    author.CreatedAt = model.CreatedAt;
+                    author.UpdatedAt = model.UpdatedAt;
                 }
 
                 try
@@ -146,21 +174,30 @@ namespace BookAPI.Controllers
             try
             {
                 string decryptedData = EncryptionHelper.DecryptData(payload.EncryptedData, payload.Iv);
-                var model = JsonSerializer.Deserialize<ModelViewAuthor>(decryptedData);
+                var model = JsonSerializer.Deserialize<AuthorDto>(decryptedData);
 
                 if (model == null)
                 {
                     return NoContent();
                 }
 
-                if (AuthorNameExists(model.AuthorName, 0))
+                if (AuthorFullNameExists(model.AuthorFullName, 0))
                 {
                     return BadRequest("Name already exists");
                 }
 
                 var author = new Author()
                 {
-                    AuthorName = model.AuthorName
+                    AuthorUuid = model.AuthorUuid,
+                    AuthorFullName = model.AuthorFullName,
+                    AuthorBirthDate = model.AuthorBirthDate,
+                    AuthorBirthPlace = model.AuthorBirthPlace,
+                    AuthorDeathDate = model.AuthorDeathDate,
+                    AuthorDeathPlace = model.AuthorDeathPlace,
+                    AuthorBio = model.AuthorBio,
+                    IsDeleted = model.IsDeleted,
+                    CreatedAt = model.CreatedAt,
+                    UpdatedAt = model.UpdatedAt,
                 };
 
                 _context.Authors.Add(author);
@@ -202,9 +239,9 @@ namespace BookAPI.Controllers
             return _context.Authors.Any(e => e.AuthorId == id);
         }
 
-        private bool AuthorNameExists(string name, int id)
+        private bool AuthorFullNameExists(string name, int id)
         {
-            return _context.Authors.Any(a => a.AuthorName == name && a.AuthorId != id);
+            return _context.Authors.Any(a => a.AuthorFullName == name && a.AuthorId != id);
         }
     }
 }

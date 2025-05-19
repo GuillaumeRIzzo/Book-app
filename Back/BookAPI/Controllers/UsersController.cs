@@ -1,4 +1,5 @@
-﻿using BookAPI.Models;
+﻿using BookAPI.Data;
+using BookAPI.Models;
 using BookAPI.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -32,7 +33,7 @@ namespace BookAPI.Controllers
 
             if (users.Count >= 1)
             {
-                var model = users.Select(x => new ModelViewUser
+                var model = users.Select(x => new UserDto
                 {
                     UserId = x.UserId,
                     UserFirstname = x.UserFirstname,
@@ -40,7 +41,7 @@ namespace BookAPI.Controllers
                     UserPassword = x.UserPassword,
                     UserLogin = x.UserLogin,
                     UserEmail = x.UserEmail,
-                    UserRight = x.UserRight
+                    //UserRight = x.UserRight
                 }).ToList();
 
                 // Encrypt the list of users
@@ -76,7 +77,7 @@ namespace BookAPI.Controllers
             {
                 return NotFound();
             }
-            var model = new ModelViewUser()
+            var model = new UserDto()
             {
                 UserId = user.UserId,
                 UserFirstname = user.UserFirstname,
@@ -84,7 +85,7 @@ namespace BookAPI.Controllers
                 UserPassword = user.UserPassword,
                 UserLogin = user.UserLogin,
                 UserEmail = user.UserEmail,
-                UserRight = user.UserRight
+                //UserRight = user.UserRight
             };
 
             // Encrypt the user data
@@ -140,7 +141,7 @@ namespace BookAPI.Controllers
                     user.UserLastname = userData.UserLastname;
                     user.UserEmail = userData.UserEmail;
                     user.UserLogin = userData.UserLogin;
-                    user.UserRight = userData.UserRight;
+                    //user.UserRight = userData.UserRight;
 
                     try
                     {
@@ -246,53 +247,73 @@ namespace BookAPI.Controllers
         // POST: api/Users
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<ModelViewUser>> PostUser(ModelViewUser model)
+        public async Task<ActionResult<EncryptedPayload>> PostUser(EncryptedPayload payload)
         {
-            if (model == null)
+            try
             {
-                var errorResponse = new { name = "", message = "Model cannot be null." };
-                return BadRequest(errorResponse);
+                string decryptedData = EncryptionHelper.DecryptData(payload.EncryptedData, payload.Iv);
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true // Enable case-insensitive matching
+                };
+                var model = JsonSerializer.Deserialize<UserDto>(decryptedData, options);
+
+                    if (model == null)
+                {
+                    var errorResponse = new { name = "", message = "Model cannot be null." };
+                    return BadRequest(errorResponse);
+                }
+
+                var validationError = ValidateUser(model);
+                if (!string.IsNullOrEmpty(validationError.name))
+                {
+                    return BadRequest(validationError);
+                }
+
+                // Check if email already exists
+                if (EmailExists(model.UserEmail, 0))
+                {
+                    var errorResponse = new { name = "Email", message = "Email already exists." };
+                    return BadRequest(errorResponse);
+                }
+
+                // Check if login already exists
+                if (LoginExists(model.UserLogin, 0))
+                {
+                    var errorResponse = new { name = "Login", message = "Login already exists." };
+                    return BadRequest(errorResponse);
+                }
+
+                //if (!IsUserRightValid(model.UserRight))
+                //{
+                //    var errorResponse = new { name = "Right", message = "Invalid userRight value." };
+                //    return BadRequest(errorResponse);
+                //}
+
+                var user = new User()
+                {
+                    UserFirstname = model.UserFirstname,
+                    UserLastname = model.UserLastname,
+                    UserPassword = HashPassword(model.UserPassword),
+                    UserLogin = model.UserLogin,
+                    UserEmail = model.UserEmail,
+                    //UserRight = model.UserRight
+                };
+                _context.Users.Add(user);
+                await _context.SaveChangesAsync();
+
+                return CreatedAtAction("GetUser", new { id = user.UserId }, model);
             }
-
-            var validationError = ValidateUser(model);
-            if (!string.IsNullOrEmpty(validationError.name))
+            catch (JsonException ex)
             {
-                return BadRequest(validationError);
+                // Handle JSON deserialization errors
+                return BadRequest(new { message = "Invalid JSON format.", details = ex.Message });
             }
-
-            // Check if email already exists
-            if (EmailExists(model.UserEmail, 0))
+            catch (Exception ex)
             {
-                var errorResponse = new { name = "Email", message = "Email already exists." };
-                return BadRequest(errorResponse);
+                // Handle other errors
+                return StatusCode(500, new { message = "An error occurred.", details = ex.Message });
             }
-
-            // Check if login already exists
-            if (LoginExists(model.UserLogin, 0))
-            {
-                var errorResponse = new { name = "Login", message = "Login already exists." };
-                return BadRequest(errorResponse);
-            }
-
-            if (!IsUserRightValid(model.UserRight))
-            {
-                var errorResponse = new { name = "Right", message = "Invalid userRight value." };
-                return BadRequest(errorResponse);
-            }
-
-            var user = new User()
-            {
-                UserFirstname = model.UserFirstname,
-                UserLastname = model.UserLastname,
-                UserPassword = HashPassword(model.UserPassword),
-                UserLogin = model.UserLogin,
-                UserEmail = model.UserEmail,
-                UserRight = model.UserRight
-            };
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetUser", new { id = user.UserId }, new ModelViewUser(user));
         }
 
         // DELETE: api/Users/5
@@ -341,7 +362,7 @@ namespace BookAPI.Controllers
             return BCrypt.Net.BCrypt.Verify(password, hashedPassword);
         }
 
-        private (string name, string message) ValidateUser(ModelViewUser model)
+        private (string name, string message) ValidateUser(UserDto model)
         {
             if (model.UserLogin.Contains('@'))
             {

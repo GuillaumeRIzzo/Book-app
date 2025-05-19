@@ -1,12 +1,13 @@
-﻿using BookAPI.Models;
+﻿using BookAPI.Data;
+using BookAPI.Identity;
+using BookAPI.Models;
+using BookAPI.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using BookAPI.Identity;
-using BookAPI.Utils;
 using System.Text.Json;
 
 
@@ -30,7 +31,7 @@ namespace BookAPI.Controllers
 
         [AllowAnonymous]
         [HttpPost("GenerateToken")]
-        public string GenerateToken(ModelViewUser model)
+        public string GenerateToken(UserDto model)
         {
             // Retrieve security key from appsettings.json
             string securityKey = _configuration["Jwt:SecurityKey"];
@@ -51,18 +52,18 @@ namespace BookAPI.Controllers
                 new(JwtRegisteredClaimNames.UniqueName, model.UserFirstname + model.UserLastname),
                 new("UserId", model.UserId.ToString()),
                 new("Login", model.UserLogin.ToString()),
-                new("Right", model.UserRight.ToString()),
+                //new("Right", model.UserRight.ToString()),
             };
 
-            if (model.UserRight == "Super Admin")
-            {
-                claims.Add(new Claim("Right", "super admin"));
-            }
-            else if (model.UserRight == "Admin")
-            {
-                claims.Add(new Claim("Right", "admin"));
-            }
-            else claims.Add(new Claim("Right", "user"));
+            //if (model.UserRight == "Super Admin")
+            //{
+            //    claims.Add(new Claim("Right", "super admin"));
+            //}
+            //else if (model.UserRight == "Admin")
+            //{
+            //    claims.Add(new Claim("Right", "admin"));
+            //}
+            //else claims.Add(new Claim("Right", "user"));
 
             var tokenDescription = new SecurityTokenDescriptor
             {
@@ -101,7 +102,7 @@ namespace BookAPI.Controllers
             {
                 // Step 2: Decrypt the user data
                 var decryptedUserJson = EncryptionHelper.DecryptData(encryptedUser.EncryptedData, encryptedUser.Iv);
-                var user = JsonSerializer.Deserialize<ModelViewUser>(decryptedUserJson);
+                var user = JsonSerializer.Deserialize<UserDto>(decryptedUserJson);
 
                 if (user == null)
                 {
@@ -120,7 +121,7 @@ namespace BookAPI.Controllers
                         Token = token,
                         id = user.UserId,
                         login = user.UserLogin,
-                        right = user.UserRight,
+                        //right = user.UserRight,
                         email = user.UserEmail
                     };
 

@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using BookAPI.Data;
 using BookAPI.Models;
-using Microsoft.AspNetCore.Authorization;
 using BookAPI.Utils;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 
 namespace BookAPI.Controllers
@@ -26,10 +27,14 @@ namespace BookAPI.Controllers
 
             if (publishers.Count >= 1)
             {
-                var model = publishers.Select(x => new ModelViewPublisher()
+                var model = publishers.Select(x => new PublisherDto()
                 {
                     PublisherId = x.PublisherId,
-                    PublisherName = x.PublisherName
+                    PublisherUuid = x.PublisherUuid,
+                    PublisherName = x.PublisherName,
+                    ImageUrl = x.ImageUrl,
+                    CreatedAt = x.CreatedAt,
+                    UpdatedAt = x.UpdatedAt,
                 }).ToList();
                 // Encrypt the list of publishers
                 var encryptedData = EncryptionHelper.EncryptData(JsonSerializer.Serialize(model));
@@ -55,10 +60,14 @@ namespace BookAPI.Controllers
                 return NotFound();
             }
 
-            var model = new ModelViewPublisher()
+            var model = new PublisherDto()
             {
                 PublisherId = publisher.PublisherId,
-                PublisherName = publisher.PublisherName
+                PublisherUuid = publisher.PublisherUuid,
+                PublisherName = publisher.PublisherName,
+                ImageUrl= publisher.ImageUrl,
+                CreatedAt = publisher.CreatedAt,
+                UpdatedAt = publisher.UpdatedAt,
             };
 
             // Encrypt the list of publishers
@@ -75,7 +84,7 @@ namespace BookAPI.Controllers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [Authorize]
         [HttpPut("{id}")]
-        public async Task<ActionResult<EncryptedPayload>> PutPublisher(int id, EncryptedPayload payload)
+        public async Task<ActionResult<EncryptedPayload>> PutPublisher(Guid id, EncryptedPayload payload)
         {
             try
             {
@@ -84,11 +93,11 @@ namespace BookAPI.Controllers
                 {
                     PropertyNameCaseInsensitive = true // Enable case-insensitive matching
                 };
-                var model = JsonSerializer.Deserialize<ModelViewPublisher>(decryptedData, options);
+                var model = JsonSerializer.Deserialize<PublisherDto>(decryptedData, options);
 
                 if (model == null) { return NotFound(); }
 
-                if (id != model.PublisherId)
+                if (id != model.PublisherUuid)
                 {
                     return BadRequest();
                 }
@@ -103,7 +112,11 @@ namespace BookAPI.Controllers
                 if (publisher != null)
                 {
                     publisher.PublisherId = model.PublisherId;
+                    publisher.PublisherUuid = model.PublisherUuid;
                     publisher.PublisherName = model.PublisherName;
+                    publisher.ImageUrl = model.ImageUrl;
+                    publisher.CreatedAt = model.CreatedAt;
+                    publisher.UpdatedAt = DateTimeOffset.UtcNow;
 
                 }
 
@@ -146,27 +159,30 @@ namespace BookAPI.Controllers
             try
             {
                 string decryptedData = EncryptionHelper.DecryptData(payload.EncryptedData, payload.Iv);
-                var model = JsonSerializer.Deserialize<ModelViewPublisher>(decryptedData);
+                var model = JsonSerializer.Deserialize<PublisherDto>(decryptedData);
 
                 if (model == null)
                 {
                     return NoContent();
                 }
 
-                if (PublisherNameExists(model.PublisherName, 0))
+                if (PublisherNameExists(model.PublisherName, Guid.Empty))
                 {
                     return BadRequest("Name already exists");
                 }
 
                 var publisher = new Publisher()
                 {
-                    PublisherName = model.PublisherName
+                    PublisherName = model.PublisherName,
+                    ImageUrl = model.ImageUrl,
+                    CreatedAt = DateTimeOffset.UtcNow,
+                    UpdatedAt = DateTimeOffset.UtcNow,
                 };
 
                 _context.Publishers.Add(publisher);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetPublisher", new { id = model.PublisherId }, model);
+                return CreatedAtAction("GetPublisher", new { id = model.PublisherUuid }, model);
             }
             catch (JsonException ex)
             {
@@ -198,14 +214,14 @@ namespace BookAPI.Controllers
             return NoContent();
         }
 
-        private bool PublisherExists(int id)
+        private bool PublisherExists(Guid id)
         {
-            return _context.Publishers.Any(e => e.PublisherId == id);
+            return _context.Publishers.Any(e => e.PublisherUuid == id);
         }
 
-        private bool PublisherNameExists(string name, int id)
+        private bool PublisherNameExists(string name, Guid id)
         {
-            return _context.Publishers.Any(p => p.PublisherName == name && p.PublisherId != id);
+            return _context.Publishers.Any(p => p.PublisherName == name && p.PublisherUuid != id);
         }
     }
 }

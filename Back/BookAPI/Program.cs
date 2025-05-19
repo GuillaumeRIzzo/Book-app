@@ -1,6 +1,6 @@
 using BookAPI.Controllers;
 using BookAPI.Identity;
-using BookAPI.Models;
+using BookAPI.Data;
 using BookAPI.Swagger;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;

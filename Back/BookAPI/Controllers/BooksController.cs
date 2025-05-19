@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using BookAPI.Data;
 using BookAPI.Models;
-using Microsoft.AspNetCore.Authorization;
 using BookAPI.Utils;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 
 namespace BookAPI.Controllers
@@ -12,12 +13,10 @@ namespace BookAPI.Controllers
     public class BooksController : ControllerBase
     {
         private readonly BookDbContext _context;
-        private readonly CategoryListsController _categoryListsController;
 
-        public BooksController(BookDbContext context, CategoryListsController categoryListsController)
+        public BooksController(BookDbContext context)
         {
             _context = context;
-            _categoryListsController = categoryListsController ?? throw new ArgumentNullException(nameof(categoryListsController));
         }
 
         [HttpGet]
@@ -27,44 +26,22 @@ namespace BookAPI.Controllers
 
             if (books.Count >= 1)
             {
-                var model = books.Select(x => new ModelViewBook()
+                var model = books.Select(x => new BookDto()
                 {
                     BookId = x.BookId,
+                    BookUuid = x.BookUuid,
                     BookTitle = x.BookTitle,
                     BookDescription = x.BookDescription,
-                    BookPublishDate = x.BookPublishDate,
                     BookPageCount = x.BookPageCount,
-                    BookAverageRating = x.BookAverageRating,
-                    BookRatingCount = x.BookRatingCount,
-                    BookImageLink = x.BookImageLink,
-                    BookLanguage = x.BookLanguage,
-                    PublisherId = x.PublisherId,
-                    AuthorId = x.AuthorId
+                    BookPublishDate = x.BookPublishDate,
+                    BookIsbn = x.BookIsbn,
+                    BookPrice = x.BookPrice,
+                    IsDeleted = x.IsDeleted,
+                    CreatedAt = x.CreatedAt,
+                    UpdatedAt = x.UpdatedAt,
+                    BookSeriesUuid = x.BookSeriesUuid,
                 }).ToList();
 
-                foreach (var item in model)
-                {
-                    var p = await _context.Readlists.FirstOrDefaultAsync(p =>
-                                p.UserId == userId && p.BookId == item.BookId);
-                    if (p != null)
-                    {
-                        item.InList = true;
-                        item.Read = p.ReadListRead;
-                    }
-
-                    // Fetch and populate categories for each book
-                    var categories = await _context.CategoryLists
-                        .Where(cl => cl.BookId == item.BookId)
-                        .Select(cl => new ModelViewBookCategory()
-                        {
-                            BookCategoId = cl.BookCategoId,
-                            BookCategoName = cl.BookCategory.BookCategoName,
-                            BookCategoDescription = cl.BookCategory.BookCategoDescription
-                        })
-                        .ToListAsync();
-
-                    item.Categories = categories;
-                }
                 // Encrypt the list of books
                 var encryptedData = EncryptionHelper.EncryptData(JsonSerializer.Serialize(model));
 
@@ -89,33 +66,21 @@ namespace BookAPI.Controllers
                 return NotFound();
             }
 
-            var model = new ModelViewBook()
+            var model = new BookDto()
             {
                 BookId = book.BookId,
+                BookUuid = book.BookUuid,
                 BookTitle = book.BookTitle,
                 BookDescription = book.BookDescription,
-                BookPublishDate = book.BookPublishDate,
                 BookPageCount = book.BookPageCount,
-                BookAverageRating = book.BookAverageRating,
-                BookRatingCount = book.BookRatingCount,
-                BookImageLink = book.BookImageLink,
-                BookLanguage = book.BookLanguage,
-                PublisherId = book.PublisherId,
-                AuthorId = book.AuthorId
+                BookPublishDate = book.BookPublishDate,
+                BookIsbn = book.BookIsbn,
+                BookPrice = book.BookPrice,
+                IsDeleted = book.IsDeleted,
+                CreatedAt = book.CreatedAt,
+                UpdatedAt = book.UpdatedAt,
+                BookSeriesUuid = book.BookSeriesUuid,
             };
-
-            // Fetch and populate categories for each book
-            var categories = await _context.CategoryLists
-                .Where(cl => cl.BookId == model.BookId)
-                .Select(cl => new ModelViewBookCategory()
-                {
-                    BookCategoId = cl.BookCategoId,
-                    BookCategoName = cl.BookCategory.BookCategoName,
-                    BookCategoDescription = cl.BookCategory.BookCategoDescription
-                })
-                .ToListAsync();
-
-            model.Categories = categories;
 
             // Encrypt the book data
             var encryptedData = EncryptionHelper.EncryptData(JsonSerializer.Serialize(model));
@@ -140,7 +105,9 @@ namespace BookAPI.Controllers
                 {
                     PropertyNameCaseInsensitive = true // Enable case-insensitive matching
                 };
-                var model = JsonSerializer.Deserialize<ModelViewBook>(decryptedData, options);
+                var model = JsonSerializer.Deserialize<BookDto>(decryptedData, options);
+
+                if (model == null) return NoContent();
 
                 if (id != model.BookId)
                 {
@@ -155,21 +122,21 @@ namespace BookAPI.Controllers
                 }
 
                 book.BookId = model.BookId;
+                book.BookUuid = model.BookUuid;
                 book.BookTitle = model.BookTitle;
                 book.BookDescription = model.BookDescription;
-                book.BookPublishDate = model.BookPublishDate;
                 book.BookPageCount = model.BookPageCount;
-                book.BookAverageRating = model.BookAverageRating;
-                book.BookRatingCount = model.BookRatingCount;
-                book.BookImageLink = model.BookImageLink;
-                book.BookLanguage = model.BookLanguage;
-                book.PublisherId = model.PublisherId;
-                book.AuthorId = model.AuthorId;
+                book.BookPublishDate = model.BookPublishDate;
+                book.BookIsbn = model.BookIsbn;
+                book.BookPrice = model.BookPrice;
+                book.IsDeleted = model.IsDeleted;
+                book.CreatedAt = model.CreatedAt;
+                book.UpdatedAt = model.UpdatedAt;
+                book.BookSeriesUuid = model.BookSeriesUuid;
 
                 try
                 {
                     await _context.SaveChangesAsync();
-                    await _categoryListsController.PutCategoryList(model.BookId, model.Categories);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -210,7 +177,7 @@ namespace BookAPI.Controllers
                 {
                     PropertyNameCaseInsensitive = true // Enable case-insensitive matching
                 };
-                var model = JsonSerializer.Deserialize<ModelViewBook>(decryptedData, options);
+                var model = JsonSerializer.Deserialize<BookDto>(decryptedData, options);
 
 
                 if (model == null)
@@ -220,16 +187,17 @@ namespace BookAPI.Controllers
 
                 var book = new Book()
                 {
+                    BookUuid = model.BookUuid,
                     BookTitle = model.BookTitle,
                     BookDescription = model.BookDescription,
-                    BookPublishDate = model.BookPublishDate,
                     BookPageCount = model.BookPageCount,
-                    BookAverageRating = model.BookAverageRating,
-                    BookRatingCount = model.BookRatingCount,
-                    BookImageLink = model.BookImageLink,
-                    BookLanguage = model.BookLanguage,
-                    PublisherId = model.PublisherId,
-                    AuthorId = model.AuthorId
+                    BookPublishDate = model.BookPublishDate,
+                    BookIsbn = model.BookIsbn,
+                    BookPrice = model.BookPrice,
+                    IsDeleted = model.IsDeleted,
+                    CreatedAt = model.CreatedAt,
+                    UpdatedAt = model.UpdatedAt,
+                    BookSeriesUuid = model.BookSeriesUuid,
                 };
 
                 _context.Books.Add(book);
@@ -237,13 +205,6 @@ namespace BookAPI.Controllers
 
                 model.BookId = book.BookId;
 
-                var categoryModels = model.Categories.Select(categoId => new ModelViewCategoryList
-                {
-                    BookId = model.BookId,
-                    BookCategoId = categoId.BookCategoId
-                }).ToList();
-
-                await _categoryListsController.PostCategorieList(categoryModels);
                 return CreatedAtAction("GetBook", new { id = model.BookId }, model);
             }
             catch (JsonException ex)
