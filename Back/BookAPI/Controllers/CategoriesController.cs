@@ -54,7 +54,7 @@ namespace BookAPI.Controllers
 
         // GET: api/Categories/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<EncryptedPayload>> GetCategory(int id)
+        public async Task<ActionResult<EncryptedPayload>> GetCategory(Guid id)
         {
             var category = await _context.Categories.FindAsync(id);
 
@@ -65,7 +65,7 @@ namespace BookAPI.Controllers
 
             var model = new CategoryDto()
             {
-                CategoryId= category.CategoryId,
+                CategoryId = category.CategoryId,
                 CategoryUuid = category.CategoryUuid,
                 CategoryName= category.CategoryName,
                 CategoryDescription = category.CategoryDescription,
@@ -186,7 +186,7 @@ namespace BookAPI.Controllers
                 _context.Categories.Add(category);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetCategory", new { id = category.CategoryId }, model);
+                return CreatedAtAction("GetCategory", new { id = category.CategoryUuid }, model);
             }
             catch (JsonException ex)
             {

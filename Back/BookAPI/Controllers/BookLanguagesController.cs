@@ -164,7 +164,7 @@ namespace BookAPI.Controllers
                 _context.BookLanguages.Add(bLanguage);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetBookLanguage", model.BookUuid, model.LanguageUuid);
+                return CreatedAtAction("GetBookLanguage", new { bookUuid = model.BookUuid, languageUuid = model.LanguageUuid }, model);
             }
             catch (JsonException ex)
             {

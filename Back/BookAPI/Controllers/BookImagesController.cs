@@ -174,8 +174,6 @@ namespace BookAPI.Controllers
 
                 var bookImage = new BookImage()
                 {
-                    ImageId = model.ImageId,
-                    ImageUuid = model.ImageUuid,
                     BookUuid = model.BookUuid,
                     ImageUrl = model.ImageUrl,
                     ImageAlt = model.ImageAlt,
@@ -190,7 +188,7 @@ namespace BookAPI.Controllers
                 _context.BookImages.Add(bookImage);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetBookImage", model);
+                return CreatedAtAction("GetBookImage", new { id = model.ImageUuid} , model);
             }
             catch (JsonException ex)
             {

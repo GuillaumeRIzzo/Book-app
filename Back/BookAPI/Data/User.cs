@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
 namespace BookAPI.Data;
 
@@ -22,17 +20,17 @@ public partial class User
     [Column("user_firstname")]
     [StringLength(50)]
     [Unicode(false)]
-    public string UserFirstname { get; set; } = null!;
+    public string UserFirstname { get; set; } = string.Empty;
 
     [Column("user_lastname")]
     [StringLength(50)]
     [Unicode(false)]
-    public string UserLastname { get; set; } = null!;
+    public string UserLastname { get; set; } = string.Empty;
 
     [Column("user_password")]
     [StringLength(100)]
     [Unicode(false)]
-    public string UserPassword { get; set; } = null!;
+    public string UserPassword { get; set; } = string.Empty;
 
     [Column("user_password_last_changed_at")]
     public DateTimeOffset UserPasswordLastChangedAt { get; set; }
@@ -43,18 +41,18 @@ public partial class User
     [Column("user_login")]
     [StringLength(30)]
     [Unicode(false)]
-    public string UserLogin { get; set; } = null!;
+    public string UserLogin { get; set; } = string.Empty;
 
     [Column("user_email")]
     [StringLength(50)]
     [Unicode(false)]
-    public string UserEmail { get; set; } = null!;
+    public string UserEmail { get; set; } = string.Empty;
 
     [Column("user_birthDate")]
     public DateOnly? UserBirthDate { get; set; }
 
     [Column("is_deleted")]
-    public bool? IsDeleted { get; set; }
+    public bool IsDeleted { get; set; }
 
     [Column("user_right_uuid")]
     public Guid UserRightUuid { get; set; }

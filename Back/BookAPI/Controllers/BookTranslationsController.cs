@@ -179,7 +179,7 @@ namespace BookAPI.Controllers
                 _context.BookTranslations.Add(translation);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetBookTranslation", new { uuid = model.BookTranslationUuid}, model);
+                return CreatedAtAction("GetBookTranslation", new { id = model.BookTranslationUuid}, model);
             }
             catch (JsonException ex)
             {

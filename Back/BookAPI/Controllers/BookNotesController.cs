@@ -57,7 +57,7 @@ namespace BookAPI.Controllers
 
         // GET: api/BookNotes/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<EncryptedPayload>> GetBookNote(int id)
+        public async Task<ActionResult<EncryptedPayload>> GetBookNote(Guid id)
         {
             var note = await _context.BookNotes.FindAsync(id);
 
@@ -177,8 +177,6 @@ namespace BookAPI.Controllers
 
                 var note = new BookNote()
                 {
-                    NoteId = model.NoteId,
-                    NoteUuid = model.NoteUuid,
                     NoteValue = model.NoteValue,
                     NoteComment = model.NoteComment,
                     NoteDate = DateTimeOffset.UtcNow,

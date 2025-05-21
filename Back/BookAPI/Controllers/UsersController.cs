@@ -36,12 +36,20 @@ namespace BookAPI.Controllers
                 var model = users.Select(x => new UserDto
                 {
                     UserId = x.UserId,
+                    UserUuid = x.UserUuid,
                     UserFirstname = x.UserFirstname,
                     UserLastname = x.UserLastname,
                     UserPassword = x.UserPassword,
+                    UserPasswordLastChangedAt = x.UserPasswordLastChangedAt,
+                    UserMustChangePassword = x.UserMustChangePassword,
                     UserLogin = x.UserLogin,
                     UserEmail = x.UserEmail,
-                    //UserRight = x.UserRight
+                    UserBirthDate = x.UserBirthDate,
+                    IsDeleted = x.IsDeleted,
+                    CreatedAt = x.CreatedAt,
+                    UpdatedAt = x.UpdatedAt,
+                    UserRightUuid = x.UserRightUuid,
+                    GenderUuid = x.GenderUuid,
                 }).ToList();
 
                 // Encrypt the list of users
@@ -59,7 +67,7 @@ namespace BookAPI.Controllers
         // GET: api/Users/5
         [Authorize]
         [HttpGet("{id}")]
-        public virtual async Task<ActionResult<EncryptedPayload>> GetUser(int id, string? identifier)
+        public virtual async Task<ActionResult<EncryptedPayload>> GetUser(Guid id, string? identifier)
         {
             var user = new User();
 
@@ -77,15 +85,24 @@ namespace BookAPI.Controllers
             {
                 return NotFound();
             }
+
             var model = new UserDto()
             {
                 UserId = user.UserId,
+                UserUuid = user.UserUuid,
                 UserFirstname = user.UserFirstname,
                 UserLastname = user.UserLastname,
                 UserPassword = user.UserPassword,
+                UserPasswordLastChangedAt = user.UserPasswordLastChangedAt,
+                UserMustChangePassword = user.UserMustChangePassword,
                 UserLogin = user.UserLogin,
                 UserEmail = user.UserEmail,
-                //UserRight = user.UserRight
+                UserBirthDate = user.UserBirthDate,
+                IsDeleted = user.IsDeleted,
+                CreatedAt = user.CreatedAt,
+                UpdatedAt = user.UpdatedAt,
+                UserRightUuid = user.UserRightUuid,
+                GenderUuid = user.GenderUuid
             };
 
             // Encrypt the user data
@@ -100,7 +117,7 @@ namespace BookAPI.Controllers
 
         [Authorize(Policy = IdentityData.UserPolicyName)]
         [HttpPut("{id}/infos")]
-        public async Task<IActionResult> UpdateUserInfos(int id, [FromBody] EncryptedPayload payload)
+        public async Task<IActionResult> UpdateUserInfos(Guid id, [FromBody] EncryptedPayload payload)
         {
             try
             {
@@ -113,7 +130,7 @@ namespace BookAPI.Controllers
 
                 if (userData != null)
                 {
-                    if (id != userData.UserId)
+                    if (id != userData.UserUuid)
                     {
                         var errorResponse = new { name = "userId", message = "userId doesn't match."};
                         return BadRequest(errorResponse);
@@ -139,9 +156,13 @@ namespace BookAPI.Controllers
 
                     user.UserFirstname = userData.UserFirstname;
                     user.UserLastname = userData.UserLastname;
-                    user.UserEmail = userData.UserEmail;
                     user.UserLogin = userData.UserLogin;
-                    //user.UserRight = userData.UserRight;
+                    user.UserEmail = userData.UserEmail;
+                    user.UserBirthDate = userData.UserBirthDate;
+                    user.IsDeleted = userData.IsDeleted;
+                    user.UpdatedAt = DateTimeOffset.UtcNow;
+                    user.UserRightUuid = userData.UserRightUuid;
+                    user.GenderUuid = userData.GenderUuid;
 
                     try
                     {
@@ -172,7 +193,7 @@ namespace BookAPI.Controllers
 
         [Authorize]
         [HttpPut("{id}/password")]
-        public async Task<IActionResult> ChangePassword(int id, [FromBody] EncryptedPayload payload)
+        public async Task<IActionResult> ChangePassword(Guid id, [FromBody] EncryptedPayload payload)
         {
             try
             {
@@ -195,7 +216,7 @@ namespace BookAPI.Controllers
                     // Verify current password
                     if (!VerifyPassword(userData.CurrentPassword, user.UserPassword))
                     {
-                        return BadRequest(new { name = "CurrentPassword", message = "Incorrect current password." });
+                        return BadRequest(/*new { name = "CurrentPassword", message = "Incorrect current password." }*/);
                     }
 
                     // Validate new password
@@ -214,6 +235,7 @@ namespace BookAPI.Controllers
 
                     // Hash and update password
                     user.UserPassword = HashPassword(userData.NewPassword);
+                    user.UserPasswordLastChangedAt = DateTimeOffset.UtcNow;
 
                     try
                     {
@@ -271,14 +293,14 @@ namespace BookAPI.Controllers
                 }
 
                 // Check if email already exists
-                if (EmailExists(model.UserEmail, 0))
+                if (EmailExists(model.UserEmail, Guid.Empty))
                 {
                     var errorResponse = new { name = "Email", message = "Email already exists." };
                     return BadRequest(errorResponse);
                 }
 
                 // Check if login already exists
-                if (LoginExists(model.UserLogin, 0))
+                if (LoginExists(model.UserLogin, Guid.Empty))
                 {
                     var errorResponse = new { name = "Login", message = "Login already exists." };
                     return BadRequest(errorResponse);
@@ -295,9 +317,16 @@ namespace BookAPI.Controllers
                     UserFirstname = model.UserFirstname,
                     UserLastname = model.UserLastname,
                     UserPassword = HashPassword(model.UserPassword),
+                    UserPasswordLastChangedAt = DateTimeOffset.UtcNow,
+                    UserMustChangePassword = false,
                     UserLogin = model.UserLogin,
                     UserEmail = model.UserEmail,
-                    //UserRight = model.UserRight
+                    UserBirthDate = model.UserBirthDate,
+                    IsDeleted = false,
+                    CreatedAt = DateTimeOffset.UtcNow,
+                    UpdatedAt = DateTimeOffset.UtcNow,
+                    UserRightUuid = model.UserRightUuid,
+                    GenderUuid = model.GenderUuid,
                 };
                 _context.Users.Add(user);
                 await _context.SaveChangesAsync();
@@ -334,9 +363,9 @@ namespace BookAPI.Controllers
             return NoContent();
         }
 
-        private bool UserExists(int id)
+        private bool UserExists(Guid id)
         {
-            return _context.Users.Any(e => e.UserId == id);
+            return _context.Users.Any(e => e.UserUuid == id);
         }
 
         private bool IsUserRightValid(string userRight)
@@ -386,14 +415,14 @@ namespace BookAPI.Controllers
             return (name: "", message: "");
         }
 
-        private bool EmailExists(string email, int userId)
+        private bool EmailExists(string email, Guid userUuid)
         {
-            return _context.Users.Any(u => u.UserEmail == email && u.UserId != userId);
+            return _context.Users.Any(u => u.UserEmail == email && u.UserUuid != userUuid);
         }
 
-        private bool LoginExists(string login, int userId)
+        private bool LoginExists(string login, Guid userUuid)
         {
-            return _context.Users.Any(u => u.UserLogin == login && u.UserId != userId);
+            return _context.Users.Any(u => u.UserLogin == login && u.UserUuid != userUuid);
         }
     }
 }

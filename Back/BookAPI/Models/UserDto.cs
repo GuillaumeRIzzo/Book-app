@@ -1,6 +1,4 @@
-﻿using BookAPI.Data;
-
-namespace BookAPI.Models
+﻿namespace BookAPI.Models
 {
     public class UserDto
     {

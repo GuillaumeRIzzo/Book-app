@@ -52,7 +52,7 @@ namespace BookAPI.Controllers
 
         // GET: api/AuthorDistinctions/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<EncryptedPayload>> GetAuthorDistinction(int id)
+        public async Task<ActionResult<EncryptedPayload>> GetAuthorDistinction(Guid id)
         {
             var distinctions = await _context.AuthorDistinctions.FindAsync(id);
 
@@ -126,7 +126,7 @@ namespace BookAPI.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!AuthorDistinctionExists(model.DistinctionId))
+                    if (!AuthorDistinctionExists(model.DistinctionUuid))
                     {
                         return NotFound();
                     }
@@ -173,8 +173,6 @@ namespace BookAPI.Controllers
 
                 var distinctions = new AuthorDistinction()
                 {
-                    DistinctionId = model.DistinctionId,
-                    DistinctionUuid = model.DistinctionUuid,
                     DistinctionLabel = model.DistinctionLabel,
                     DistinctionDate = model.DistinctionDate,
                     CreatedAt = new DateTimeOffset(),
@@ -187,7 +185,7 @@ namespace BookAPI.Controllers
 
                 model.DistinctionId = distinctions.DistinctionId;
 
-                return CreatedAtAction("GetBook", new { id = model.DistinctionId }, model);
+                return CreatedAtAction("GetBook", new { id = model.DistinctionUuid }, model);
             }
             catch (JsonException ex)
             {
@@ -218,9 +216,9 @@ namespace BookAPI.Controllers
             return NoContent();
         }
 
-        private bool AuthorDistinctionExists(int id)
+        private bool AuthorDistinctionExists(Guid id)
         {
-            return _context.AuthorDistinctions.Any(e => e.DistinctionId == id);
+            return _context.AuthorDistinctions.Any(e => e.DistinctionUuid == id);
         }
     }
 }

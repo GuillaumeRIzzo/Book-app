@@ -49,7 +49,7 @@ namespace BookAPI.Controllers
 
         // GET: api/ActivityTypes/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<EncryptedPayload>> GetActivityType(int id)
+        public async Task<ActionResult<EncryptedPayload>> GetActivityType(Guid id)
         {
             var ativityType = await _context.ActivityTypes.FindAsync(id);
 
@@ -117,7 +117,7 @@ namespace BookAPI.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ActivityTypeExists(model.ActivityTypeId))
+                    if (!ActivityTypeExists(model.ActivityTypeUuid))
                     {
                         return NotFound();
                     }
@@ -164,8 +164,6 @@ namespace BookAPI.Controllers
 
                 var activityType = new ActivityType()
                 {
-                    ActivityTypeId = model.ActivityTypeId,
-                    ActivityTypeUuid = model.ActivityTypeUuid,
                     Code = model.Code,
                     Label = model.Label,
                 };
@@ -175,7 +173,7 @@ namespace BookAPI.Controllers
 
                 model.ActivityTypeId = activityType.ActivityTypeId;
 
-                return CreatedAtAction("GetBook", new { id = model.ActivityTypeId }, model);
+                return CreatedAtAction("GetBook", new { id = model.ActivityTypeUuid }, model);
             }
             catch (JsonException ex)
             {
@@ -206,9 +204,9 @@ namespace BookAPI.Controllers
             return NoContent();
         }
 
-        private bool ActivityTypeExists(int id)
+        private bool ActivityTypeExists(Guid id)
         {
-            return _context.ActivityTypes.Any(e => e.ActivityTypeId == id);
+            return _context.ActivityTypes.Any(e => e.ActivityTypeUuid == id);
         }
     }
 }

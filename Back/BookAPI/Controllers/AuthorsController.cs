@@ -57,7 +57,7 @@ namespace BookAPI.Controllers
 
         // GET: api/Authors/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<EncryptedPayload>> GetAuthor(int id)
+        public async Task<ActionResult<EncryptedPayload>> GetAuthor(Guid id)
         {
             var author = await _context.Authors.FindAsync(id);
 
@@ -95,7 +95,7 @@ namespace BookAPI.Controllers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [Authorize(Policy = IdentityData.UserPolicyName)]
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutAuthor(int id, EncryptedPayload payload)
+        public async Task<IActionResult> PutAuthor(Guid id, EncryptedPayload payload)
         {
             try
             {
@@ -108,7 +108,7 @@ namespace BookAPI.Controllers
 
                 if (model == null) { return NotFound(); }
 
-                if (id != model.AuthorId)
+                if (id != model.AuthorUuid)
                 {
                     return BadRequest();
                 }
@@ -122,8 +122,6 @@ namespace BookAPI.Controllers
 
                 if (author != null)
                 {
-                    author.AuthorId = model.AuthorId;
-                    author.AuthorUuid = model.AuthorUuid;
                     author.AuthorFullName = model.AuthorFullName;
                     author.AuthorBirthDate = model.AuthorBirthDate;
                     author.AuthorBirthPlace = model.AuthorBirthPlace;
@@ -181,7 +179,7 @@ namespace BookAPI.Controllers
                     return NoContent();
                 }
 
-                if (AuthorFullNameExists(model.AuthorFullName, 0))
+                if (AuthorFullNameExists(model.AuthorFullName, Guid.Empty))
                 {
                     return BadRequest("Name already exists");
                 }
@@ -203,7 +201,7 @@ namespace BookAPI.Controllers
                 _context.Authors.Add(author);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetAuthor", new { id = model.AuthorId }, model);
+                return CreatedAtAction("GetAuthor", new { id = model.AuthorUuid }, model);
             }
             catch (JsonException ex)
             {
@@ -234,14 +232,14 @@ namespace BookAPI.Controllers
             return NoContent();
         }
 
-        private bool AuthorExists(int id)
+        private bool AuthorExists(Guid id)
         {
-            return _context.Authors.Any(e => e.AuthorId == id);
+            return _context.Authors.Any(e => e.AuthorUuid == id);
         }
 
-        private bool AuthorFullNameExists(string name, int id)
+        private bool AuthorFullNameExists(string name, Guid id)
         {
-            return _context.Authors.Any(a => a.AuthorFullName == name && a.AuthorId != id);
+            return _context.Authors.Any(a => a.AuthorFullName == name && a.AuthorUuid != id);
         }
     }
 }

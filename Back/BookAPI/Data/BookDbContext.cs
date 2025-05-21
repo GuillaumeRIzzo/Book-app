@@ -566,7 +566,7 @@ public partial class BookDbContext : DbContext
 
         modelBuilder.Entity<UserBookState>(entity =>
         {
-            entity.HasKey(e => e.StateId).HasName("PK__USER_BOO__81A47417422057E3");
+            entity.HasKey(e => new { e.UserUuid, e.BookUuid }).HasName("PK_USER_BOOK_STATE");
 
             entity.HasOne(d => d.BookUu).WithMany(p => p.UserBookStates)
                 .HasPrincipalKey(p => p.BookUuid)

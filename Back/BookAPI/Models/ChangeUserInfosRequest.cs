@@ -8,6 +8,10 @@
         public string? UserLastname { get; set; }
         public string? UserLogin { get; set; }
         public string? UserEmail { get; set; }
-        public Guid? UserRightUuid { get; set; }
+        public DateOnly? UserBirthDate { get; set; }
+        public bool IsDeleted { get; set; }
+        public DateTimeOffset UpdatedAt { get; set; }
+        public Guid UserRightUuid { get; set; }
+        public Guid GenderUuid { get; set; }
     }
 }

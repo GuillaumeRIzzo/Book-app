@@ -20,7 +20,7 @@ namespace BookAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<EncryptedPayload>>> GetBooks(int? userId)
+        public async Task<ActionResult<IEnumerable<EncryptedPayload>>> GetBooks()
         {
             var books = await _context.Books.ToListAsync();
 
@@ -57,7 +57,7 @@ namespace BookAPI.Controllers
 
         // GET: api/Books/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<EncryptedPayload>> GetBook(int id)
+        public async Task<ActionResult<EncryptedPayload>> GetBook(Guid id)
         {
             var book = await _context.Books.FindAsync(id);
 
@@ -96,7 +96,7 @@ namespace BookAPI.Controllers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [Authorize(Policy = IdentityData.UserPolicyName)]
         [HttpPut("{id}")]
-        public async Task<ActionResult<EncryptedPayload>> PutBook(int id, EncryptedPayload payload)
+        public async Task<ActionResult<EncryptedPayload>> PutBook(Guid id, EncryptedPayload payload)
         {
             try
             {
@@ -109,7 +109,7 @@ namespace BookAPI.Controllers
 
                 if (model == null) return NoContent();
 
-                if (id != model.BookId)
+                if (id != model.BookUuid)
                 {
                     return BadRequest();
                 }
@@ -187,7 +187,6 @@ namespace BookAPI.Controllers
 
                 var book = new Book()
                 {
-                    BookUuid = model.BookUuid,
                     BookTitle = model.BookTitle,
                     BookDescription = model.BookDescription,
                     BookPageCount = model.BookPageCount,
@@ -205,7 +204,7 @@ namespace BookAPI.Controllers
 
                 model.BookId = book.BookId;
 
-                return CreatedAtAction("GetBook", new { id = model.BookId }, model);
+                return CreatedAtAction("GetBook", new { id = model.BookUuid }, model);
             }
             catch (JsonException ex)
             {
@@ -236,9 +235,9 @@ namespace BookAPI.Controllers
             return NoContent();
         }
 
-        private bool BookExists(int id)
+        private bool BookExists(Guid id)
         {
-            return _context.Books.Any(e => e.BookId == id);
+            return _context.Books.Any(e => e.BookUuid == id);
         }
     }
 }

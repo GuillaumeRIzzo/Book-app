@@ -96,7 +96,7 @@ namespace BookAPI.Controllers
             }
 
             // Step 1: Call GetUser to retrieve the encrypted user data
-            var encryptedUserResult = await _usersController.GetUser(0, model.Identifier);
+            var encryptedUserResult = await _usersController.GetUser(Guid.Empty, model.Identifier);
 
             if (encryptedUserResult.Result is ObjectResult objectResult && objectResult.Value is EncryptedPayload encryptedUser)
             {

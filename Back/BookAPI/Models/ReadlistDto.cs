@@ -1,6 +1,6 @@
 ﻿namespace BookAPI.Models
 {
-    public class ReadlistDto
+    public class ReadListDto
     {
         public int ReadListId { get; set; }
         public Guid ReadListUuid { get; set; }

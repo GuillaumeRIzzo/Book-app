@@ -164,8 +164,6 @@ namespace BookAPI.Controllers
 
                 var bookImageType = new BookImageType()
                 {
-                    ImageTypeId = model.ImageTypeId,
-                    ImageTypeUuid = model.ImageTypeUuid,
                     Label = model.Label,
                     
                 };
@@ -173,7 +171,7 @@ namespace BookAPI.Controllers
                 _context.BookImageTypes.Add(bookImageType);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetBookImageType", model);
+                return CreatedAtAction("GetBookImageType", new { id = model.ImageTypeUuid} , model);
             }
             catch (JsonException ex)
             {

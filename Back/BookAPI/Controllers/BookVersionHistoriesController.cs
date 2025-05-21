@@ -169,7 +169,7 @@ namespace BookAPI.Controllers
                 _context.BookVersionHistories.Add(version);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetBookVersionHistorie", model.VersionUuid, model);
+                return CreatedAtAction("GetBookVersionHistorie", new { id = model.VersionUuid }, model);
             }
             catch (JsonException ex)
             {

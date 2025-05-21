@@ -143,7 +143,7 @@ namespace BookAPI.Controllers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [Authorize(Policy = IdentityData.UserPolicyName)]
         [HttpPost]
-        public async Task<ActionResult<EncryptedPayload>> PostAuthor(EncryptedPayload payload)
+        public async Task<ActionResult<EncryptedPayload>> PostAuthorLanguage(EncryptedPayload payload)
         {
             try
             {
@@ -167,7 +167,7 @@ namespace BookAPI.Controllers
                 _context.AuthorLanguages.Add(alanguage);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetAuthorLanguage", model);
+                return CreatedAtAction("GetAuthorLanguage", new { authorUuid  = model.AuthorUuid, languageUuid = model.LanguageUuid} ,  model);
             }
             catch (JsonException ex)
             {

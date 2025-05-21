@@ -161,7 +161,7 @@ namespace BookAPI.Controllers
                 _context.BookSeriesOrders.Add(bSO);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetBookSeriesOrder", model.SeriesUuid, model.BookUuid);
+                return CreatedAtAction("GetBookSeriesOrder", new { serieUuid = model.SeriesUuid, bookUuid = model.BookUuid }, model);
             }
             catch (JsonException ex)
             {

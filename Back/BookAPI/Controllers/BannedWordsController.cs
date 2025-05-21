@@ -174,8 +174,6 @@ namespace BookAPI.Controllers
 
                 var bannedWord = new BannedWord()
                 {
-                    BannedWordId = model.BannedWordId,
-                    BannedWordUuid = model.BannedWordUuid,
                     Word = model.Word,
                     CreatedAt = DateTimeOffset.UtcNow,
                     UpdatedAt = DateTimeOffset.UtcNow,
@@ -187,7 +185,7 @@ namespace BookAPI.Controllers
                 _context.BannedWords.Add(bannedWord);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetBannedWord", model);
+                return CreatedAtAction("GetBannedWord", new { id = model.BannedWordUuid }, model);
             }
             catch (JsonException ex)
             {

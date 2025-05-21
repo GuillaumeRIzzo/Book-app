@@ -56,7 +56,7 @@ namespace BookAPI.Controllers
 
         // GET: api/AuditTrails/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<EncryptedPayload>> GetAuditTrail(int id)
+        public async Task<ActionResult<EncryptedPayload>> GetAuditTrail(Guid id)
         {
             var auditTrail = await _context.AuditTrails.FindAsync(id);
 
@@ -136,7 +136,7 @@ namespace BookAPI.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!AuditTrailExists(model.AuditId))
+                    if (!AuditTrailExists(model.AuditUuid))
                     {
                         return NotFound();
                     }
@@ -183,8 +183,6 @@ namespace BookAPI.Controllers
 
                 var auditTrail = new AuditTrail()
                 {
-                    AuditId = model.AuditId,
-                    AuditUuid = model.AuditUuid,
                     EntityTablename = model.EntityTablename,
                     ActionType = model.ActionType,
                     ActionDate = model.ActionDate,
@@ -200,7 +198,7 @@ namespace BookAPI.Controllers
 
                 model.AuditId = auditTrail.AuditId;
 
-                return CreatedAtAction("GetBook", new { id = model.AuditId }, model);
+                return CreatedAtAction("GetBook", new { id = model.AuditUuid }, model);
             }
             catch (JsonException ex)
             {
@@ -231,9 +229,9 @@ namespace BookAPI.Controllers
             return NoContent();
         }
 
-        private bool AuditTrailExists(int id)
+        private bool AuditTrailExists(Guid id)
         {
-            return _context.AuditTrails.Any(e => e.AuditId == id);
+            return _context.AuditTrails.Any(e => e.AuditUuid == id);
         }
     }
 }
