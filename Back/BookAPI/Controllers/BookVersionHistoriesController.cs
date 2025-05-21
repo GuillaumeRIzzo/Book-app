@@ -10,36 +10,34 @@ namespace BookAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CategoriesController : ControllerBase
+    public class BookVersionHistoriesController : ControllerBase
     {
         private readonly BookDbContext _context;
 
-        public CategoriesController(BookDbContext context)
+        public BookVersionHistoriesController(BookDbContext context)
         {
             _context = context;
         }
 
-        // GET: api/Categories
+        // GET: api/BookVersionHistories
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<EncryptedPayload>>> GetCategories()
+        public async Task<ActionResult<IEnumerable<EncryptedPayload>>> GetBookVersionHistories()
         {
-            var categories = await _context.Categories.ToListAsync();
+            var versions = await _context.BookVersionHistories.ToListAsync();
 
-            if (categories.Count >= 1)
+            if (versions.Count >= 1)
             {
-                var model = categories.Select(x => new CategoryDto()
+                var model = versions.Select(x => new BookVersionHistoryDto()
                 {
-                    CategoryId = x.CategoryId,
-                    CategoryUuid = x.CategoryUuid,
-                    CategoryName = x.CategoryName,
-                    CategoryDescription = x.CategoryDescription,
-                    ImageUrl = x.ImageUrl,
-                    ImageAlt = x.ImageAlt,
-                    CreatedAt = x.CreatedAt,
-                    UpdatedAt = x.UpdatedAt
+                   VersionId = x.VersionId,
+                   VersionUuid = x.VersionUuid,
+                   BookUuid = x.BookUuid,
+                   UserUuid = x.UserUuid,
+                   ChangeDate = x.ChangeDate,
+                   VersionDescription = x.VersionDescription,
                 }).ToList();
 
-                // Encrypt the list of categories
+                // Encrypt the list of versions
                 var encryptedData = EncryptionHelper.EncryptData(JsonSerializer.Serialize(model));
 
                 return Ok(new EncryptedPayload
@@ -48,35 +46,31 @@ namespace BookAPI.Controllers
                     Iv = encryptedData.Iv
                 });
             }
-
             return NoContent();
         }
 
-        // GET: api/Categories/5
+        // GET: api/BookVersionHistories/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<EncryptedPayload>> GetCategory(int id)
+        public async Task<ActionResult<EncryptedPayload>> GetBookVersionHistory(Guid id)
         {
-            var category = await _context.Categories.FindAsync(id);
+            var version = await _context.BookVersionHistories.FindAsync(id);
 
-            if (category == null)
+            if (version == null)
             {
                 return NotFound();
             }
 
-            var model = new CategoryDto()
+            var model = new BookVersionHistoryDto()
             {
-                CategoryId= category.CategoryId,
-                CategoryUuid = category.CategoryUuid,
-                CategoryName= category.CategoryName,
-                CategoryDescription = category.CategoryDescription,
-                ImageUrl = category.ImageUrl,
-                ImageAlt = category.ImageAlt,
-                CreatedAt = category.CreatedAt,
-                UpdatedAt = category.UpdatedAt
+                VersionId = version.VersionId,
+                VersionUuid = version.VersionUuid,
+                BookUuid = version.BookUuid,
+                UserUuid = version.UserUuid,
+                ChangeDate = version.ChangeDate,
+                VersionDescription = version.VersionDescription,
             };
 
-
-            // Encrypt the list of publishers
+            // Encrypt the version data
             var encryptedData = EncryptionHelper.EncryptData(JsonSerializer.Serialize(model));
 
             return Ok(new EncryptedPayload
@@ -86,11 +80,11 @@ namespace BookAPI.Controllers
             });
         }
 
-        // PUT: api/Categories/5
+        // PUT: api/BookVersionHistories/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [Authorize(Policy = IdentityData.UserPolicyName)]
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCategory(Guid id, EncryptedPayload payload)
+        public async Task<IActionResult> PutBookVersionHistorie(Guid id, EncryptedPayload payload)
         {
             try
             {
@@ -99,31 +93,23 @@ namespace BookAPI.Controllers
                 {
                     PropertyNameCaseInsensitive = true // Enable case-insensitive matching
                 };
-                var model = JsonSerializer.Deserialize<CategoryDto>(decryptedData, options);
+                var model = JsonSerializer.Deserialize<BookVersionHistoryDto>(decryptedData, options);
 
                 if (model == null) { return NotFound(); }
 
-                if (id != model.CategoryUuid)
+                if (id != model.VersionUuid)
                 {
                     return BadRequest();
                 }
 
-                if (CategoryNameExists(model.CategoryName, id))
-                {
-                    return BadRequest("Name already exists");
-                }
+                var version = await _context.BookVersionHistories.FindAsync(id);
 
-                var category = await _context.Categories.FindAsync(id);
-                if (category != null)
+                if (version != null)
                 {
-                    category.CategoryId = model.CategoryId;
-                    category.CategoryUuid = model.CategoryUuid;
-                    category.CategoryName = model.CategoryName;
-                    category.CategoryDescription = model.CategoryDescription;
-                    category.ImageUrl = model.ImageUrl;
-                    category.ImageAlt = model.ImageAlt;
-                    category.CreatedAt = model.CreatedAt;
-                    category.UpdatedAt = model.UpdatedAt;
+                    version.BookUuid = model.BookUuid;
+                    version.UserUuid = model.UserUuid;
+                    version.VersionDescription = model.VersionDescription;
+                    version.ChangeDate = DateTimeOffset.UtcNow;
                 }
 
                 try
@@ -132,7 +118,7 @@ namespace BookAPI.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!CategoryExists(id))
+                    if (!BookVersionHistorieExists(id))
                     {
                         return NotFound();
                     }
@@ -156,37 +142,34 @@ namespace BookAPI.Controllers
             }
         }
 
-        // POST: api/Categories
+        // POST: api/BookVersionHistories
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [Authorize(Policy = IdentityData.UserPolicyName)]
         [HttpPost]
-        public async Task<ActionResult<EncryptedPayload>> PostCategory(EncryptedPayload payload)
+        public async Task<ActionResult<EncryptedPayload>> PostBookVersionHistorie(EncryptedPayload payload)
         {
             try
             {
                 string decryptedData = EncryptionHelper.DecryptData(payload.EncryptedData, payload.Iv);
-                var model = JsonSerializer.Deserialize<CategoryDto>(decryptedData);
+                var model = JsonSerializer.Deserialize<BookVersionHistoryDto>(decryptedData);
 
                 if (model == null)
                 {
                     return NoContent();
                 }
 
-                if (CategoryNameExists(model.CategoryName, Guid.Empty))
+                var version = new BookVersionHistory()
                 {
-                    return BadRequest("Name already exists");
-                }
-
-                var category = new Category()
-                {
-                    CategoryName = model.CategoryName,
-                    CategoryDescription = model.CategoryDescription
+                    BookUuid = model.BookUuid,
+                    UserUuid = model.UserUuid,
+                    ChangeDate = DateTime.UtcNow,
+                    VersionDescription = model.VersionDescription,
                 };
 
-                _context.Categories.Add(category);
+                _context.BookVersionHistories.Add(version);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetCategory", new { id = category.CategoryId }, model);
+                return CreatedAtAction("GetBookVersionHistorie", model.VersionUuid, model);
             }
             catch (JsonException ex)
             {
@@ -200,31 +183,26 @@ namespace BookAPI.Controllers
             }
         }
 
-        // DELETE: api/Categories/5
+        // DELETE: api/BookVersionHistories/5
         [Authorize(Policy = IdentityData.UserPolicyName)]
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCategory(int id)
+        public async Task<IActionResult> DeleteBookVersionHistorie(int id)
         {
-            var Category = await _context.Categories.FindAsync(id);
-            if (Category == null)
+            var version = await _context.BookVersionHistories.FindAsync(id);
+            if (version == null)
             {
                 return NotFound();
             }
 
-            _context.Categories.Remove(Category);
+            _context.BookVersionHistories.Remove(version);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool CategoryExists(Guid id)
+        private bool BookVersionHistorieExists(Guid id)
         {
-            return _context.Categories.Any(e => e.CategoryUuid == id);
-        }
-
-        private bool CategoryNameExists(string name, Guid id)
-        {
-            return _context.Categories.Any(bc => bc.CategoryName == name && bc.CategoryUuid != id);
+            return _context.BookVersionHistories.Any(e => e.VersionUuid == id);
         }
     }
 }

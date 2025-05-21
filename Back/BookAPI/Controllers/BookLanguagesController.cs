@@ -10,36 +10,33 @@ namespace BookAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CategoriesController : ControllerBase
+    public class BookLanguagesController : ControllerBase
     {
         private readonly BookDbContext _context;
 
-        public CategoriesController(BookDbContext context)
+        public BookLanguagesController(BookDbContext context)
         {
             _context = context;
         }
 
-        // GET: api/Categories
+        // GET: api/BookLanguages
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<EncryptedPayload>>> GetCategories()
+        public async Task<ActionResult<IEnumerable<EncryptedPayload>>> GetBookLanguages()
         {
-            var categories = await _context.Categories.ToListAsync();
+            var bLanguages = await _context.BookLanguages.ToListAsync();
 
-            if (categories.Count >= 1)
+            if (bLanguages.Count >= 1)
             {
-                var model = categories.Select(x => new CategoryDto()
+                var model = bLanguages.Select(x => new BookLanguageDto()
                 {
-                    CategoryId = x.CategoryId,
-                    CategoryUuid = x.CategoryUuid,
-                    CategoryName = x.CategoryName,
-                    CategoryDescription = x.CategoryDescription,
-                    ImageUrl = x.ImageUrl,
-                    ImageAlt = x.ImageAlt,
-                    CreatedAt = x.CreatedAt,
-                    UpdatedAt = x.UpdatedAt
+                   BookUuid = x.BookUuid,
+                   LanguageUuid = x.LanguageUuid,
+                   CreatedAt = x.CreatedAt,
+                   UpdatedAt = x.UpdatedAt
+
                 }).ToList();
 
-                // Encrypt the list of categories
+                // Encrypt the list of bLanguages
                 var encryptedData = EncryptionHelper.EncryptData(JsonSerializer.Serialize(model));
 
                 return Ok(new EncryptedPayload
@@ -48,35 +45,29 @@ namespace BookAPI.Controllers
                     Iv = encryptedData.Iv
                 });
             }
-
             return NoContent();
         }
 
-        // GET: api/Categories/5
+        // GET: api/BookLanguages/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<EncryptedPayload>> GetCategory(int id)
+        public async Task<ActionResult<EncryptedPayload>> GetBookLanguage(Guid bookUuid, Guid languageUuid)
         {
-            var category = await _context.Categories.FindAsync(id);
+            var bLanguage = await _context.BookLanguages.FindAsync(bookUuid, languageUuid);
 
-            if (category == null)
+            if (bLanguage == null)
             {
                 return NotFound();
             }
 
-            var model = new CategoryDto()
+            var model = new BookLanguageDto()
             {
-                CategoryId= category.CategoryId,
-                CategoryUuid = category.CategoryUuid,
-                CategoryName= category.CategoryName,
-                CategoryDescription = category.CategoryDescription,
-                ImageUrl = category.ImageUrl,
-                ImageAlt = category.ImageAlt,
-                CreatedAt = category.CreatedAt,
-                UpdatedAt = category.UpdatedAt
+                BookUuid = bLanguage.BookUuid,
+                LanguageUuid = bLanguage.LanguageUuid,
+                CreatedAt = bLanguage.CreatedAt,
+                UpdatedAt = bLanguage.UpdatedAt
             };
 
-
-            // Encrypt the list of publishers
+            // Encrypt the bLanguage data
             var encryptedData = EncryptionHelper.EncryptData(JsonSerializer.Serialize(model));
 
             return Ok(new EncryptedPayload
@@ -86,11 +77,11 @@ namespace BookAPI.Controllers
             });
         }
 
-        // PUT: api/Categories/5
+        // PUT: api/BookLanguages/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [Authorize(Policy = IdentityData.UserPolicyName)]
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCategory(Guid id, EncryptedPayload payload)
+        public async Task<IActionResult> PutBookLanguage(Guid bookUuid, Guid languageUuid, EncryptedPayload payload)
         {
             try
             {
@@ -99,31 +90,23 @@ namespace BookAPI.Controllers
                 {
                     PropertyNameCaseInsensitive = true // Enable case-insensitive matching
                 };
-                var model = JsonSerializer.Deserialize<CategoryDto>(decryptedData, options);
+                var model = JsonSerializer.Deserialize<BookLanguageDto>(decryptedData, options);
 
                 if (model == null) { return NotFound(); }
 
-                if (id != model.CategoryUuid)
+                if (bookUuid != model.BookUuid && languageUuid != model.LanguageUuid)
                 {
                     return BadRequest();
                 }
 
-                if (CategoryNameExists(model.CategoryName, id))
-                {
-                    return BadRequest("Name already exists");
-                }
+                var bLanguage = await _context.BookLanguages.FindAsync(bookUuid, languageUuid);
 
-                var category = await _context.Categories.FindAsync(id);
-                if (category != null)
+                if (bLanguage != null)
                 {
-                    category.CategoryId = model.CategoryId;
-                    category.CategoryUuid = model.CategoryUuid;
-                    category.CategoryName = model.CategoryName;
-                    category.CategoryDescription = model.CategoryDescription;
-                    category.ImageUrl = model.ImageUrl;
-                    category.ImageAlt = model.ImageAlt;
-                    category.CreatedAt = model.CreatedAt;
-                    category.UpdatedAt = model.UpdatedAt;
+                    bLanguage.BookUuid = model.BookUuid;
+                    bLanguage.LanguageUuid = model.LanguageUuid;
+                    bLanguage.CreatedAt = model.CreatedAt;
+                    bLanguage.UpdatedAt = DateTimeOffset.UtcNow;
                 }
 
                 try
@@ -132,7 +115,7 @@ namespace BookAPI.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!CategoryExists(id))
+                    if (!BookLanguageExists(bookUuid, languageUuid))
                     {
                         return NotFound();
                     }
@@ -156,37 +139,32 @@ namespace BookAPI.Controllers
             }
         }
 
-        // POST: api/Categories
+        // POST: api/BookLanguages
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [Authorize(Policy = IdentityData.UserPolicyName)]
         [HttpPost]
-        public async Task<ActionResult<EncryptedPayload>> PostCategory(EncryptedPayload payload)
+        public async Task<ActionResult<EncryptedPayload>> PostBookLanguage(EncryptedPayload payload)
         {
             try
             {
                 string decryptedData = EncryptionHelper.DecryptData(payload.EncryptedData, payload.Iv);
-                var model = JsonSerializer.Deserialize<CategoryDto>(decryptedData);
+                var model = JsonSerializer.Deserialize<BookLanguageDto>(decryptedData);
 
                 if (model == null)
                 {
                     return NoContent();
                 }
 
-                if (CategoryNameExists(model.CategoryName, Guid.Empty))
+                var bLanguage = new BookLanguage()
                 {
-                    return BadRequest("Name already exists");
-                }
-
-                var category = new Category()
-                {
-                    CategoryName = model.CategoryName,
-                    CategoryDescription = model.CategoryDescription
+                    CreatedAt = DateTimeOffset.UtcNow,
+                    UpdatedAt = DateTimeOffset.UtcNow,
                 };
 
-                _context.Categories.Add(category);
+                _context.BookLanguages.Add(bLanguage);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetCategory", new { id = category.CategoryId }, model);
+                return CreatedAtAction("GetBookLanguage", model.BookUuid, model.LanguageUuid);
             }
             catch (JsonException ex)
             {
@@ -200,31 +178,26 @@ namespace BookAPI.Controllers
             }
         }
 
-        // DELETE: api/Categories/5
+        // DELETE: api/BookLanguages/5
         [Authorize(Policy = IdentityData.UserPolicyName)]
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCategory(int id)
+        public async Task<IActionResult> DeleteBookLanguage(int id)
         {
-            var Category = await _context.Categories.FindAsync(id);
-            if (Category == null)
+            var bLanguage = await _context.BookLanguages.FindAsync(id);
+            if (bLanguage == null)
             {
                 return NotFound();
             }
 
-            _context.Categories.Remove(Category);
+            _context.BookLanguages.Remove(bLanguage);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool CategoryExists(Guid id)
+        private bool BookLanguageExists(Guid bookUuid, Guid languageUuid)
         {
-            return _context.Categories.Any(e => e.CategoryUuid == id);
-        }
-
-        private bool CategoryNameExists(string name, Guid id)
-        {
-            return _context.Categories.Any(bc => bc.CategoryName == name && bc.CategoryUuid != id);
+            return _context.BookLanguages.Any(e => e.BookUuid == bookUuid && e.LanguageUuid == languageUuid);
         }
     }
 }

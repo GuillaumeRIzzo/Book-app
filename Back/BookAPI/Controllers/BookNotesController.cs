@@ -10,36 +10,40 @@ namespace BookAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CategoriesController : ControllerBase
+    public class BookNotesController : ControllerBase
     {
         private readonly BookDbContext _context;
 
-        public CategoriesController(BookDbContext context)
+        public BookNotesController(BookDbContext context)
         {
             _context = context;
         }
 
-        // GET: api/Categories
+        // GET: api/BookNotes
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<EncryptedPayload>>> GetCategories()
+        public async Task<ActionResult<IEnumerable<EncryptedPayload>>> GetBookNotes()
         {
-            var categories = await _context.Categories.ToListAsync();
+            var notes = await _context.BookNotes.ToListAsync();
 
-            if (categories.Count >= 1)
+            if (notes.Count >= 1)
             {
-                var model = categories.Select(x => new CategoryDto()
+                var model = notes.Select(x => new BookNoteDto()
                 {
-                    CategoryId = x.CategoryId,
-                    CategoryUuid = x.CategoryUuid,
-                    CategoryName = x.CategoryName,
-                    CategoryDescription = x.CategoryDescription,
-                    ImageUrl = x.ImageUrl,
-                    ImageAlt = x.ImageAlt,
+                    NoteId = x.NoteId,
+                    NoteUuid = x.NoteUuid,
+                    NoteValue = x.NoteValue,
+                    NoteComment = x.NoteComment,
+                    NoteDate = x.NoteDate,
+                    IsModerated = x.IsModerated,
+                    IsDeleted = x.IsDeleted,
                     CreatedAt = x.CreatedAt,
-                    UpdatedAt = x.UpdatedAt
+                    UpdatedAt = x.UpdatedAt,
+                    BookUuid = x.BookUuid,
+                    UserUuid = x.UserUuid,
+
                 }).ToList();
 
-                // Encrypt the list of categories
+                // Encrypt the list of notes
                 var encryptedData = EncryptionHelper.EncryptData(JsonSerializer.Serialize(model));
 
                 return Ok(new EncryptedPayload
@@ -48,35 +52,35 @@ namespace BookAPI.Controllers
                     Iv = encryptedData.Iv
                 });
             }
-
             return NoContent();
         }
 
-        // GET: api/Categories/5
+        // GET: api/BookNotes/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<EncryptedPayload>> GetCategory(int id)
+        public async Task<ActionResult<EncryptedPayload>> GetBookNote(int id)
         {
-            var category = await _context.Categories.FindAsync(id);
+            var note = await _context.BookNotes.FindAsync(id);
 
-            if (category == null)
+            if (note == null)
             {
                 return NotFound();
             }
 
-            var model = new CategoryDto()
+            var model = new BookNoteDto()
             {
-                CategoryId= category.CategoryId,
-                CategoryUuid = category.CategoryUuid,
-                CategoryName= category.CategoryName,
-                CategoryDescription = category.CategoryDescription,
-                ImageUrl = category.ImageUrl,
-                ImageAlt = category.ImageAlt,
-                CreatedAt = category.CreatedAt,
-                UpdatedAt = category.UpdatedAt
+                NoteId = note.NoteId,
+                NoteUuid = note.NoteUuid,
+                NoteValue = note.NoteValue,
+                NoteComment = note.NoteComment,
+                NoteDate = note.NoteDate,
+                IsModerated = note.IsModerated,
+                CreatedAt = note.CreatedAt,
+                UpdatedAt = note.UpdatedAt,
+                BookUuid = note.BookUuid,
+                UserUuid = note.UserUuid,
             };
 
-
-            // Encrypt the list of publishers
+            // Encrypt the note data
             var encryptedData = EncryptionHelper.EncryptData(JsonSerializer.Serialize(model));
 
             return Ok(new EncryptedPayload
@@ -86,11 +90,11 @@ namespace BookAPI.Controllers
             });
         }
 
-        // PUT: api/Categories/5
+        // PUT: api/BookNotes/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [Authorize(Policy = IdentityData.UserPolicyName)]
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCategory(Guid id, EncryptedPayload payload)
+        public async Task<IActionResult> PutBookNote(Guid id, EncryptedPayload payload)
         {
             try
             {
@@ -99,31 +103,30 @@ namespace BookAPI.Controllers
                 {
                     PropertyNameCaseInsensitive = true // Enable case-insensitive matching
                 };
-                var model = JsonSerializer.Deserialize<CategoryDto>(decryptedData, options);
+                var model = JsonSerializer.Deserialize<BookNoteDto>(decryptedData, options);
 
                 if (model == null) { return NotFound(); }
 
-                if (id != model.CategoryUuid)
+                if (id != model.NoteUuid)
                 {
                     return BadRequest();
                 }
 
-                if (CategoryNameExists(model.CategoryName, id))
-                {
-                    return BadRequest("Name already exists");
-                }
+                var note = await _context.BookNotes.FindAsync(id);
 
-                var category = await _context.Categories.FindAsync(id);
-                if (category != null)
+                if (note != null)
                 {
-                    category.CategoryId = model.CategoryId;
-                    category.CategoryUuid = model.CategoryUuid;
-                    category.CategoryName = model.CategoryName;
-                    category.CategoryDescription = model.CategoryDescription;
-                    category.ImageUrl = model.ImageUrl;
-                    category.ImageAlt = model.ImageAlt;
-                    category.CreatedAt = model.CreatedAt;
-                    category.UpdatedAt = model.UpdatedAt;
+                    note.NoteId = model.NoteId;
+                    note.NoteUuid = model.NoteUuid;
+                    note.NoteValue = model.NoteValue;
+                    note.NoteComment = model.NoteComment;
+                    note.NoteDate = model.NoteDate;
+                    note.IsModerated = model.IsModerated;
+                    note.IsDeleted = model.IsDeleted;
+                    note.CreatedAt = model.CreatedAt;
+                    note.UpdatedAt = DateTimeOffset.UtcNow;
+                    note.BookUuid = model.BookUuid;
+                    note.UserUuid = model.UserUuid;
                 }
 
                 try
@@ -132,7 +135,7 @@ namespace BookAPI.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!CategoryExists(id))
+                    if (!BookNoteExists(id))
                     {
                         return NotFound();
                     }
@@ -156,37 +159,41 @@ namespace BookAPI.Controllers
             }
         }
 
-        // POST: api/Categories
+        // POST: api/BookNotes
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [Authorize(Policy = IdentityData.UserPolicyName)]
         [HttpPost]
-        public async Task<ActionResult<EncryptedPayload>> PostCategory(EncryptedPayload payload)
+        public async Task<ActionResult<EncryptedPayload>> PostBookNote(EncryptedPayload payload)
         {
             try
             {
                 string decryptedData = EncryptionHelper.DecryptData(payload.EncryptedData, payload.Iv);
-                var model = JsonSerializer.Deserialize<CategoryDto>(decryptedData);
+                var model = JsonSerializer.Deserialize<BookNoteDto>(decryptedData);
 
                 if (model == null)
                 {
                     return NoContent();
                 }
 
-                if (CategoryNameExists(model.CategoryName, Guid.Empty))
+                var note = new BookNote()
                 {
-                    return BadRequest("Name already exists");
-                }
-
-                var category = new Category()
-                {
-                    CategoryName = model.CategoryName,
-                    CategoryDescription = model.CategoryDescription
+                    NoteId = model.NoteId,
+                    NoteUuid = model.NoteUuid,
+                    NoteValue = model.NoteValue,
+                    NoteComment = model.NoteComment,
+                    NoteDate = DateTimeOffset.UtcNow,
+                    IsModerated = model.IsModerated,
+                    IsDeleted = false,
+                    CreatedAt = DateTimeOffset.UtcNow,
+                    UpdatedAt = DateTimeOffset.UtcNow,
+                    BookUuid = model.BookUuid,
+                    UserUuid = model.UserUuid,
                 };
 
-                _context.Categories.Add(category);
+                _context.BookNotes.Add(note);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetCategory", new { id = category.CategoryId }, model);
+                return CreatedAtAction("GetBookNote", new { id = model.NoteUuid }, model);
             }
             catch (JsonException ex)
             {
@@ -200,31 +207,26 @@ namespace BookAPI.Controllers
             }
         }
 
-        // DELETE: api/Categories/5
+        // DELETE: api/BookNotes/5
         [Authorize(Policy = IdentityData.UserPolicyName)]
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCategory(int id)
+        public async Task<IActionResult> DeleteBookNote(int id)
         {
-            var Category = await _context.Categories.FindAsync(id);
-            if (Category == null)
+            var note = await _context.BookNotes.FindAsync(id);
+            if (note == null)
             {
                 return NotFound();
             }
 
-            _context.Categories.Remove(Category);
+            _context.BookNotes.Remove(note);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool CategoryExists(Guid id)
+        private bool BookNoteExists(Guid id)
         {
-            return _context.Categories.Any(e => e.CategoryUuid == id);
-        }
-
-        private bool CategoryNameExists(string name, Guid id)
-        {
-            return _context.Categories.Any(bc => bc.CategoryName == name && bc.CategoryUuid != id);
+            return _context.BookNotes.Any(e => e.NoteUuid == id);
         }
     }
 }

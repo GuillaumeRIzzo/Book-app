@@ -10,32 +10,30 @@ namespace BookAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class BookImageTypesController : ControllerBase
+    public class BookSeriesOrdersController : ControllerBase
     {
         private readonly BookDbContext _context;
 
-        public BookImageTypesController(BookDbContext context)
+        public BookSeriesOrdersController(BookDbContext context)
         {
             _context = context;
         }
 
-        // GET: api/BookImageTypes
+        // GET: api/BookSeriesOrders
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<EncryptedPayload>>> GetBookImageTypes()
+        public async Task<ActionResult<IEnumerable<EncryptedPayload>>> GetBookSeriesOrders()
         {
-            var bookImageTypeType = await _context.BookImageTypes.ToListAsync();
+            var bSOs = await _context.BookSeriesOrders.ToListAsync();
 
-            if (bookImageTypeType.Count >= 1)
+            if (bSOs.Count >= 1)
             {
-                var model = bookImageTypeType.Select(x => new BookImageTypeDto()
+                var model = bSOs.Select(x => new BookSeriesOrderDto()
                 {
-                    ImageTypeId = x.ImageTypeId,
-                    ImageTypeUuid = x.ImageTypeUuid,
-                    Label = x.Label,
-
+                    SeriesUuid = x.SeriesUuid,
+                    BookUuid = x.BookUuid,
+                    SeriesOrder = x.SeriesOrder,
                 }).ToList();
-
-                // Encrypt the list of bookImageTypeType
+                // Encrypt the list of bSOs
                 var encryptedData = EncryptionHelper.EncryptData(JsonSerializer.Serialize(model));
 
                 return Ok(new EncryptedPayload
@@ -44,28 +42,29 @@ namespace BookAPI.Controllers
                     Iv = encryptedData.Iv
                 });
             }
+
             return NoContent();
         }
 
-        // GET: api/BookImageTypes/5
+        // GET: api/BookSeriesOrders/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<EncryptedPayload>> GetBookImageType(Guid id)
+        public async Task<ActionResult<EncryptedPayload>> GetBookSeriesOrder(Guid serieUuid, Guid bookUuid)
         {
-            var bookImageType = await _context.BookImageTypes.FindAsync(id);
+            var bSO = await _context.BookSeriesOrders.FindAsync(serieUuid, bookUuid);
 
-            if (bookImageType == null)
+            if (bSO == null)
             {
                 return NotFound();
             }
 
-            var model = new BookImageTypeDto()
+            var model = new BookSeriesOrderDto()
             {
-                ImageTypeId = bookImageType.ImageTypeId,
-                ImageTypeUuid = bookImageType.ImageTypeUuid,
-                Label = bookImageType.Label,
+                SeriesUuid= bSO.SeriesUuid,
+                BookUuid= bSO.BookUuid,
+                SeriesOrder = bSO.SeriesOrder,
             };
 
-            // Encrypt the bookImageType data
+            // Encrypt the list of bSOs
             var encryptedData = EncryptionHelper.EncryptData(JsonSerializer.Serialize(model));
 
             return Ok(new EncryptedPayload
@@ -75,11 +74,11 @@ namespace BookAPI.Controllers
             });
         }
 
-        // PUT: api/BookImageTypes/5
+        // PUT: api/BookSeriesOrders/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [Authorize(Policy = IdentityData.UserPolicyName)]
+        [Authorize]
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutBookImageType(Guid id, EncryptedPayload payload)
+        public async Task<ActionResult<EncryptedPayload>> PutBookSeriesOrder(Guid serieUUid, Guid bookUuid, EncryptedPayload payload)
         {
             try
             {
@@ -88,27 +87,22 @@ namespace BookAPI.Controllers
                 {
                     PropertyNameCaseInsensitive = true // Enable case-insensitive matching
                 };
-                var model = JsonSerializer.Deserialize<BookImageTypeDto>(decryptedData, options);
+                var model = JsonSerializer.Deserialize<BookSeriesOrderDto>(decryptedData, options);
 
                 if (model == null) { return NotFound(); }
 
-                if (id != model.ImageTypeUuid)
+                if (serieUUid != model.SeriesUuid && bookUuid != model.BookUuid)
                 {
                     return BadRequest();
                 }
 
-                if (BookImageTypeLabelExists(model.Label, id))
-                {
-                    return BadRequest("Name already exists");
-                }
+                var bSO = await _context.BookSeriesOrders.FindAsync(serieUUid, bookUuid);
 
-                var bookImageType = await _context.BookImageTypes.FindAsync(id);
-
-                if (bookImageType != null)
+                if (bSO != null)
                 {
-                    bookImageType.ImageTypeId = model.ImageTypeId;
-                    bookImageType.ImageTypeUuid = model.ImageTypeUuid;
-                    bookImageType.Label = model.Label;
+                    bSO.SeriesUuid = model.SeriesUuid;
+                    bSO.BookUuid = model.BookUuid;
+                    bSO.SeriesOrder =  model.SeriesOrder;
                 }
 
                 try
@@ -117,7 +111,7 @@ namespace BookAPI.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!BookImageTypeExists(id))
+                    if (!BookSeriesOrderExists(serieUUid, bookUuid))
                     {
                         return NotFound();
                     }
@@ -141,39 +135,33 @@ namespace BookAPI.Controllers
             }
         }
 
-        // POST: api/BookImageTypes
+        // POST: api/BookSeriesOrders
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [Authorize(Policy = IdentityData.UserPolicyName)]
+        [Authorize]
         [HttpPost]
-        public async Task<ActionResult<EncryptedPayload>> PostBookImageType(EncryptedPayload payload)
+        public async Task<ActionResult<EncryptedPayload>> PostBookSeriesOrder(EncryptedPayload payload)
         {
             try
             {
                 string decryptedData = EncryptionHelper.DecryptData(payload.EncryptedData, payload.Iv);
-                var model = JsonSerializer.Deserialize<BookImageTypeDto>(decryptedData);
+                var model = JsonSerializer.Deserialize<BookSeriesOrderDto>(decryptedData);
 
                 if (model == null)
                 {
                     return NoContent();
                 }
 
-                if (BookImageTypeLabelExists(model.Label, Guid.Empty))
+                var bSO = new BookSeriesOrder()
                 {
-                    return BadRequest("Name already exists");
-                }
-
-                var bookImageType = new BookImageType()
-                {
-                    ImageTypeId = model.ImageTypeId,
-                    ImageTypeUuid = model.ImageTypeUuid,
-                    Label = model.Label,
-                    
+                    SeriesUuid = model.SeriesUuid,
+                    BookUuid = model.BookUuid,
+                    SeriesOrder = model.SeriesOrder,
                 };
 
-                _context.BookImageTypes.Add(bookImageType);
+                _context.BookSeriesOrders.Add(bSO);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetBookImageType", model);
+                return CreatedAtAction("GetBookSeriesOrder", model.SeriesUuid, model.BookUuid);
             }
             catch (JsonException ex)
             {
@@ -185,33 +173,29 @@ namespace BookAPI.Controllers
                 // Handle other errors
                 return StatusCode(500, new { message = "An error occurred.", details = ex.Message });
             }
+
         }
 
-        // DELETE: api/BookImageTypes/5
-        [Authorize(Policy = IdentityData.UserPolicyName)]
+        // DELETE: api/BookSeriesOrders/5
+        [Authorize]
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteBookImageType(int id)
+        public async Task<IActionResult> DeleteBookSeriesOrder(int id)
         {
-            var bookImageType = await _context.BookImageTypes.FindAsync(id);
-            if (bookImageType == null)
+            var bSO = await _context.BookSeriesOrders.FindAsync(id);
+            if (bSO == null)
             {
                 return NotFound();
             }
 
-            _context.BookImageTypes.Remove(bookImageType);
+            _context.BookSeriesOrders.Remove(bSO);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool BookImageTypeExists(Guid id)
+        private bool BookSeriesOrderExists(Guid serieUuid, Guid bookUuid)
         {
-            return _context.BookImageTypes.Any(e => e.ImageTypeUuid == id);
-        }
-
-        private bool BookImageTypeLabelExists(string name, Guid id)
-        {
-            return _context.BookImageTypes.Any(a => a.Label == name && a.ImageTypeUuid != id);
+            return _context.BookSeriesOrders.Any(e => e.SeriesUuid == serieUuid && e.BookUuid == bookUuid);
         }
     }
 }

@@ -10,36 +10,30 @@ namespace BookAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CategoriesController : ControllerBase
+    public class ColorsController : ControllerBase
     {
         private readonly BookDbContext _context;
 
-        public CategoriesController(BookDbContext context)
+        public ColorsController(BookDbContext context)
         {
             _context = context;
         }
 
-        // GET: api/Categories
+        // GET: api/Colors
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<EncryptedPayload>>> GetCategories()
+        public async Task<ActionResult<IEnumerable<EncryptedPayload>>> GetColors()
         {
-            var categories = await _context.Categories.ToListAsync();
+            var colors = await _context.Colors.ToListAsync();
 
-            if (categories.Count >= 1)
+            if (colors.Count >= 1)
             {
-                var model = categories.Select(x => new CategoryDto()
+                var model = colors.Select(x => new ColorDto()
                 {
-                    CategoryId = x.CategoryId,
-                    CategoryUuid = x.CategoryUuid,
-                    CategoryName = x.CategoryName,
-                    CategoryDescription = x.CategoryDescription,
-                    ImageUrl = x.ImageUrl,
-                    ImageAlt = x.ImageAlt,
-                    CreatedAt = x.CreatedAt,
-                    UpdatedAt = x.UpdatedAt
+                    ColorId = x.ColorId,
+                    ColorUuid = x.ColorUuid,
+                    ColorHex = x.ColorHex,
                 }).ToList();
-
-                // Encrypt the list of categories
+                // Encrypt the list of colors
                 var encryptedData = EncryptionHelper.EncryptData(JsonSerializer.Serialize(model));
 
                 return Ok(new EncryptedPayload
@@ -52,31 +46,26 @@ namespace BookAPI.Controllers
             return NoContent();
         }
 
-        // GET: api/Categories/5
+        // GET: api/Colors/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<EncryptedPayload>> GetCategory(int id)
+        public async Task<ActionResult<EncryptedPayload>> GetColor(Guid id)
         {
-            var category = await _context.Categories.FindAsync(id);
+            var color = await _context.Colors.FindAsync(id);
 
-            if (category == null)
+            if (color == null)
             {
                 return NotFound();
             }
 
-            var model = new CategoryDto()
+            var model = new ColorDto()
             {
-                CategoryId= category.CategoryId,
-                CategoryUuid = category.CategoryUuid,
-                CategoryName= category.CategoryName,
-                CategoryDescription = category.CategoryDescription,
-                ImageUrl = category.ImageUrl,
-                ImageAlt = category.ImageAlt,
-                CreatedAt = category.CreatedAt,
-                UpdatedAt = category.UpdatedAt
+                ColorId = color.ColorId,
+                ColorUuid = color.ColorUuid,
+                ColorName = color.ColorName,
+                ColorHex = color.ColorHex,
             };
 
-
-            // Encrypt the list of publishers
+            // Encrypt the list of colors
             var encryptedData = EncryptionHelper.EncryptData(JsonSerializer.Serialize(model));
 
             return Ok(new EncryptedPayload
@@ -86,11 +75,11 @@ namespace BookAPI.Controllers
             });
         }
 
-        // PUT: api/Categories/5
+        // PUT: api/Colors/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [Authorize(Policy = IdentityData.UserPolicyName)]
+        [Authorize]
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCategory(Guid id, EncryptedPayload payload)
+        public async Task<ActionResult<EncryptedPayload>> PutColor(Guid id, EncryptedPayload payload)
         {
             try
             {
@@ -99,31 +88,29 @@ namespace BookAPI.Controllers
                 {
                     PropertyNameCaseInsensitive = true // Enable case-insensitive matching
                 };
-                var model = JsonSerializer.Deserialize<CategoryDto>(decryptedData, options);
+                var model = JsonSerializer.Deserialize<ColorDto>(decryptedData, options);
 
                 if (model == null) { return NotFound(); }
 
-                if (id != model.CategoryUuid)
+                if (id != model.ColorUuid)
                 {
                     return BadRequest();
                 }
 
-                if (CategoryNameExists(model.CategoryName, id))
+                if (ColorNameExists(model.ColorName, id))
                 {
                     return BadRequest("Name already exists");
                 }
 
-                var category = await _context.Categories.FindAsync(id);
-                if (category != null)
+                var color = await _context.Colors.FindAsync(id);
+
+                if (color != null)
                 {
-                    category.CategoryId = model.CategoryId;
-                    category.CategoryUuid = model.CategoryUuid;
-                    category.CategoryName = model.CategoryName;
-                    category.CategoryDescription = model.CategoryDescription;
-                    category.ImageUrl = model.ImageUrl;
-                    category.ImageAlt = model.ImageAlt;
-                    category.CreatedAt = model.CreatedAt;
-                    category.UpdatedAt = model.UpdatedAt;
+                    color.ColorId = model.ColorId;
+                    color.ColorUuid = model.ColorUuid;
+                    color.ColorName = model.ColorName;
+                    color.ColorHex = model.ColorHex;
+
                 }
 
                 try
@@ -132,7 +119,7 @@ namespace BookAPI.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!CategoryExists(id))
+                    if (!ColorExists(id))
                     {
                         return NotFound();
                     }
@@ -156,37 +143,37 @@ namespace BookAPI.Controllers
             }
         }
 
-        // POST: api/Categories
+        // POST: api/Colors
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [Authorize(Policy = IdentityData.UserPolicyName)]
+        [Authorize]
         [HttpPost]
-        public async Task<ActionResult<EncryptedPayload>> PostCategory(EncryptedPayload payload)
+        public async Task<ActionResult<EncryptedPayload>> PostColor(EncryptedPayload payload)
         {
             try
             {
                 string decryptedData = EncryptionHelper.DecryptData(payload.EncryptedData, payload.Iv);
-                var model = JsonSerializer.Deserialize<CategoryDto>(decryptedData);
+                var model = JsonSerializer.Deserialize<ColorDto>(decryptedData);
 
                 if (model == null)
                 {
                     return NoContent();
                 }
 
-                if (CategoryNameExists(model.CategoryName, Guid.Empty))
+                if (ColorNameExists(model.ColorName, Guid.Empty))
                 {
                     return BadRequest("Name already exists");
                 }
 
-                var category = new Category()
+                var color = new Color()
                 {
-                    CategoryName = model.CategoryName,
-                    CategoryDescription = model.CategoryDescription
+                    ColorName = model.ColorName,
+                    ColorHex = model.ColorHex,
                 };
 
-                _context.Categories.Add(category);
+                _context.Colors.Add(color);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetCategory", new { id = category.CategoryId }, model);
+                return CreatedAtAction("GetColor", new { id = model.ColorUuid }, model);
             }
             catch (JsonException ex)
             {
@@ -198,33 +185,34 @@ namespace BookAPI.Controllers
                 // Handle other errors
                 return StatusCode(500, new { message = "An error occurred.", details = ex.Message });
             }
+
         }
 
-        // DELETE: api/Categories/5
-        [Authorize(Policy = IdentityData.UserPolicyName)]
+        // DELETE: api/Colors/5
+        [Authorize]
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCategory(int id)
+        public async Task<IActionResult> DeleteColor(int id)
         {
-            var Category = await _context.Categories.FindAsync(id);
-            if (Category == null)
+            var color = await _context.Colors.FindAsync(id);
+            if (color == null)
             {
                 return NotFound();
             }
 
-            _context.Categories.Remove(Category);
+            _context.Colors.Remove(color);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool CategoryExists(Guid id)
+        private bool ColorExists(Guid id)
         {
-            return _context.Categories.Any(e => e.CategoryUuid == id);
+            return _context.Colors.Any(e => e.ColorUuid == id);
         }
 
-        private bool CategoryNameExists(string name, Guid id)
+        private bool ColorNameExists(string name, Guid id)
         {
-            return _context.Categories.Any(bc => bc.CategoryName == name && bc.CategoryUuid != id);
+            return _context.Colors.Any(p => p.ColorName == name && p.ColorUuid != id);
         }
     }
 }
