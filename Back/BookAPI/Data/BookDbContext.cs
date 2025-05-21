@@ -347,11 +347,6 @@ public partial class BookDbContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_BOOK_VERSION_HISTORY_BOOK");
 
-            entity.HasOne(d => d.PublisherUu).WithMany(p => p.BookVersionHistories)
-                .HasPrincipalKey(p => p.PublisherUuid)
-                .HasForeignKey(d => d.PublisherUuid)
-                .HasConstraintName("FK_BOOK_VERSION_HISTORY_PUBLISHER");
-
             entity.HasOne(d => d.UserUu).WithMany(p => p.BookVersionHistories)
                 .HasPrincipalKey(p => p.UserUuid)
                 .HasForeignKey(d => d.UserUuid)

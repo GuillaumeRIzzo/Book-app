@@ -70,31 +70,31 @@ services:
     command: dotnet watch run --urls http://0.0.0.0:80
 
 
-  angular-dev:
-    build:
-      context: ./Front
-      dockerfile: Dockerfile.dev
-    container_name: angular-dev
-    ports:
-      - "4200:4200"
-    volumes:
-      - ./Front:/app:delegated
-    depends_on:
-      - api
-    networks:
-      - sqlnetwork
+  # angular-dev:
+  #   build:
+  #     context: ./Front
+  #     dockerfile: Dockerfile.dev
+  #   container_name: angular-dev
+  #   ports:
+  #     - "4200:4200"
+  #   volumes:
+  #     - ./Front:/app:delegated
+  #   depends_on:
+  #     - api
+  #   networks:
+  #     - sqlnetwork
 
-  angular-prod:
-    build:
-      context: ./Front
-      dockerfile: Dockerfile.nginx
-    container_name: angular-prod
-    ports:
-      - "80:80"
-    depends_on:
-      - api
-    networks:
-      - sqlnetwork
+  # angular-prod:
+  #   build:
+  #     context: ./Front
+  #     dockerfile: Dockerfile.nginx
+  #   container_name: angular-prod
+  #   ports:
+  #     - "80:80"
+  #   depends_on:
+  #     - api
+  #   networks:
+  #     - sqlnetwork
 
   react:
     build:
@@ -116,16 +116,16 @@ services:
     command: sh -c "node /scripts/sync-react-env.js && npm run dev"
 
 
-  jenkins:
-    image: jenkins/jenkins:lts-jdk17
-    container_name: jenkins
-    ports:
-      - "8080:8080"
-      - "50000:50000"
-    volumes:
-      - jenkins_home:/var/jenkins_home
-    networks:
-      - sqlnetwork
+  # jenkins:
+  #   image: jenkins/jenkins:lts-jdk17
+  #   container_name: jenkins
+  #   ports:
+  #     - "8080:8080"
+  #     - "50000:50000"
+  #   volumes:
+  #     - jenkins_home:/var/jenkins_home
+  #   networks:
+  #     - sqlnetwork
 
 networks:
   sqlnetwork:

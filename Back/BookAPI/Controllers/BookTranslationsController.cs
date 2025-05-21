@@ -10,35 +10,35 @@ namespace BookAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class BannedWordsController : ControllerBase
+    public class BookTranslationsController : ControllerBase
     {
         private readonly BookDbContext _context;
 
-        public BannedWordsController(BookDbContext context)
+        public BookTranslationsController(BookDbContext context)
         {
             _context = context;
         }
 
-        // GET: api/BannedWords
+        // GET: api/BookTranslations
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<EncryptedPayload>>> GetBannedWords()
+        public async Task<ActionResult<IEnumerable<EncryptedPayload>>> GetBookTranslations()
         {
-            var bannedWords = await _context.BannedWords.ToListAsync();
+            var translations = await _context.BookTranslations.ToListAsync();
 
-            if (bannedWords.Count >= 1)
+            if (translations.Count >= 1)
             {
-                var model = bannedWords.Select(x => new BannedWordDto()
+                var model = translations.Select(x => new BookTranslationDto()
                 {
-                    BannedWordId = x.BannedWordId,
-                    BannedWordUuid = x.BannedWordUuid,
-                    Word = x.Word,
+                    BookTranslationId = x.BookTranslationId,
+                    BookTranslationUuid = x.BookTranslationUuid,
+                    Title = x.Title,
+                    Summary = x.Summary,
                     CreatedAt = x.CreatedAt,
                     UpdatedAt = x.UpdatedAt,
+                    BookUuid = x.BookUuid,
                     LanguageUuid = x.LanguageUuid,
-
                 }).ToList();
-
-                // Encrypt the list of bannedWords
+                // Encrypt the list of translations
                 var encryptedData = EncryptionHelper.EncryptData(JsonSerializer.Serialize(model));
 
                 return Ok(new EncryptedPayload
@@ -47,31 +47,34 @@ namespace BookAPI.Controllers
                     Iv = encryptedData.Iv
                 });
             }
+
             return NoContent();
         }
 
-        // GET: api/BannedWords/5
+        // GET: api/BookTranslations/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<EncryptedPayload>> GetBannedWord(Guid id)
+        public async Task<ActionResult<EncryptedPayload>> GetBookTranslation(Guid id)
         {
-            var bannedWord = await _context.BannedWords.FindAsync(id);
+            var translation = await _context.BookTranslations.FindAsync(id);
 
-            if (bannedWord == null)
+            if (translation == null)
             {
                 return NotFound();
             }
 
-            var model = new BannedWordDto()
+            var model = new BookTranslationDto()
             {
-                BannedWordId = bannedWord.BannedWordId,
-                BannedWordUuid = bannedWord.BannedWordUuid,
-                Word = bannedWord.Word,
-                CreatedAt = bannedWord.CreatedAt,
-                UpdatedAt = bannedWord.UpdatedAt,
-                LanguageUuid = bannedWord.LanguageUuid,
+                BookTranslationId = translation.BookTranslationId,
+                BookTranslationUuid = translation.BookTranslationUuid,
+                Title = translation.Title,
+                Summary = translation.Summary,
+                CreatedAt = translation.CreatedAt,
+                UpdatedAt = translation.UpdatedAt,
+                BookUuid = translation.BookUuid,
+                LanguageUuid = translation.LanguageUuid,
             };
 
-            // Encrypt the bannedWord data
+            // Encrypt the list of translations
             var encryptedData = EncryptionHelper.EncryptData(JsonSerializer.Serialize(model));
 
             return Ok(new EncryptedPayload
@@ -81,11 +84,11 @@ namespace BookAPI.Controllers
             });
         }
 
-        // PUT: api/BannedWords/5
+        // PUT: api/BookTranslations/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [Authorize(Policy = IdentityData.UserPolicyName)]
+        [Authorize]
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutBannedWord(Guid id, EncryptedPayload payload)
+        public async Task<ActionResult<EncryptedPayload>> PutBookTranslation(Guid id, EncryptedPayload payload)
         {
             try
             {
@@ -94,31 +97,27 @@ namespace BookAPI.Controllers
                 {
                     PropertyNameCaseInsensitive = true // Enable case-insensitive matching
                 };
-                var model = JsonSerializer.Deserialize<BannedWordDto>(decryptedData, options);
+                var model = JsonSerializer.Deserialize<BookTranslationDto>(decryptedData, options);
 
                 if (model == null) { return NotFound(); }
 
-                if (id != model.BannedWordUuid)
+                if (id != model.BookTranslationUuid)
                 {
                     return BadRequest();
                 }
 
-                if (BannedWordExists(model.Word, id))
-                {
-                    return BadRequest("Word already exists");
-                }
+                var translation = await _context.BookTranslations.FindAsync(id);
 
-                var bannedWord = await _context.BannedWords.FindAsync(id);
-
-                if (bannedWord != null)
+                if (translation != null)
                 {
-                    bannedWord.BannedWordId = model.BannedWordId;
-                    bannedWord.BannedWordUuid = model.BannedWordUuid;
-                    bannedWord.Word = model.Word;
-                    bannedWord.CreatedAt = model.CreatedAt;
-                    bannedWord.UpdatedAt = DateTimeOffset.UtcNow;
-                    bannedWord.IsDeleted = model.IsDeleted;
-                    bannedWord.LanguageUuid = model.LanguageUuid;
+                    translation.BookTranslationId = model.BookTranslationId;
+                    translation.BookTranslationUuid = model.BookTranslationUuid;
+                    translation.Title = model.Title;
+                    translation.Summary = model.Summary;
+                    translation.CreatedAt = model.CreatedAt;
+                    translation.UpdatedAt = DateTimeOffset.UtcNow;
+                    translation.BookUuid = model.BookUuid;
+                    translation.LanguageUuid = model.LanguageUuid;
                 }
 
                 try
@@ -127,7 +126,7 @@ namespace BookAPI.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!BannedWordIdExists(id))
+                    if (!BookTranslationExists(id))
                     {
                         return NotFound();
                     }
@@ -151,43 +150,36 @@ namespace BookAPI.Controllers
             }
         }
 
-        // POST: api/BannedWords
+        // POST: api/BookTranslations
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [Authorize(Policy = IdentityData.UserPolicyName)]
+        [Authorize]
         [HttpPost]
-        public async Task<ActionResult<EncryptedPayload>> PostBannedWord(EncryptedPayload payload)
+        public async Task<ActionResult<EncryptedPayload>> PostBookTranslation(EncryptedPayload payload)
         {
             try
             {
                 string decryptedData = EncryptionHelper.DecryptData(payload.EncryptedData, payload.Iv);
-                var model = JsonSerializer.Deserialize<BannedWordDto>(decryptedData);
+                var model = JsonSerializer.Deserialize<BookTranslationDto>(decryptedData);
 
                 if (model == null)
                 {
                     return NoContent();
                 }
 
-                if (BannedWordExists(model.Word, Guid.Empty))
+                var translation = new BookTranslation()
                 {
-                    return BadRequest("Word already exists");
-                }
-
-                var bannedWord = new BannedWord()
-                {
-                    BannedWordId = model.BannedWordId,
-                    BannedWordUuid = model.BannedWordUuid,
-                    Word = model.Word,
-                    CreatedAt = DateTimeOffset.UtcNow,
-                    UpdatedAt = DateTimeOffset.UtcNow,
-                    IsDeleted = false,
+                    Title = model.Title,
+                    Summary = model.Summary,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow,
+                    BookUuid = model.BookUuid,
                     LanguageUuid = model.LanguageUuid,
-                    
                 };
 
-                _context.BannedWords.Add(bannedWord);
+                _context.BookTranslations.Add(translation);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetBannedWord", model);
+                return CreatedAtAction("GetBookTranslation", new { uuid = model.BookTranslationUuid}, model);
             }
             catch (JsonException ex)
             {
@@ -199,32 +191,29 @@ namespace BookAPI.Controllers
                 // Handle other errors
                 return StatusCode(500, new { message = "An error occurred.", details = ex.Message });
             }
+
         }
 
-        // DELETE: api/BannedWords/5
-        [Authorize(Policy = IdentityData.UserPolicyName)]
+        // DELETE: api/BookTranslations/5
+        [Authorize]
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteBannedWord(int id)
+        public async Task<IActionResult> DeleteBookTranslation(int id)
         {
-            var bannedWord = await _context.BannedWords.FindAsync(id);
-            if (bannedWord == null)
+            var translation = await _context.BookTranslations.FindAsync(id);
+            if (translation == null)
             {
                 return NotFound();
             }
 
-            _context.BannedWords.Remove(bannedWord);
+            _context.BookTranslations.Remove(translation);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool BannedWordIdExists(Guid id)
+        private bool BookTranslationExists(Guid id)
         {
-            return _context.BannedWords.Any(e => e.BannedWordUuid == id);
-        }
-        private bool BannedWordExists(string name, Guid id)
-        {
-            return _context.BannedWords.Any(a => a.Word == name && a.BannedWordUuid != id);
+            return _context.BookTranslations.Any(e => e.BookTranslationUuid == id);
         }
     }
 }

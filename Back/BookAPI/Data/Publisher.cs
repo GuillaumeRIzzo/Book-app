@@ -33,9 +33,6 @@ public partial class Publisher
     [Column("updated_at")]
     public DateTimeOffset UpdatedAt { get; set; }
 
-    [InverseProperty("PublisherUu")]
-    public virtual ICollection<BookVersionHistory> BookVersionHistories { get; set; } = new List<BookVersionHistory>();
-
     [ForeignKey("PublisherUuid")]
     [InverseProperty("PublisherUus")]
     public virtual ICollection<Book> BookUus { get; set; } = new List<Book>();
