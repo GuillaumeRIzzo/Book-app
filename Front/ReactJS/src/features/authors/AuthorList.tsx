@@ -55,7 +55,7 @@ const AuthorList: React.FC = () => {
   const handleEdit = (author: Author) => {
     setSelectedAuthor(author);
     setDialogTitle('Edit Author');
-    setDialogContent(`Edit author: ${author.authorName}`);
+    setDialogContent(`Edit author: ${author.authorFullName}`);
     setDialogAction(() => () => {
       router.push(`/author/${author.authorId}/edit`);
       handleCloseDialog();
@@ -67,7 +67,7 @@ const AuthorList: React.FC = () => {
     setSelectedAuthor(author);
     setDialogTitle('Delete Author');
     setDialogContent(
-      `Are you sure you want to delete author: ${author.authorName}?`,
+      `Are you sure you want to delete author: ${author.authorFullName}?`,
     );
     setDialogAction(() => () => {
       // dispatch(deleteAuthor(author.authorId));
@@ -105,7 +105,7 @@ const AuthorList: React.FC = () => {
       ? [{ field: 'authorId', headerName: 'ID' }]
       : []),
     {
-      field: 'authorName',
+      field: 'authorFullName',
       headerName: 'Nom',
       width: 150,
       minWidth: 150,

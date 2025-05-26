@@ -25,7 +25,7 @@ const BookInfo: React.FC<BookInfoProps> = ({ book, author, publisher }) => {
         {book.bookTitle}
       </Typography>
       <Typography variant='subtitle1' component='p'>
-        <strong>Auteur:</strong> {author.authorName}
+        <strong>Auteur:</strong> {author.authorFullName}
       </Typography>
       <Typography variant='subtitle1' component='p'>
         <strong>Éditeur:</strong> {publisher.publisherName}
@@ -33,19 +33,19 @@ const BookInfo: React.FC<BookInfoProps> = ({ book, author, publisher }) => {
       <Typography variant='body1' component='p'>
         {book.bookDescription}
       </Typography>
-      <Box>
+      {/* <Box>
         <Typography variant='subtitle1' component='p'>
           <strong>Catégories:</strong>{' '}
           {book.categories.map((category, index) => (
-            <Fragment key={category.bookCategoId}>
+            <Fragment key={category.categoryId}>
               {index > 0 && ', '}
-              <Link href={`/bookcategory/${category.bookCategoId}`}>
-                {category.bookCategoName}
+              <Link href={`/bookcategory/${category.categoryId}`}>
+                {category.categoryName}
               </Link>
             </Fragment>
           ))}
         </Typography>
-      </Box>
+      </Box> */}
       <Typography variant='subtitle1' component='p'>
         <strong>{book.bookPageCount} pages</strong>
       </Typography>

@@ -44,7 +44,7 @@ export const fetchPublishersAsync = createAsyncThunk('publishers/getPublishers',
 
 export const fetchPublisherById = createAsyncThunk(
   'publishers/fetchById',
-  async (publisherId: number) => {
+  async (publisherId: string) => {
     try {
       // Call API to fetch encrypted publisher data
       const response = await getPublisher(publisherId);

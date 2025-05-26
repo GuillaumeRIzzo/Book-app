@@ -35,21 +35,21 @@ const SearchBar: React.FC = () => {
     const books = store.getState().books.books;
     const authors = store.getState().authors.authors;
     const publishers = store.getState().publishers.publishers;
-    const bookCategories = store.getState().bookCategories.bookCategories;
+    const Categories = store.getState().categories.categories;
 
     const filteredBooks = books.filter((book: { bookTitle: string }) =>
       book.bookTitle.toLowerCase().includes(lowerCaseTerm),
     );
-    const filteredAuthors = authors.filter((author: { authorName: string }) =>
-      author.authorName.toLowerCase().includes(lowerCaseTerm),
+    const filteredAuthors = authors.filter((author: { authorFullName: string }) =>
+      author.authorFullName.toLowerCase().includes(lowerCaseTerm),
     );
     const filteredPublishers = publishers.filter(
       (publisher: { publisherName: string }) =>
         publisher.publisherName.toLowerCase().includes(lowerCaseTerm),
     );
-    const filteredCategories = bookCategories.filter(
-      (category: { bookCategoName: string }) =>
-        category.bookCategoName.toLowerCase().includes(lowerCaseTerm),
+    const filteredCategories = Categories.filter(
+      (category: { categoryName: string }) =>
+        category.categoryName.toLowerCase().includes(lowerCaseTerm),
     );
 
     setResults([
@@ -84,9 +84,9 @@ const SearchBar: React.FC = () => {
           } else {
             setSearchTerm(
               selected.item.bookTitle ||
-                selected.item.authorName ||
+                selected.item.AuthorFullName ||
                 selected.item.publisherName ||
-                selected.item.bookCategoName,
+                selected.item.categoryName,
             );
           }
           goToSearch(selectedIndex);
@@ -134,7 +134,7 @@ const SearchBar: React.FC = () => {
         router.push(`/publisher/${selected.item.publisherId}`);
         break;
       case 'Catégorie':
-        router.push(`/bookcategory/${selected.item.bookCategoId}`);
+        router.push(`/category/${selected.item.categoryId}`);
         break;
       default:
         console.warn('Unknown type, cannot navigate');

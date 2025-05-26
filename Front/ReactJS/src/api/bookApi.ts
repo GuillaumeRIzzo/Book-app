@@ -5,10 +5,10 @@ import { EncryptedPayload } from '@/utils/encryptUtils';
 
 export const getBooks = (): AxiosPromise<EncryptedPayload> => apiClient.get<EncryptedPayload>('Books');
 
-export const getBook = (bookId: number): AxiosPromise<EncryptedPayload> => apiClient.get<EncryptedPayload>(`Books/${bookId}`);
+export const getBook = (bookUuid: string): AxiosPromise<EncryptedPayload> => apiClient.get<EncryptedPayload>(`Books/${bookUuid}`);
 
 export const addBook = (payload: EncryptedPayload): AxiosPromise => apiClient.post('Books', payload);
 
-export const updateBook = (bookId: number, payload: EncryptedPayload): AxiosPromise => apiClient.put(`Books/${bookId}`, payload);
+export const updateBook = (bookUuid: string, payload: EncryptedPayload): AxiosPromise => apiClient.put(`Books/${bookUuid}`, payload);
 
-export const delBook = (bookId: number): AxiosPromise => apiClient.delete(`Books/${bookId}`);
+export const delBook = (bookUuid: string): AxiosPromise => apiClient.delete(`Books/${bookUuid}`);

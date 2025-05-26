@@ -1,37 +1,39 @@
-import { BookCategory } from '../book-category/BookCategory';
-
 export class Book {
   bookId: number;
+  bookUuid: string;
   bookTitle: string;
+  bookSubtitle: string
   bookDescription: string;
-  bookPublishDate: Date;
   bookPageCount: number;
-  bookAverageRating: number;
-  bookRatingCount: number;
-  bookImageLink: string;
-  bookImage: string | null;
-  bookLanguage: string;
-  publisherId: number;
-  authorId: number;
-  read: boolean;
-  inList: boolean;
-  categories: BookCategory[];
+  bookPublishDate: Date;
+  bookIsbn: string;
+  bookPrice: number;
+  isDeleted: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  bookSeriesUuid: string;
+  authorUuids: string;
+  categoryUuids: string;
+  publisherUuids: string;
+  imageUuid: string;
 
   constructor() {
     this.bookId = 0;
+    this.bookUuid = '';
     this.bookTitle = '';
     this.bookDescription = '';
-    this.bookPublishDate = new Date();
     this.bookPageCount = 0;
-    this.bookAverageRating = 0;
-    this.bookRatingCount = 0;
-    this.bookImageLink = '';
-    this.bookImage = null;
-    this.bookLanguage = '';
-    this.publisherId = 0;
-    this.authorId = 0;
-    this.read = false;
-    this.inList = false;
-    this.categories = [];
+    this.bookPublishDate = new Date();
+    this.bookSubtitle = '';
+    this.bookIsbn = '';
+    this.bookPrice = 0;
+    this.isDeleted = false;
+    this.createdAt = new Date();
+    this.updatedAt = new Date();
+    this.bookSeriesUuid = '';
+    this.authorUuids = '';
+    this.categoryUuids = '';
+    this.publisherUuids = '';
+    this.imageUuid = '';
   }
 }

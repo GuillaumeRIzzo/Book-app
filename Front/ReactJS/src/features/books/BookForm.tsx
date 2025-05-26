@@ -10,14 +10,14 @@ import styled from 'styled-components';
 
 import { AppDispatch, RootState } from '@redux/store';
 import { Book } from '@/models/book/Book';
-import { BookCategory } from '@/models/book-category/BookCategory';
+import { Category } from '@/models/book-category/Category';
 
 import Input from '@/components/common/Input';
 import CustomButton from '@/components/common/Button';
 import { createBook, updateBookAsync } from './bookSlice';
 import { fetchAuthorsAsync } from '../authors/AuthorSlice';
 import { fetchPublishersAsync } from '../publishers/PublisherSlice';
-import { fetchBookCategoriesAsync } from '../bookCategory/BookCategorySlice';
+import { fetchCategoriesAsync } from '../categories/categorySlice';
 import { EncryptedPayload, encryptPayload } from '@/utils/encryptUtils';
 
 import imageUrlRegex from '@hooks/imgValidator';
@@ -39,10 +39,10 @@ const BookForm: React.FC = () => {
   );
 
   const Categories = useSelector(
-    (state: RootState) => state.bookCategories.bookCategories,
+    (state: RootState) => state.categoryries.categoryries,
   );
   const categosStatus = useSelector(
-    (state: RootState) => state.bookCategories.status,
+    (state: RootState) => state.categoryries.status,
   );
   const authors = useSelector((state: RootState) => state.authors.authors);
   const authorsStatus = useSelector((state: RootState) => state.authors.status);
@@ -55,7 +55,7 @@ const BookForm: React.FC = () => {
 
   useEffect(() => {
     if (categosStatus === 'idle') {
-      dispatch(fetchBookCategoriesAsync());
+      dispatch(fetchCategoriesAsync());
     }
     if (authorsStatus === 'idle') {
       dispatch(fetchAuthorsAsync());
@@ -86,7 +86,7 @@ const BookForm: React.FC = () => {
     AuthorId: book?.authorId || 0,
     Read: book?.read || false,
     InList: book?.inList || false,
-    Categories: book?.categories ?? ([] as BookCategory[]),
+    Categories: book?.categories ?? ([] as Category[]),
   });
 
   const isValidImageUrl = imageUrlRegex.test(formData.BookImageLink.trim());
@@ -335,7 +335,7 @@ const BookForm: React.FC = () => {
                   <Autocomplete
                     className='mb-12'
                     options={authors}
-                    getOptionLabel={option => option.authorName}
+                    getOptionLabel={option => option.authorFullName}
                     isOptionEqualToValue={(option, value) =>
                       option.authorId === value.authorId
                     }
@@ -395,13 +395,13 @@ const BookForm: React.FC = () => {
                   <Autocomplete
                     multiple
                     options={Categories}
-                    getOptionLabel={option => option.bookCategoName}
+                    getOptionLabel={option => option.categoryName}
                     value={formData.Categories}
                     onChange={(event, value) => {
                       setFormData(prev => ({ ...prev, Categories: value }));
                     }}
                     isOptionEqualToValue={(option, value) =>
-                      option.bookCategoId === value.bookCategoId
+                      option.categoryId === value.categoryId
                     }
                     renderInput={params => (
                       <Input
@@ -450,7 +450,7 @@ const BookForm: React.FC = () => {
                   <p>
                     <strong>Auteur :</strong>{' '}
                     {authors.find(a => a.authorId === formData.AuthorId)
-                      ?.authorName || 'Non défini'}
+                      ?.authorFullName || 'Non défini'}
                   </p>
                   <p>
                     <strong>Éditeur :</strong>{' '}
@@ -461,7 +461,7 @@ const BookForm: React.FC = () => {
                   <p>
                     <strong>Catégories :</strong>{' '}
                     {formData.Categories.length > 0
-                      ? formData.Categories.map(c => c.bookCategoName).join(
+                      ? formData.Categories.map(c => c.categoryName).join(
                           ', ',
                         )
                       : 'Aucune'}

@@ -34,7 +34,7 @@ const AuthorDetails: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
 
   const author = useSelector((state: RootState) =>
-    state.authors.authors.find((a: Author) => a.authorId === Number(id)),
+    state.authors.authors.find((a: Author) => a.authorUuid === id),
   );
 
   const { data: session } = useSession();
@@ -54,7 +54,7 @@ const AuthorDetails: React.FC = () => {
 
   useEffect(() => {
     if (id && !author) {
-      dispatch(fetchAuthorById(Number(id)));
+      dispatch(fetchAuthorById(id.toString()));
     }
   }, [id, author, dispatch]);
   
@@ -65,7 +65,7 @@ const AuthorDetails: React.FC = () => {
  const handleEdit = (author: Author) => {
   setSelectedAuthor(author);
     setDialogTitle('Edit Author');
-    setDialogContent(`Edit author: ${author.authorName}`);
+    setDialogContent(`Edit author: ${author.authorFullName}`);
     setDialogAction(() => () => {
       router.push(`/author/${author.authorId}/edit`);
       handleCloseDialog();
@@ -77,7 +77,7 @@ const AuthorDetails: React.FC = () => {
     setSelectedAuthor(author);
     setDialogTitle('Delete Author');
     setDialogContent(
-      `Are you sure you want to delete author: ${author.authorName}?`,
+      `Are you sure you want to delete author: ${author.authorFullName}?`,
     );
     setDialogAction(() => async () => {
       try {
@@ -134,7 +134,7 @@ const AuthorDetails: React.FC = () => {
       )}
       <AuthorDetailsWrapper>
         <Typography variant='subtitle1' component='p'>
-          <strong>Auteur:</strong> {author.authorName}
+          <strong>Auteur:</strong> {author.authorFullName}
         </Typography>
       </AuthorDetailsWrapper>
     </Container>

@@ -32,20 +32,20 @@ const nextConfig = {
         destination: '/publisher/publishers',
       },
       {
-        source: '/bookcategories',
-        destination: '/book-category/bookcategories',
+        source: '/categories',
+        destination: '/category/categories',
       },
       {
-        source: '/bookcategory/add',
-        destination: '/book-category/add',
+        source: '/category/add',
+        destination: '/category/add',
       },
       {
-        source: '/bookcategory/:id',
-        destination: '/book-category/:id',
+        source: '/category/:id',
+        destination: '/category/:id',
       },
       {
-        source: '/bookcategory/:id/edit',
-        destination: '/book-category/:id/edit',
+        source: '/category/:id/edit',
+        destination: '/category/:id/edit',
       },
       {
         source: '/users',

@@ -21,16 +21,17 @@ const AuthorForm: React.FC<AuthorProps> = ({ title }) => {
   const { id } = router.query;
 
   const author = useSelector((state: RootState) =>
-    state.authors.authors.find((b: Author) => b.authorId === Number(id)),
+    state.authors.authors.find((b: Author) => b.authorUuid === id),
   );
 
   const [formData, setFormData] = useState({
     AuthorId: author?.authorId || 0,
-    AuthorName: author?.authorName || '',
+    AuthorUuid: author?.authorUuid || '',
+    AuthorName: author?.authorFullName || '',
   });
 
   const [touched, setTouched] = useState({
-    authorName: false,
+    authorFullName: false,
   });
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -53,12 +54,12 @@ const AuthorForm: React.FC<AuthorProps> = ({ title }) => {
         formData as Record<string, unknown>,
       );
 
-      if (formData.AuthorId === 0) {
+      if (formData.AuthorUuid === '') {
         dispatch(createAuthor(encryptedPayload)).unwrap();
         router.push('/authors');
       } else {
         dispatch(updateAuthorAsync({
-          authorId: formData.AuthorId,
+          authorUuid: formData.AuthorUuid,
           payload: encryptedPayload,
         })).unwrap();
         router.push(`/author/${formData.AuthorId}`);
@@ -89,7 +90,7 @@ const AuthorForm: React.FC<AuthorProps> = ({ title }) => {
           value={formData.AuthorName}
           onChange={handleChange}
           onBlur={handleBlur}
-          error={touched.authorName && !formData.AuthorName}
+          error={touched.authorFullName && !formData.AuthorName}
         />
         <CustomButton
           text='Valider'

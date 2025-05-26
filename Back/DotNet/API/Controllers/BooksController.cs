@@ -22,7 +22,15 @@ namespace BookAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<EncryptedPayload>>> GetBooks()
         {
-            var books = await _context.Books.ToListAsync();
+            var books = await _context.Books
+                .Include(b => b.AuthorUus)
+                .Include(b => b.CategoryUus)
+                .Include(b => b.PublisherUus)
+                .Include(b => b.TagUus)
+                .Include(b => b.BookImages)
+                .Include(b => b.BookLanguages)
+                .Include(b => b.BookTranslations)
+                .ToListAsync();
 
             if (books.Count >= 1)
             {
@@ -31,6 +39,7 @@ namespace BookAPI.Controllers
                     BookId = x.BookId,
                     BookUuid = x.BookUuid,
                     BookTitle = x.BookTitle,
+                    BookSubtitle = x.BookSubtitle,
                     BookDescription = x.BookDescription,
                     BookPageCount = x.BookPageCount,
                     BookPublishDate = x.BookPublishDate,
@@ -40,6 +49,13 @@ namespace BookAPI.Controllers
                     CreatedAt = x.CreatedAt,
                     UpdatedAt = x.UpdatedAt,
                     BookSeriesUuid = x.BookSeriesUuid,
+                    AuthorUuids = x.AuthorUus.Select(a => a.AuthorUuid).ToList(),
+                    CategoryUuids = x.CategoryUus.Select(c => c.CategoryUuid).ToList(),
+                    PublisherUuids = x.PublisherUus.Select(p => p.PublisherUuid).ToList(),
+                    TagUuids = x.TagUus.Select(t =>  t.TagUuid).ToList(),
+                    ImageUuids = x.BookImages.Select(i => i.ImageUuid).ToList(),
+                    LanguageUuids = x.BookLanguages.Select(l => l.LanguageUuid).ToList(),
+                    BookTranslationUuids = x.BookTranslations.Select(t => t.BookTranslationUuid).ToList(),
                 }).ToList();
 
                 // Encrypt the list of books
@@ -71,6 +87,7 @@ namespace BookAPI.Controllers
                 BookId = book.BookId,
                 BookUuid = book.BookUuid,
                 BookTitle = book.BookTitle,
+                BookSubtitle = book.BookSubtitle,
                 BookDescription = book.BookDescription,
                 BookPageCount = book.BookPageCount,
                 BookPublishDate = book.BookPublishDate,
@@ -124,6 +141,7 @@ namespace BookAPI.Controllers
                 book.BookId = model.BookId;
                 book.BookUuid = model.BookUuid;
                 book.BookTitle = model.BookTitle;
+                book.BookSubtitle = model.BookSubtitle;
                 book.BookDescription = model.BookDescription;
                 book.BookPageCount = model.BookPageCount;
                 book.BookPublishDate = model.BookPublishDate;
@@ -188,6 +206,7 @@ namespace BookAPI.Controllers
                 var book = new Book()
                 {
                     BookTitle = model.BookTitle,
+                    BookSubtitle = model.BookSubtitle,
                     BookDescription = model.BookDescription,
                     BookPageCount = model.BookPageCount,
                     BookPublishDate = model.BookPublishDate,

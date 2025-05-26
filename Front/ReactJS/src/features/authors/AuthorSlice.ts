@@ -43,10 +43,10 @@ export const fetchAuthorsAsync = createAsyncThunk('authors/getAuthors', async ()
 
 export const fetchAuthorById = createAsyncThunk(
   'authors/getAuthor',
-  async (authorId: number) => {
+  async (authorUuid: string) => {
     try {
       // Call API to fetch encrypted author data
-      const response = await getAuthor(authorId);
+      const response = await getAuthor(authorUuid);
 
       // Ensure data types for encrypted payload
       const encryptedData = response.data.encryptedData as string;
@@ -57,7 +57,7 @@ export const fetchAuthorById = createAsyncThunk(
       
       const author = {
         ...camelCaseKeys(decryptedData, { deep: true }),
-        authorId: (decryptedData as any).id, // manually set the authorId
+        authorUuid: (decryptedData as any).id, // manually set the authorUuid
       } as Author;      
       
       return author;
@@ -81,17 +81,17 @@ export const createAuthor = createAsyncThunk(
 );
 
 type UpdateAuthorParams = {
-  authorId: number;
+  authorUuid: string;
   payload: EncryptedPayload;
 };
 
 export const updateAuthorAsync = createAsyncThunk(
   'authors/updateAuthor',
-  async ({ authorId, payload }: UpdateAuthorParams) => {
+  async ({ authorUuid, payload }: UpdateAuthorParams) => {
     try {
-      await updateAuthor(authorId, payload);
+      await updateAuthor(authorUuid, payload);
 
-      return { authorId, decrypted: decryptPayload(payload.encryptedData, payload.iv) };
+      return { authorUuid, decrypted: decryptPayload(payload.encryptedData, payload.iv) };
     } catch (error: any) {
       console.error('Failed to update author:', error);
       // Throw error to handle it in UI
@@ -170,8 +170,8 @@ const authorsSlice = createSlice({
       })
       .addCase(updateAuthorAsync.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        const { authorId, decrypted } = action.payload;
-        const index = state.authors.findIndex((author: { authorId: number; }) => author.authorId === authorId);
+        const { authorUuid, decrypted } = action.payload;
+        const index = state.authors.findIndex((author: { authorUuid: string; }) => author.authorUuid === authorUuid);
         if (index !== -1) {
           state.authors[index] = {
             ...state.authors[index],

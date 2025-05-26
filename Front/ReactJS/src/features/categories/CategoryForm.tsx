@@ -5,33 +5,33 @@ import { useRouter } from 'next/router';
 import { Box } from '@mui/material';
 
 import { AppDispatch, RootState } from '@/redux/store';
-import { BookCategory } from '@/models/book-category/BookCategory';
+import { Category } from '@/models/category/Category';
 import CustomButton from '@/components/common/Button';
 import Input from '@/components/common/Input';
-import { createBookCategory, updateBookCategoryAsync } from './BookCategorySlice';
+import { createCategory, updateCategoryAsync } from './categorySlice';
 import { EncryptedPayload, encryptPayload } from '@/utils/encryptUtils';
 
-interface BookCategoryProps {
+interface CategoryProps {
   title: string;
 }
 
-const BookCategoryForm: React.FC<BookCategoryProps> = ({ title }) => {
+const CategoryForm: React.FC<CategoryProps> = ({ title }) => {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
   const { id } = router.query;
 
-  const bookCatego = useSelector((state: RootState) =>
-    state.bookCategories.bookCategories.find((b: BookCategory) => b.bookCategoId === Number(id)),
+  const category = useSelector((state: RootState) =>
+    state.categories.categories.find((b: Category) => b.categoryId === Number(id)),
   );
 
   const [formData, setFormData] = useState({
-    BookCategoId: bookCatego?.bookCategoId || 0,
-    BookCategoName: bookCatego?.bookCategoName || '',
-    BookCategoDescription: bookCatego?.bookCategoDescription || '',
+    BookCategoId: category?.categoryId || 0,
+    BookCategoName: category?.categoryName || '',
+    BookCategoDescription: category?.categoryDescription || '',
   });
 
   const [touched, setTouched] = useState({
-    bookCategoName: false,
+    categoryName: false,
     BookCategoDescription: false,
   });
 
@@ -57,11 +57,11 @@ const BookCategoryForm: React.FC<BookCategoryProps> = ({ title }) => {
       );
 
       if (formData.BookCategoId === 0) {
-        dispatch(createBookCategory(encryptedPayload)).unwrap();
-        router.push('/bookCategories');
+        dispatch(createCategory(encryptedPayload)).unwrap();
+        router.push('/Categories');
       } else {
-        dispatch(updateBookCategoryAsync({
-          bookCategoId: formData.BookCategoId,
+        dispatch(updateCategoryAsync({
+          categoryId: formData.BookCategoId,
           payload: encryptedPayload,
         })).unwrap();
         router.push(`/bookcategory/${formData.BookCategoId}`);
@@ -94,7 +94,7 @@ const BookCategoryForm: React.FC<BookCategoryProps> = ({ title }) => {
               value={formData.BookCategoName}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={touched.bookCategoName && !formData.BookCategoName}
+              error={touched.categoryName && !formData.BookCategoName}
               />
             </Box>
           <Box>
@@ -121,4 +121,4 @@ const BookCategoryForm: React.FC<BookCategoryProps> = ({ title }) => {
   );
 };
 
-export default BookCategoryForm;
+export default CategoryForm;

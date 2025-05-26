@@ -40,16 +40,16 @@ const BookDetails: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
 
   const book = useSelector((state: RootState) =>
-    state.books.books.find((b: Book) => b.bookId === Number(id)),
+    state.books.books.find((b: Book) => b.bookUuid === id),
   );
 
   const author = useSelector((state: RootState) =>
-    state.authors.authors.find((a: Author) => a.authorId === book?.authorId),
+    state.authors.authors.find((a: Author) => a.authorUuid === book?.authorUuids),
   );
 
   const publisher = useSelector((state: RootState) =>
     state.publishers.publishers.find(
-      (p: Publisher) => p.publisherId === book?.publisherId,
+      (p: Publisher) => p.publisherUuid === book?.publisherUuids,
     ),
   );
 
@@ -71,19 +71,19 @@ const BookDetails: React.FC = () => {
 
   useEffect(() => {
     if (id && !book) {
-      dispatch(fetchBookById(Number(id)));
+      dispatch(fetchBookById(id.toString()));
     }
   }, [id, book, dispatch]);
   
   useEffect(() => {
     if (book && !author) {
-      dispatch(fetchAuthorById(book.authorId));
+      dispatch(fetchAuthorById(book.authorUuids));
     }
   }, [book, author, dispatch]);
   
   useEffect(() => {
     if (book && !publisher) {
-      dispatch(fetchPublisherById(book.publisherId));
+      dispatch(fetchPublisherById(book.publisherUuids));
     }
   }, [book, publisher, dispatch]);
   
@@ -111,7 +111,7 @@ const BookDetails: React.FC = () => {
     );
     setDialogAction(() => async () => {
       try {
-        dispatch(deleteBookAsync(book.bookId)).unwrap(); // unwrap to catch errors if needed
+        dispatch(deleteBookAsync(book.bookUuid)).unwrap(); // unwrap to catch errors if needed
         router.push('/');
       } catch (error) {
         console.error('Failed to delete book:', error);
@@ -163,7 +163,7 @@ const BookDetails: React.FC = () => {
         />
       )}
       <BookDetailsWrapper>
-        <BookImage src={book.bookImageLink} alt={book.bookTitle} />
+        {/* <BookImage src={book.bookImageLink} alt={book.bookTitle} /> */}
         <BookInfo book={book} author={author} publisher={publisher} />
       </BookDetailsWrapper>
     </Container>

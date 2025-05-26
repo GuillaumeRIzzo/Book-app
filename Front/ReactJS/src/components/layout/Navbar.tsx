@@ -18,7 +18,7 @@ import { SearchBar } from '../SearchBar';
 
 const navigation = [
   { name: 'Accueil', href: '/', current: false },
-  { name: 'Catégories', href: '/bookcategories', current: false },
+  { name: 'Catégories', href: '/categories', current: false },
   { name: 'Auteurs', href: '/authors', current: false },
   { name: 'Éditeurs', href: '/publishers', current: false },
 ];

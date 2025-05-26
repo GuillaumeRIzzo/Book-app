@@ -44,9 +44,9 @@ export const fetchBooksAsync = createAsyncThunk('books/getBooks', async () => {
 
 export const fetchBookById = createAsyncThunk(
   'books/getBook',
-  async (bookId: number) => {
+  async (bookUuid: string) => {
     try {
-      const response = await getBook(bookId);
+      const response = await getBook(bookUuid);
 
       const encryptedData = response.data.encryptedData as string;
       const iv = response.data.iv as string;
@@ -57,7 +57,7 @@ export const fetchBookById = createAsyncThunk(
       // DecryptedData is a single Book object here
       const book = {
         ...camelCaseKeys(decryptedData, { deep: true }),
-        bookId: (decryptedData as any).id, // manually set the bookId
+        bookUuid: (decryptedData as any).id, // manually set the bookUuid
       } as Book;
 
       return book;
@@ -82,17 +82,17 @@ export const createBook = createAsyncThunk(
 );
 
 type UpdateBookParams = {
-  bookId: number;
+  bookUuid: string;
   payload: EncryptedPayload;
 };
 
 export const updateBookAsync = createAsyncThunk(
   'books/updateBook',
-  async ({ bookId, payload }: UpdateBookParams) => {
+  async ({ bookUuid, payload }: UpdateBookParams) => {
     try {
-      await updateBook(bookId, payload);
+      await updateBook(bookUuid, payload);
       
-      return { bookId, decryped : decryptPayload(payload.encryptedData, payload.iv) };
+      return { bookUuid, decryped : decryptPayload(payload.encryptedData, payload.iv) };
     } catch (error: any) {
       console.error('Failed to update book:', error);
       // Throw error to handle it in UI
@@ -103,10 +103,10 @@ export const updateBookAsync = createAsyncThunk(
 
 export const deleteBookAsync = createAsyncThunk(
   'books/deleteBook',
-  async (bookId: number) => {
+  async (bookUuid: string) => {
     try {
-      await delBook(bookId);
-      return bookId;
+      await delBook(bookUuid);
+      return bookUuid;
     } catch (error) {
       console.error('Failed to delete book:', error);
       // Throw error to handle it in UI
@@ -185,8 +185,8 @@ const booksSlice = createSlice({
       })
       .addCase(updateBookAsync.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        const { bookId, decryped } = action.payload;
-        const index = state.books.findIndex(book => book.bookId === bookId);
+        const { bookUuid, decryped } = action.payload;
+        const index = state.books.findIndex(book => book.bookUuid === bookUuid);
         if (index !== -1) {
           state.books[index] = {
             ...state.books[index],
@@ -205,7 +205,7 @@ const booksSlice = createSlice({
       })
       .addCase(deleteBookAsync.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.books = state.books.filter(book => book.bookId !== action.payload);
+        state.books = state.books.filter(book => book.bookUuid !== action.payload);
       })
       .addCase(deleteBookAsync.rejected, (state, action) => {
         state.status = 'failed';

@@ -103,9 +103,9 @@ const SearchItem: React.FC<SearchItemProps> = ({
           } else {
             setSearchTerm(
               result.item.bookTitle ||
-                result.item.authorName ||
+                result.item.authorFullName ||
                 result.item.publisherName ||
-                result.item.bookCategoName,
+                result.item.categoryName,
             );
             setHistory((prev: any) => [...new Set([searchTerm, ...prev])]);
             goToSearch(index);
@@ -121,9 +121,9 @@ const SearchItem: React.FC<SearchItemProps> = ({
               <p className='w-96'>{result.item}</p>
             ) : (
               result.item.bookTitle ||
-              result.item.authorName ||
+              result.item.authorFullName ||
               result.item.publisherName ||
-              result.item.bookCategoName
+              result.item.categoryName
             )}
           </Box>
           {result.type === 'History' && (
