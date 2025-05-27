@@ -114,12 +114,12 @@ const BookList: React.FC = () => {
       )}
       <div className='flex justify-around my-20 flex-wrap'>
         {modelViews.map((book: BookModelView) => (
-          <Link key={book.book.bookUuid} href={`book/${book.book.bookUuid}`}>
+          <Link key={book.book.bookId} href={`book/${book.book.bookUuid}`}>
             <img
               loading='lazy'
               className='h-56 hover:transition-transform 0.2s hover:scale-125 cursor-pointer'
               key={book.book.bookUuid}
-              src={book.images[0]?.imageUrl || '/placeholder.jpg'}
+              src={book.images[0]?.imageUrl}
               alt={book.book.bookTitle}
             />
           </Link>

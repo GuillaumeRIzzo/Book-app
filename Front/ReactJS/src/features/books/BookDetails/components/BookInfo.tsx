@@ -6,6 +6,7 @@ import tw from 'twin.macro';
 import { Book } from '@/models/book/Book';
 import { Author } from '@/models/author/author';
 import { Publisher } from '@/models/publisher/publisher';
+import { Category } from '@/models/category/Category';
 
 const BookInfoWrapper = styled.div`
   ${tw`w-full md:w-2/3`}
@@ -14,29 +15,30 @@ const BookInfoWrapper = styled.div`
 
 type BookInfoProps = {
   book: Book;
-  author: Author;
-  publisher: Publisher;
+  authors: Author;
+  publishers: Publisher;
+  categories: Category[]
 };
 
-const BookInfo: React.FC<BookInfoProps> = ({ book, author, publisher }) => {
+const BookInfo: React.FC<BookInfoProps> = ({ book, authors, publishers, categories }) => {
   return (
     <BookInfoWrapper>
       <Typography variant='h4' component='h1'>
         {book.bookTitle}
       </Typography>
       <Typography variant='subtitle1' component='p'>
-        <strong>Auteur:</strong> {author.authorFullName}
+        <strong>Auteur:</strong> {authors.authorFullName}
       </Typography>
       <Typography variant='subtitle1' component='p'>
-        <strong>Éditeur:</strong> {publisher.publisherName}
+        <strong>Éditeur:</strong> {publishers.publisherName}
       </Typography>
       <Typography variant='body1' component='p'>
         {book.bookDescription}
       </Typography>
-      {/* <Box>
+      <Box>
         <Typography variant='subtitle1' component='p'>
           <strong>Catégories:</strong>{' '}
-          {book.categories.map((category, index) => (
+          {categories.map((category, index) => (
             <Fragment key={category.categoryId}>
               {index > 0 && ', '}
               <Link href={`/bookcategory/${category.categoryId}`}>
@@ -45,7 +47,7 @@ const BookInfo: React.FC<BookInfoProps> = ({ book, author, publisher }) => {
             </Fragment>
           ))}
         </Typography>
-      </Box> */}
+      </Box>
       <Typography variant='subtitle1' component='p'>
         <strong>{book.bookPageCount} pages</strong>
       </Typography>

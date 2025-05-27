@@ -39,17 +39,17 @@ const BookDetails: React.FC = () => {
   const { id } = router.query;
   const dispatch = useDispatch<AppDispatch>();
 
-  const book = useSelector((state: RootState) =>
-    state.books.books.find((b: Book) => b.bookUuid === id),
+  const bookModelView = useSelector((state: RootState) =>
+    state.bookView.bookViews.find((mv) => mv.book.bookUuid === id)
   );
 
   const author = useSelector((state: RootState) =>
-    state.authors.authors.find((a: Author) => a.authorUuid === book?.authorUuids),
+    state.authors.authors.find((a: Author) => bookModelView?.book?.authorUuids.includes(a.authorUuid)),
   );
 
   const publisher = useSelector((state: RootState) =>
     state.publishers.publishers.find(
-      (p: Publisher) => p.publisherUuid === book?.publisherUuids,
+      (p: Publisher) => bookModelView?.book?.publisherUuids.includes(p.publisherUuid),
     ),
   );
 
@@ -70,25 +70,26 @@ const BookDetails: React.FC = () => {
   }, [session]);
 
   useEffect(() => {
-    if (id && !book) {
+    if (id && !bookModelView) {
       dispatch(fetchBookById(id.toString()));
     }
-  }, [id, book, dispatch]);
+  }, [id, bookModelView, dispatch]);
+
   
   useEffect(() => {
-    if (book && !author) {
-      dispatch(fetchAuthorById(book.authorUuids));
+    if (bookModelView && !author) {
+      dispatch(fetchAuthorById(bookModelView.book.authorUuids));
     }
-  }, [book, author, dispatch]);
+  }, [bookModelView, author, dispatch]);
   
   useEffect(() => {
-    if (book && !publisher) {
-      dispatch(fetchPublisherById(book.publisherUuids));
+    if (bookModelView && !publisher) {
+      dispatch(fetchPublisherById(bookModelView.book.publisherUuids));
     }
-  }, [book, publisher, dispatch]);
+  }, [bookModelView, publisher, dispatch]);
   
 
-  if (!book || !author || !publisher) {
+  if (!bookModelView || !author || !publisher) {
     return <Loading />;
   }
 
@@ -139,14 +140,14 @@ const BookDetails: React.FC = () => {
           <Fab
             color='primary'
             aria-label='edit book'
-            onClick={() => handleEdit(book)}
+            onClick={() => handleEdit(bookModelView.book)}
           >
             <EditIcon />
           </Fab>
           <Fab
             color='warning'
             aria-label='del book'
-            onClick={() => handleDelete(book)}
+            onClick={() => handleDelete(bookModelView.book)}
           >
             <DeleteIcon />
           </Fab>
@@ -163,8 +164,14 @@ const BookDetails: React.FC = () => {
         />
       )}
       <BookDetailsWrapper>
-        {/* <BookImage src={book.bookImageLink} alt={book.bookTitle} /> */}
-        <BookInfo book={book} author={author} publisher={publisher} />
+        <BookImage images={bookModelView.images} />
+
+        <BookInfo
+          book={bookModelView.book}
+          authors={bookModelView.authors[0]}
+          publishers={bookModelView.publishers[0]}
+          categories={bookModelView.categories}
+        />
       </BookDetailsWrapper>
     </Container>
   );

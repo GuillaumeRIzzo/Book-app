@@ -49,10 +49,10 @@ namespace BookAPI.Controllers
         }
 
         // GET: api/Languages/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<EncryptedPayload>> GetLanguage(Guid id)
+        [HttpGet("{uuid}")]
+        public async Task<ActionResult<EncryptedPayload>> GetLanguage(Guid uuid)
         {
-            var language = await _context.Languages.FindAsync(id);
+            var language = await _context.Languages.FirstOrDefaultAsync(l => l.LanguageUuid == uuid);
 
             if (language == null)
             {
@@ -187,7 +187,7 @@ namespace BookAPI.Controllers
                 _context.Languages.Add(language);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetLanguage", new { id = model.LanguageUuid }, model);
+                return CreatedAtAction("GetLanguage", new { uuid = model.LanguageUuid }, model);
             }
             catch (JsonException ex)
             {

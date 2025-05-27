@@ -37,7 +37,7 @@ export const selectBookModelViews = createSelector(
       const matchedCategories = categories.filter(c => book.categoryUuids.includes(c.categoryUuid));
       const matchedPublishers = publishers.filter(p => book.publisherUuids.includes(p.publisherUuid));
       // const matchedTags = tags.filter(t => book.tagUuids.includes(t.tagUuid));
-      const matchedImages = images.filter(i => book.imageUuid.includes(i.imageUuid));
+      const matchedImages = images.filter(i => book.imageUuids.includes(i.imageUuid));
       // const matchedLanguages = languages.filter(l => book.languageUuids.includes(l.languageUuid));
       // const matchedTranslations = translations.filter(t => book.bookTranslationUuids.includes(t.bookTranslationUuid));
 

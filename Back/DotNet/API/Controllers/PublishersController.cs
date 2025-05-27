@@ -50,10 +50,10 @@ namespace BookAPI.Controllers
         }
 
         // GET: api/Publishers/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<EncryptedPayload>> GetPublisher(Guid id)
+        [HttpGet("{uuid}")]
+        public async Task<ActionResult<EncryptedPayload>> GetPublisher(Guid uuid)
         {
-            var publisher = await _context.Publishers.FindAsync(id);
+            var publisher = await _context.Publishers.FirstOrDefaultAsync(p => p.PublisherUuid == uuid);
 
             if (publisher == null)
             {

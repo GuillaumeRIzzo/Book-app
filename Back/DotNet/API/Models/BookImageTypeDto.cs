@@ -9,5 +9,6 @@ namespace BookAPI.Models
         public int ImageTypeId { get; set; }
         public Guid ImageTypeUuid { get; set; }
         public string Label { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
     }
 }

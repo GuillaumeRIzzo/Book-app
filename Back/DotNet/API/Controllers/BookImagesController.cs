@@ -38,8 +38,7 @@ namespace BookAPI.Controllers
                     ImageOrder = x.ImageOrder,
                     CreatedAt = x.CreatedAt,
                     UpdatedAt = x.UpdatedAt,
-                    ImageTypeUuid = x.ImageTypeUuid,
-
+                    ImageTypeUuid = x.ImageTypeUuid
                 }).ToList();
 
                 // Encrypt the list of bookImages
@@ -55,10 +54,10 @@ namespace BookAPI.Controllers
         }
 
         // GET: api/BookImages/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<EncryptedPayload>> GetBookImage(Guid id)
+        [HttpGet("{uuid}")]
+        public async Task<ActionResult<EncryptedPayload>> GetBookImage(Guid uuid)
         {
-            var bookImage = await _context.BookImages.FindAsync(id);
+            var bookImage = await _context.BookImages.FirstOrDefaultAsync(i => i.ImageTypeUuid == uuid);
 
             if (bookImage == null)
             {
@@ -182,13 +181,12 @@ namespace BookAPI.Controllers
                     CreatedAt = DateTimeOffset.UtcNow,
                     UpdatedAt = DateTimeOffset.UtcNow,
                     ImageTypeUuid = model.ImageTypeUuid,
-                    
                 };
 
                 _context.BookImages.Add(bookImage);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetBookImage", new { id = model.ImageUuid} , model);
+                return CreatedAtAction("GetBookImage", new { uuid = model.ImageUuid} , model);
             }
             catch (JsonException ex)
             {

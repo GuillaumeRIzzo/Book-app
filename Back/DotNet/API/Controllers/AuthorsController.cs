@@ -56,10 +56,10 @@ namespace BookAPI.Controllers
         }
 
         // GET: api/Authors/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<EncryptedPayload>> GetAuthor(Guid id)
+        [HttpGet("{uuid}")]
+        public async Task<ActionResult<EncryptedPayload>> GetAuthor(Guid uuid)
         {
-            var author = await _context.Authors.FindAsync(id);
+            var author = await _context.Authors.FirstOrDefaultAsync(a => a.AuthorUuid == uuid);
 
             if (author == null)
             {

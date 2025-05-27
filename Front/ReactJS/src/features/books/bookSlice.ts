@@ -57,7 +57,7 @@ export const fetchBookById = createAsyncThunk(
       // DecryptedData is a single Book object here
       const book = {
         ...camelCaseKeys(decryptedData, { deep: true }),
-        bookUuid: (decryptedData as any).id, // manually set the bookUuid
+        bookId: (decryptedData as any).id, // manually set the bookUuid
       } as Book;
 
       return book;

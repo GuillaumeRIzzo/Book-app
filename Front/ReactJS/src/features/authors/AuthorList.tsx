@@ -33,24 +33,24 @@ const AuthorList: React.FC = () => {
   const [dialogAction, setDialogAction] = useState<() => void>(() => {});
 
   // Check if the session is available and contains the encrypted session
-  const { right, token } = useMemo(() => {
-    if (session?.user?.encryptedSession) {
-      const { encryptedData, iv } = session.user.encryptedSession;
-      try {
-        const { right: decryptedRight, token: decryptToken } = decryptPayload(
-          encryptedData,
-          iv,
-        );
-        return {
-          right: decryptedRight as string,
-          token: decryptToken as string,
-        };
-      } catch (error) {
-        console.error('Failed to decrypt session data:', error);
-      }
-    }
-    return { right: '', sessionId: '' };
-  }, [session]);
+  // const { right, token } = useMemo(() => {
+  //   if (session?.user?.encryptedSession) {
+  //     const { encryptedData, iv } = session.user.encryptedSession;
+  //     try {
+  //       const { right: decryptedRight, token: decryptToken } = decryptPayload(
+  //         encryptedData,
+  //         iv,
+  //       );
+  //       return {
+  //         right: decryptedRight as string,
+  //         token: decryptToken as string,
+  //       };
+  //     } catch (error) {
+  //       console.error('Failed to decrypt session data:', error);
+  //     }
+  //   }
+  //   return { right: '', sessionId: '' };
+  // }, [session]);
 
   const handleEdit = (author: Author) => {
     setSelectedAuthor(author);
@@ -101,9 +101,9 @@ const AuthorList: React.FC = () => {
   }));
 
   const columns: GridColDef[] = [
-    ...(right !== null && (right === 'Admin' || right === 'Super Admin')
-      ? [{ field: 'authorId', headerName: 'ID' }]
-      : []),
+    // ...(right !== null && (right === 'Admin' || right === 'Super Admin')
+    //   ? [{ field: 'authorId', headerName: 'ID' }]
+    //   : []),
     {
       field: 'authorFullName',
       headerName: 'Nom',
@@ -122,39 +122,39 @@ const AuthorList: React.FC = () => {
         </Link>
       ),
     },
-    ...(right !== null && (right === 'Admin' || right === 'Super Admin')
-      ? [
-          {
-            field: 'actions',
-            headerName: 'Actions',
-            width: 150,
-            sortable: false,
-            renderCell: (params: any) => (
-              <>
-                <IconButton
-                  color='primary'
-                  aria-label='edit author'
-                  onClick={() => handleEdit(params.row)}
-                >
-                  <EditIcon />
-                </IconButton>
-                <IconButton
-                  color='secondary'
-                  aria-label='delete author'
-                  onClick={() => handleDelete(params.row)}
-                >
-                  <DeleteIcon />
-                </IconButton>
-              </>
-            ),
-          },
-        ]
-      : []),
+    // ...(right !== null && (right === 'Admin' || right === 'Super Admin')
+    //   ? [
+    //       {
+    //         field: 'actions',
+    //         headerName: 'Actions',
+    //         width: 150,
+    //         sortable: false,
+    //         renderCell: (params: any) => (
+    //           <>
+    //             <IconButton
+    //               color='primary'
+    //               aria-label='edit author'
+    //               onClick={() => handleEdit(params.row)}
+    //             >
+    //               <EditIcon />
+    //             </IconButton>
+    //             <IconButton
+    //               color='secondary'
+    //               aria-label='delete author'
+    //               onClick={() => handleDelete(params.row)}
+    //             >
+    //               <DeleteIcon />
+    //             </IconButton>
+    //           </>
+    //         ),
+    //       },
+    //     ]
+    //   : []),
   ];
 
   return (
     <Box>
-      {right && (right === 'Admin' || right === 'Super Admin') && (
+      {/* right && (right === 'Admin' || right === 'Super Admin') &&  */(
         <Box
           sx={{
             display: 'flex',

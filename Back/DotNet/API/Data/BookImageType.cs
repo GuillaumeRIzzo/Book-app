@@ -20,6 +20,11 @@ public partial class BookImageType
     [Unicode(false)]
     public string Label { get; set; } = string.Empty;
 
+    [Column("description")]
+    [StringLength(255)]
+    [Unicode(false)]
+    public string Description { get; set; } = string.Empty;
+
     [InverseProperty("ImageTypeUu")]
     public virtual ICollection<BookImage> BookImages { get; set; } = new List<BookImage>();
 }

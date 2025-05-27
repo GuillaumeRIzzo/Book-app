@@ -72,10 +72,17 @@ namespace BookAPI.Controllers
         }
 
         // GET: api/Books/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<EncryptedPayload>> GetBook(Guid id)
+        [HttpGet("{uuid}")]
+        public async Task<ActionResult<EncryptedPayload>> GetBook(Guid uuid)
         {
-            var book = await _context.Books.FindAsync(id);
+            var book = await _context.Books.Include(b => b.AuthorUus)
+                .Include(b => b.CategoryUus)
+                .Include(b => b.PublisherUus)
+                .Include(b => b.TagUus)
+                .Include(b => b.BookImages)
+                .Include(b => b.BookLanguages)
+                .Include(b => b.BookTranslations)
+                .FirstOrDefaultAsync(b => b.BookUuid == uuid);
 
             if (book == null)
             {
@@ -97,6 +104,13 @@ namespace BookAPI.Controllers
                 CreatedAt = book.CreatedAt,
                 UpdatedAt = book.UpdatedAt,
                 BookSeriesUuid = book.BookSeriesUuid,
+                AuthorUuids = book.AuthorUus.Select(a => a.AuthorUuid).ToList(),
+                CategoryUuids = book.CategoryUus.Select(c => c.CategoryUuid).ToList(),
+                PublisherUuids = book.PublisherUus.Select(p => p.PublisherUuid).ToList(),
+                TagUuids = book.TagUus.Select(t => t.TagUuid).ToList(),
+                ImageUuids = book.BookImages.Select(i => i.ImageUuid).ToList(),
+                LanguageUuids = book.BookLanguages.Select(l => l.LanguageUuid).ToList(),
+                BookTranslationUuids = book.BookTranslations.Select(t => t.BookTranslationUuid).ToList(),
             };
 
             // Encrypt the book data

@@ -15,7 +15,7 @@ export class Book {
   authorUuids: string;
   categoryUuids: string;
   publisherUuids: string;
-  imageUuid: string;
+  imageUuids: string;
 
   constructor() {
     this.bookId = 0;
@@ -34,6 +34,6 @@ export class Book {
     this.authorUuids = '';
     this.categoryUuids = '';
     this.publisherUuids = '';
-    this.imageUuid = '';
+    this.imageUuids = '';
   }
 }

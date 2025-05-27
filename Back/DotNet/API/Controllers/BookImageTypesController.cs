@@ -32,6 +32,7 @@ namespace BookAPI.Controllers
                     ImageTypeId = x.ImageTypeId,
                     ImageTypeUuid = x.ImageTypeUuid,
                     Label = x.Label,
+                    Description = x.Description,
 
                 }).ToList();
 
@@ -48,10 +49,10 @@ namespace BookAPI.Controllers
         }
 
         // GET: api/BookImageTypes/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<EncryptedPayload>> GetBookImageType(Guid id)
+        [HttpGet("{uuid}")]
+        public async Task<ActionResult<EncryptedPayload>> GetBookImageType(Guid uuid)
         {
-            var bookImageType = await _context.BookImageTypes.FindAsync(id);
+            var bookImageType = await _context.BookImageTypes.FirstOrDefaultAsync(i => i.ImageTypeUuid == uuid);
 
             if (bookImageType == null)
             {
@@ -63,6 +64,7 @@ namespace BookAPI.Controllers
                 ImageTypeId = bookImageType.ImageTypeId,
                 ImageTypeUuid = bookImageType.ImageTypeUuid,
                 Label = bookImageType.Label,
+                Description = bookImageType.Description,
             };
 
             // Encrypt the bookImageType data
@@ -109,6 +111,7 @@ namespace BookAPI.Controllers
                     bookImageType.ImageTypeId = model.ImageTypeId;
                     bookImageType.ImageTypeUuid = model.ImageTypeUuid;
                     bookImageType.Label = model.Label;
+                    bookImageType.Description = model.Description;
                 }
 
                 try
@@ -165,13 +168,13 @@ namespace BookAPI.Controllers
                 var bookImageType = new BookImageType()
                 {
                     Label = model.Label,
-                    
+                    Description = model.Description,
                 };
 
                 _context.BookImageTypes.Add(bookImageType);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetBookImageType", new { id = model.ImageTypeUuid} , model);
+                return CreatedAtAction("GetBookImageType", new { uuid = model.ImageTypeUuid} , model);
             }
             catch (JsonException ex)
             {

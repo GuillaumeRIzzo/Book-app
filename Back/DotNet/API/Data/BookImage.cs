@@ -18,8 +18,7 @@ public partial class BookImage
     [Column("book_uuid")]
     public Guid BookUuid { get; set; }
 
-    [Column("image_url")]
-    [StringLength(500)]
+    [Column("image_url", TypeName = "text")]
     [Unicode(false)]
     public string ImageUrl { get; set; } = string.Empty;
 

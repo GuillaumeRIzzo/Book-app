@@ -57,7 +57,7 @@ export const fetchAuthorById = createAsyncThunk(
       
       const author = {
         ...camelCaseKeys(decryptedData, { deep: true }),
-        authorUuid: (decryptedData as any).id, // manually set the authorUuid
+        authorId: (decryptedData as any).id, // manually set the authorUuid
       } as Author;      
       
       return author;
