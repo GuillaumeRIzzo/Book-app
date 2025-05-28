@@ -14,9 +14,9 @@ services:
     networks:
       - sqlnetwork
 
-  postgresql:
+  postgres:
     image: postgres:15
-    container_name: postgresql
+    container_name: postgres
     ports:
       - "5432:5432"
     environment:
@@ -34,7 +34,7 @@ services:
       
   strapi:
     build:
-      context: ./Back/StrapiCMS
+      context: ./Back/Strapi
       dockerfile: Dockerfile
     container_name: strapi
     ports:
@@ -51,7 +51,7 @@ services:
 
   api:
     build:
-      context: ./Back/BookAPI
+      context: ./Back/DotNet/API
       dockerfile: Dockerfile
     container_name: api
     env_file:
@@ -66,39 +66,39 @@ services:
     networks:
       - sqlnetwork
     volumes:
-      - ./Back:/src/BookAPI
+      - ./Back:/src/API
     command: dotnet watch run --urls http://0.0.0.0:80
 
 
-  angular-dev:
-    build:
-      context: ./Front
-      dockerfile: Dockerfile.dev
-    container_name: angular-dev
-    ports:
-      - "4200:4200"
-    volumes:
-      - ./Front:/app:delegated
-    depends_on:
-      - api
-    networks:
-      - sqlnetwork
+  # angular-dev:
+  #   build:
+  #     context: ./Front/Angular
+  #     dockerfile: Dockerfile.dev
+  #   container_name: angular-dev
+  #   ports:
+  #     - "4200:4200"
+  #   volumes:
+  #     - ./Front/Angular:/app:delegated
+  #   depends_on:
+  #     - api
+  #   networks:
+  #     - sqlnetwork
 
-  angular-prod:
-    build:
-      context: ./Front
-      dockerfile: Dockerfile.nginx
-    container_name: angular-prod
-    ports:
-      - "80:80"
-    depends_on:
-      - api
-    networks:
-      - sqlnetwork
+  # angular-prod:
+  #   build:
+  #     context: ./Front/Angular
+  #     dockerfile: Dockerfile.nginx
+  #   container_name: angular-prod
+  #   ports:
+  #     - "80:80"
+  #   depends_on:
+  #     - api
+  #   networks:
+  #     - sqlnetwork
 
   react:
     build:
-      context: ./FrontReactJs
+      context: ./Front/ReactJS
       dockerfile: Dockerfile
     container_name: react
     ports:
@@ -106,7 +106,7 @@ services:
     environment:
       - PORT=3000
     volumes:
-      - ./FrontReactJs:/app
+      - ./Front/ReactJS:/app
       - ./scripts:/scripts:ro
       - ./.env:/env/.env:ro
     depends_on:
@@ -116,16 +116,16 @@ services:
     command: sh -c "node /scripts/sync-react-env.js && npm run dev"
 
 
-  jenkins:
-    image: jenkins/jenkins:lts-jdk17
-    container_name: jenkins
-    ports:
-      - "8080:8080"
-      - "50000:50000"
-    volumes:
-      - jenkins_home:/var/jenkins_home
-    networks:
-      - sqlnetwork
+  # jenkins:
+  #   image: jenkins/jenkins:lts-jdk17
+  #   container_name: jenkins
+  #   ports:
+  #     - "8080:8080"
+  #     - "50000:50000"
+  #   volumes:
+  #     - jenkins_home:/var/jenkins_home
+  #   networks:
+  #     - sqlnetwork
 
 networks:
   sqlnetwork:
