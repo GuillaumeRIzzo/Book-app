@@ -66,14 +66,14 @@ namespace BookAPI.Controllers
 
         // GET: api/Users/5
         [Authorize]
-        [HttpGet("{id}")]
-        public virtual async Task<ActionResult<EncryptedPayload>> GetUser(Guid id, string? identifier)
+        [HttpGet("{uuid}")]
+        public virtual async Task<ActionResult<EncryptedPayload>> GetUser(Guid uuid, string? identifier)
         {
             var user = new User();
 
             if (string.IsNullOrWhiteSpace(identifier))
             {
-                user = await _context.Users.FindAsync(id);
+                user = await _context.Users.FirstOrDefaultAsync(u => u.UserUuid == uuid);
 
             }
             else
@@ -116,8 +116,8 @@ namespace BookAPI.Controllers
         }
 
         [Authorize(Policy = IdentityData.UserPolicyName)]
-        [HttpPut("{id}/infos")]
-        public async Task<IActionResult> UpdateUserInfos(Guid id, [FromBody] EncryptedPayload payload)
+        [HttpPut("{uuid}/infos")]
+        public async Task<IActionResult> UpdateUserInfos(Guid uuid, [FromBody] EncryptedPayload payload)
         {
             try
             {
@@ -130,25 +130,25 @@ namespace BookAPI.Controllers
 
                 if (userData != null)
                 {
-                    if (id != userData.UserUuid)
+                    if (uuid != userData.UserUuid)
                     {
                         var errorResponse = new { name = "userId", message = "userId doesn't match."};
                         return BadRequest(errorResponse);
                     }
 
-                    if (EmailExists(userData.UserEmail, id))
+                    if (EmailExists(userData.UserEmail, uuid))
                     {
                         var errorResponse = new { name = "Email", message = "Email already exists." };
                         return BadRequest(errorResponse);
                     }
 
-                    if (LoginExists(userData.UserLogin, id))
+                    if (LoginExists(userData.UserLogin, uuid))
                     {
                         var errorResponse = new { name = "Login", message = "Login already exists." };
                         return BadRequest(errorResponse);
                     }
 
-                    var user = await _context.Users.FindAsync(id);
+                    var user = await _context.Users.FirstOrDefaultAsync(u => u.UserUuid == uuid);
                     if (user == null)
                     {
                         return NotFound("User not found.");
@@ -170,7 +170,7 @@ namespace BookAPI.Controllers
                     }
                     catch (DbUpdateConcurrencyException)
                     {
-                        if (!UserExists(id))
+                        if (!UserExists(uuid))
                         {
                             return NotFound();
                         }
@@ -192,8 +192,8 @@ namespace BookAPI.Controllers
         }
 
         [Authorize]
-        [HttpPut("{id}/password")]
-        public async Task<IActionResult> ChangePassword(Guid id, [FromBody] EncryptedPayload payload)
+        [HttpPut("{uuid}/password")]
+        public async Task<IActionResult> ChangePassword(Guid uuid, [FromBody] EncryptedPayload payload)
         {
             try
             {
@@ -207,7 +207,7 @@ namespace BookAPI.Controllers
                         return BadRequest(new { name = "Password", message = "Passwords cannot be empty." });
                     }
 
-                    var user = await _context.Users.FindAsync(id);
+                    var user = await _context.Users.FirstOrDefaultAsync(u => u.UserUuid == uuid);
                     if (user == null)
                     {
                         return NotFound("User not found.");
@@ -243,7 +243,7 @@ namespace BookAPI.Controllers
                     }
                     catch (DbUpdateConcurrencyException)
                     {
-                        if (!UserExists(id))
+                        if (!UserExists(uuid))
                         {
                             return NotFound();
                         }
@@ -331,7 +331,7 @@ namespace BookAPI.Controllers
                 _context.Users.Add(user);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetUser", new { id = user.UserId }, model);
+                return CreatedAtAction("GetUser", new { uuid = user.UserUuid }, model);
             }
             catch (JsonException ex)
             {

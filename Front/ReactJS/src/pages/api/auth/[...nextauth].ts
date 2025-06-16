@@ -7,8 +7,10 @@ import camelCaseKeys from 'camelcase-keys';
 import { login } from '@/api/authApi';
 import { decryptPayload, encryptPayload } from '@/utils/encryptUtils';
 
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 export interface User {
   id: string;
+  uuid: string;
   login: string;
   right: string;
   email: string;
@@ -18,26 +20,24 @@ export interface User {
   [key: string]: unknown;
 }
 
-
 const authOptions: AuthOptions = {
   providers: [
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
-        encryptedPayload: { label: 'Encrypted Payload', type: 'text' },
+        encryptedData: { label: 'Encrypted Data', type: 'text' },
+        iv: { label: 'IV', type: 'text' },
       },
       async authorize(credentials) {
-        if (!credentials || !credentials.encryptedPayload) {
+
+        if (!credentials || !credentials.encryptedData || !credentials.iv) {
           throw new Error('No encrypted payload provided');
         }
 
-        // Parse the encrypted payload sent by the client
-        const { encryptedPayload } = credentials;
-
         try {
           // Call the login API with the encrypted payload
-          const response = await login(JSON.parse(encryptedPayload));
-
+          const response = await login(credentials);
+          
           if (response.data) {
             // Decrypt the response from the server
             const user = camelCaseKeys(decryptPayload<User>(response.data.encryptedData, response.data.iv), {deep: true});
@@ -45,6 +45,7 @@ const authOptions: AuthOptions = {
             // Return the user object for NextAuth
             return {
               id: user.id,
+              uuid: user.uuid,
               login: user.login,
               right: user.right,
               email: user.email,
@@ -67,6 +68,7 @@ const authOptions: AuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        token.uuid = user.uuid;
         token.login = user.login;
         token.right = user.right;
         token.email = user.email;
@@ -78,6 +80,7 @@ const authOptions: AuthOptions = {
       if (session.user) {
         const sessionData = {
           id: token.id,
+          uuid: token.uuid,
           login: token.login,
           right: token.right,
           email: token.email,

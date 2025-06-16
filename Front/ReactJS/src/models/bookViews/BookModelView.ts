@@ -8,32 +8,32 @@ import { Image } from "../images/images";
 // import { BookTranslation } from "../bookTranslation/bookTranslation";
 
 export class BookModelView {
-  book: Book;
-  authors: Author[];
-  categories: Category[];
-  publishers: Publisher[];
-  // tags: Tag[];
-  images: Image[];
-  // languages: Language[];
-  // translations: BookTranslation[];
-
   constructor(
-    book: Book,
-    authors: Author[],
-    categories: Category[],
-    publishers: Publisher[],
+    public book: Book,
+    public authors: Author[],
+    public categories: Category[],
+    public publishers: Publisher[],
     // tags: Tag[],
-    images: Image[],
+    public images: Image[],
     // languages: Language[],
     // translations: BookTranslation[]
   ) {
-    this.book = book;
-    this.authors = authors;
-    this.categories = categories;
-    this.publishers = publishers;
-    // this.tags = tags;
-    this.images = images;
-    // this.languages = languages;
-    // this.translations = translations;
+    // this.book = book;
+    // this.authors = authors;
+    // this.categories = categories;
+    // this.publishers = publishers;
+    // // this.tags = tags;
+    // this.images = images;
+    // // this.languages = languages;
+    // // this.translations = translations;
+  }
+  toPlainObject() {
+    return {
+      book: this.book,
+      authors: this.authors,
+      categories: this.categories,
+      publishers: this.publishers,
+      images: this.images
+    };
   }
 }

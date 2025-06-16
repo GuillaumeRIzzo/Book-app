@@ -50,7 +50,7 @@ const UserProfileForm: React.FC<FormProps> = ({ title }) => {
   // Memoized userFind logic
   const userFind = useMemo(() => {
     return session
-      ? users.find((u: User) => u.userId === Number(id))
+      ? users.find((u: User) => u.userUuid === id)
       : undefined;
   }, [session, users, id]);
 
@@ -59,11 +59,11 @@ const UserProfileForm: React.FC<FormProps> = ({ title }) => {
     if (session?.user?.encryptedSession) {
       const { encryptedData, iv } = session.user.encryptedSession;
       try {
-        const { id: decryptedId, right: decryptedRight } = decryptPayload(
+        const decryptedData = decryptPayload<{ right: string, sessionId: number }>(
           encryptedData,
           iv,
         );
-        return { right: decryptedRight as string, sessionId: decryptedId as number};
+        return { right: decryptedData.right, sessionId: decryptedData.sessionId};
       } catch (error) {
         console.error('Failed to decrypt session data:', error);
       }
@@ -81,11 +81,11 @@ const UserProfileForm: React.FC<FormProps> = ({ title }) => {
   // User validation and redirection
   useEffect(() => {
     if (
-      (userFind?.userRight === 'Super Admin' && right !== 'Super Admin') ||
+      // (userFind?.userRight === 'Super Admin' && right !== 'Super Admin') ||
       (right === 'User' && id != sessionId)
     ) {
       if (typeof window !== 'undefined') {
-        router.replace('/');
+        // router.replace('/');
       }
     }
   }, [userFind, right, id, sessionId, router]);
@@ -93,17 +93,10 @@ const UserProfileForm: React.FC<FormProps> = ({ title }) => {
   // Fetch user by ID if not found
   useEffect(() => {
     if (id && !userFind) {
-      const userId = Number(id);
-      if (!isNaN(userId)) {
-        setLoading(true);
-        dispatch(fetchUserById(userId)).finally(() => setLoading(false));
-      } else {
-        setLoading(false);
-        router.push('/');
+        dispatch(fetchUserById(id.toString())).finally(() => setLoading(false));
+        // router.push('/');
       }
-    } else {
       setLoading(false);
-    }
   }, [id, userFind, dispatch, router]);
 
   const handlePersonalInfoSubmit = async (
@@ -176,7 +169,7 @@ const UserProfileForm: React.FC<FormProps> = ({ title }) => {
           onSubmit={handlePasswordChangeSubmit}
         />
       )}
-      {userFind?.userRight !== 'Super Admin' && (
+      {right !== 'Super Admin' && (
         <AccountDeletionForm onDelete={handleDeleteAccount} />
       )}
     </FormWrapper>

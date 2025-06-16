@@ -7,7 +7,6 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 const StyledInputWrapper = styled.div`
   margin: 10px 0;
-  background-color: var(--background-color);
 `;
 
 type CustomVariant = 'outlined' | 'filled' | 'standard';
@@ -49,6 +48,28 @@ const Input: React.FC<InputProps> = ({
 
   const isPassword = type === 'password';
 
+  // Inject custom border + label color styles
+  const sharedStyles = {
+    '& .MuiOutlinedInput-notchedOutline': {
+      borderColor: 'primary.dark',
+    },
+    '&:hover .MuiOutlinedInput-notchedOutline': {
+      borderColor: 'primary.dark',
+    },
+    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+      borderColor: 'primary.dark',
+    },
+    '& .MuiInputLabel-root': {
+      color: 'primary.light',
+    },
+    '& .MuiInputLabel-root.Mui-focused': {
+      color: 'primary.main',
+    },
+    '& .MuiOutlinedInput-root': {
+      color: 'primary.main',
+    },
+  };
+
   return (
     <StyledInputWrapper className={className}>
       <TextField
@@ -65,24 +86,25 @@ const Input: React.FC<InputProps> = ({
         size={size}
         multiline={multiline}
         rows={multiline ? rows : undefined}
-        InputProps={
-          isPassword
-            ? {
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label="toggle password visibility"
-                      onClick={handleClickShowPassword}
-                      onMouseDown={handleMouseDownPassword}
-                      edge="end"
-                    >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }
-            : undefined
-        }
+        InputProps={{
+          ...(rest.InputProps ?? {}),
+          endAdornment: isPassword ? (
+            <InputAdornment position="end">
+              <IconButton
+                aria-label="toggle password visibility"
+                onClick={handleClickShowPassword}
+                onMouseDown={handleMouseDownPassword}
+                edge="end"
+              >
+                {showPassword ? <VisibilityOff /> : <Visibility />}
+              </IconButton>
+            </InputAdornment>
+          ) : undefined,
+        }}
+        sx={{
+          ...(rest.sx ?? {}),
+          ...sharedStyles,
+        }}
         {...rest}
       />
       {infoText && <p className="text-base text-red-500 mt-1">{infoText}</p>}

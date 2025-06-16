@@ -1,7 +1,9 @@
-import { BookModelView } from './BookModelView';
+import { BookModelView } from "./BookModelView";
+
+export type BookModelViewPlain = ReturnType<BookModelView['toPlainObject']>;
 
 export interface bookModelViewState {
-  bookViews : BookModelView[];
+  bookViews: BookModelViewPlain[];
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;
 }

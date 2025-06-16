@@ -1,5 +1,6 @@
 import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 import {
   Disclosure,
@@ -16,72 +17,62 @@ import Gravatar from 'react-gravatar';
 import { decryptPayload } from '@/utils/encryptUtils';
 import { SearchBar } from '../SearchBar';
 
-const navigation = [
-  { name: 'Accueil', href: '/', current: false },
-  { name: 'Catégories', href: '/categories', current: false },
-  { name: 'Auteurs', href: '/authors', current: false },
-  { name: 'Éditeurs', href: '/publishers', current: false },
-];
-
-const classNames = (...classes: string[]) => {
-  return classes.filter(Boolean).join(' ');
-};
+const classNames = (...classes: string[]) => classes.filter(Boolean).join(' ');
 
 const Navbar: React.FC = () => {
   const { data: session, status } = useSession();
-  let token: string;
-  let right: string;
-  let email: string;
-  let id: string;
+  const pathname = usePathname();
 
-  // Check if the session is available and contains the encrypted session
+  let token = '';
+  let right = '';
+  let email = '';
+  let uuid = '';
+
   if (session && session.user && session.user.encryptedSession) {
-    const encryptedSession = session.user.encryptedSession; // Retrieve encrypted session data
-
-    // Extract encrypted data and IV (if needed)
-    const { encryptedData, iv } = encryptedSession;
-
-    // Decrypt the session data
     try {
+      const { encryptedData, iv } = session.user.encryptedSession;
       const decryptedSessionData = decryptPayload(encryptedData, iv);
-
-      // Cast the decrypted session data to the expected structure
       const {
         token: decryptedToken,
         right: decryptedRight,
         email: decryptedEmail,
-        id: decryptedId,
+        uuid: decryptedUuid,
       } = decryptedSessionData as {
         token: string;
         right: string;
         email: string;
-        id: string;
+        uuid: string;
       };
 
       token = decryptedToken;
       right = decryptedRight;
       email = decryptedEmail;
-      id = decryptedId;
+      uuid = decryptedUuid;
     } catch (error) {
       console.error('Failed to decrypt session data:', error);
     }
   }
 
+  const navigation = [
+    { name: 'Accueil', href: '/' },
+    { name: 'Catégories', href: '/categories' },
+    { name: 'Auteurs', href: '/authors' },
+    { name: 'Éditeurs', href: '/publishers' },
+  ];
+
   return (
-    <Disclosure id="app-header" as='nav' className='bg-[#333]'>
+    <Disclosure id="app-header" as='nav' className='bg-navBar border-b-[1px] border-b-border'>
       {({ open }) => (
         <>
           <div className='mx-auto max-w-7xl px-2 sm:px-6 lg:px-8'>
             <div className='relative flex h-16 items-center justify-between'>
               <div className='absolute inset-y-0 left-0 flex items-center sm:hidden'>
-                {/* Mobile menu button*/}
-                <DisclosureButton className='relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white'>
-                  <span className='absolute -inset-0.5' />
+                <DisclosureButton className='inline-flex items-center justify-center rounded-md p-2 text-primary hover:bg-gray-300 hover:text-primary-light focus:outline-none focus:ring-2 focus:ring-white'>
                   <span className='sr-only'>Open main menu</span>
                   {open ? (
-                    <XMarkIcon className='block h-6 w-6' aria-hidden='true' />
+                    <XMarkIcon className='block h-6 w-6' />
                   ) : (
-                    <Bars3Icon className='block h-6 w-6' aria-hidden='true' />
+                    <Bars3Icon className='block h-6 w-6' />
                   )}
                 </DisclosureButton>
               </div>
@@ -93,22 +84,20 @@ const Navbar: React.FC = () => {
                         key={item.name}
                         href={item.href}
                         className={classNames(
-                          item.current
-                            ? 'bg-gray-900 text-white'
-                            : 'text-gray-300 hover:bg-gray-700 hover:text-white',
+                          pathname === item.href
+                            ? 'bg-gray-300 text-primary-light'
+                            : 'text-primary hover:bg-gray-300 hover:text-primary-light',
                           'rounded-md px-3 py-2 text-base font-medium',
                         )}
-                        aria-current={item.current ? 'page' : undefined}
+                        aria-current={pathname === item.href ? 'page' : undefined}
                       >
-                        {item.name.toLocaleUpperCase()}
+                        {item.name.toUpperCase()}
                       </Link>
                     ))}
                     {token && ['Super Admin', 'Admin'].includes(right) && (
                       <Link
                         href='/users'
-                        className={
-                          'text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-base font-medium'
-                        }
+                        className='text-primary hover:bg-gray-300 hover:text-primary-light rounded-md px-3 py-2 text-base font-medium'
                       >
                         UTILISATEURS
                       </Link>
@@ -118,19 +107,11 @@ const Navbar: React.FC = () => {
               </div>
               <SearchBar />
               <div className='absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0'>
-                {/* Profile dropdown */}
                 {status === 'authenticated' ? (
                   <Menu as='div' className='relative ml-3'>
-                    <div>
-                      <MenuButton className='relative flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800'>
-                        <span className='absolute -inset-1.5' />
-                        <span className='sr-only'>Open user menu</span>
-                        <Gravatar
-                          email={email}
-                          className='h-8 w-8 rounded-full'
-                        />
-                      </MenuButton>
-                    </div>
+                    <MenuButton className='flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800'>
+                      <Gravatar email={email} className='h-8 w-8 rounded-full' />
+                    </MenuButton>
                     <Transition
                       enter='transition ease-out duration-100'
                       enterFrom='transform opacity-0 scale-95'
@@ -143,13 +124,13 @@ const Navbar: React.FC = () => {
                         <MenuItem>
                           {({ active }) => (
                             <Link
-                              href={`/user/${id}`}
+                              href={`/user/account`}
                               className={classNames(
                                 active ? 'bg-gray-100' : '',
-                                'block px-4 py-2 text-sm text-gray-700',
+                                'block px-4 py-2 text-sm text-primary-dark hover:text-primary-light',
                               )}
                             >
-                              Votre Profile
+                              Votre compte
                             </Link>
                           )}
                         </MenuItem>
@@ -159,7 +140,7 @@ const Navbar: React.FC = () => {
                               href='/'
                               className={classNames(
                                 active ? 'bg-gray-100' : '',
-                                'block px-4 py-2 text-sm text-gray-700',
+                                'block px-4 py-2 text-sm text-primary-dark hover:text-primary-light',
                               )}
                               onClick={() => {
                                 signOut();
@@ -178,21 +159,13 @@ const Navbar: React.FC = () => {
                     <div className='flex space-x-4'>
                       <Link
                         href='/signin'
-                        className={classNames(
-                          'text-gray-300 hover:bg-gray-700 hover:text-white',
-                          'rounded-md px-3 py-2 text-base font-medium',
-                        )}
-                        aria-current='page'
+                        className='text-primary hover:bg-gray-300 hover:text-primary-light rounded-md px-3 py-2 text-base font-medium'
                       >
                         INSCRIPTION
                       </Link>
                       <Link
                         href='/login'
-                        className={classNames(
-                          'text-gray-300 hover:bg-gray-700 hover:text-white',
-                          'rounded-md px-3 py-2 text-base font-medium',
-                        )}
-                        aria-current='page'
+                        className='text-primary hover:bg-gray-300 hover:text-primary-light rounded-md px-3 py-2 text-base font-medium'
                       >
                         CONNEXION
                       </Link>
@@ -211,32 +184,33 @@ const Navbar: React.FC = () => {
                   as='a'
                   href={item.href}
                   className={classNames(
-                    item.current
-                      ? 'bg-gray-900 text-white'
-                      : 'text-gray-300 hover:bg-gray-700 hover:text-white',
+                    pathname === item.href
+                      ? 'bg-gray-300 text-primary-light'
+                      : 'text-primary hover:bg-gray-300 hover:text-primary-light',
                     'block rounded-md px-3 py-2 text-base font-medium',
                   )}
-                  aria-current={item.current ? 'page' : undefined}
                 >
-                  {item.name.toLocaleUpperCase()}
+                  {item.name.toUpperCase()}
                 </DisclosureButton>
               ))}
-              <DisclosureButton
-                as='a'
-                href='/signin'
-                className='text-gray-300 hover:bg-gray-700 hover:text-white block rounded-md px-3 py-2 text-base font-medium'
-                aria-current={undefined}
-              >
-                INSCRIPTION
-              </DisclosureButton>
-              <DisclosureButton
-                as='a'
-                href='/login'
-                className='text-gray-300 hover:bg-gray-700 hover:text-white block rounded-md px-3 py-2 text-base font-medium'
-                aria-current={undefined}
-              >
-                CONNEXION
-              </DisclosureButton>
+              {status !== 'authenticated' && (
+                <>
+                  <DisclosureButton
+                    as='a'
+                    href='/signin'
+                    className='text-primary hover:bg-gray-300 hover:text-primary-light block rounded-md px-3 py-2 text-base font-medium'
+                  >
+                    INSCRIPTION
+                  </DisclosureButton>
+                  <DisclosureButton
+                    as='a'
+                    href='/login'
+                    className='text-primary hover:bg-gray-300 hover:text-primary-light block rounded-md px-3 py-2 text-base font-medium'
+                  >
+                    CONNEXION
+                  </DisclosureButton>
+                </>
+              )}
             </div>
           </DisclosurePanel>
         </>

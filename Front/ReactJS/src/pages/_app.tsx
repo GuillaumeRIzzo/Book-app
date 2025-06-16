@@ -8,17 +8,18 @@ import { ThemeProvider } from '@components/context/ThemeContext';
 import '@styles/globals.css';
 import { Navbar } from '@/components/layout';
 
-const MyApp = ({ Component,  pageProps: { session, ...pageProps } }: AppProps) => {
+const MyApp = ({ Component, pageProps: { session, ...pageProps } }: AppProps) => {
   return (
     <SessionProvider session={session}>
-      <ThemeProvider>
-        <Provider store={store}>
+      <Provider store={store}>
+        <ThemeProvider>
           <Navbar />
           <Component {...pageProps} />
-        </Provider>
-      </ThemeProvider>
+        </ThemeProvider>
+      </Provider>
     </SessionProvider>
   );
 };
+
 
 export default MyApp;

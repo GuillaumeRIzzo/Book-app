@@ -26,7 +26,7 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
     UserLastname: user?.userLastname || '',
     UserLogin: user?.userLogin || '',
     UserEmail: user?.userEmail || '',
-    UserRight: user?.userRight || 'User',
+    // UserRight: user?.userRight || 'User',
   });
 
   const [touched, setTouched] = useState({
@@ -48,7 +48,7 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
         UserLastname: user.userLastname,
         UserLogin: user.userLogin,
         UserEmail: user.userEmail,
-        UserRight: user.userRight,
+        // UserRight: user.userRight,
       });
     }
   }, [user]);
@@ -76,8 +76,8 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
     !emailError &&
     !loginError &&
     !!formData.UserFirstname &&
-    !!formData.UserLastname &&
-    !!formData.UserRight;
+    !!formData.UserLastname;
+    // !!formData.UserRight;
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault(); // Prevent page reload
@@ -140,7 +140,7 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
         helperText={touched.userEmail ? emailError : ''}
         required
       />
-      {right !== 'User' && formData.UserRight !== 'Super Admin' && (
+      {/* {right !== 'User' && formData.UserRight !== 'Super Admin' && (
         <Select
           label='Right'
           name='UserRight'
@@ -152,7 +152,7 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
           <MenuItem value='Admin'>Admin</MenuItem>
           <MenuItem value='User'>User</MenuItem>
         </Select>
-      )}
+      )} */}
 
       <CustomButton text='Submit' type='submit' disable={!formValidator} />
     </form>

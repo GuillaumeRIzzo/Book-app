@@ -52,8 +52,9 @@ namespace BookAPI.Controllers
                 new(JwtRegisteredClaimNames.Email, model.UserEmail),
                 new(JwtRegisteredClaimNames.UniqueName, model.UserFirstname + model.UserLastname),
                 new("UserId", model.UserId.ToString()),
+                new("UserUuid", model.UserUuid.ToString()),
                 new("Login", model.UserLogin.ToString()),
-                new("Right", userRight.ToLowerInvariant()),
+                new("Right", userRight),
             };
 
             if (userRight == "Super Admin")
@@ -129,9 +130,10 @@ namespace BookAPI.Controllers
                     var response = new LoginResponseDto
                     {
                         Token = token,
-                        Useruuid = user.UserUuid,
+                        Uuid = user.UserUuid,
+                        Id = user.UserId,
                         Login = user.UserLogin,
-                        UserRight = userRight,
+                        Right = userRight,
                         Email = user.UserEmail
                     };
 

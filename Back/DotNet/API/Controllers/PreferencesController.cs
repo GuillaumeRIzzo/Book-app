@@ -34,8 +34,9 @@ namespace BookAPI.Controllers
                     UserUuid = x.UserUuid,
                     LanguageUuid = x.LanguageUuid,
                     ThemeUuid = x.ThemeUuid,
-                    ColorUuid = x.ColorUuid,
-                    OverrideFields = x.OverrideFields,
+                    PrimaryColorUuid = x.PrimaryColorUuid,
+                    SecondaryColorUuid = x.SecondaryColorUuid,
+                    BackgroundColorUuid = x.BackgroundColorUuid,
                     CreatedAt = x.CreatedAt,
                     UpdatedAt = x.UpdatedAt,
                 }).ToList();
@@ -53,10 +54,10 @@ namespace BookAPI.Controllers
         }
 
         // GET: api/Preferences/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<EncryptedPayload>> GetPreference(Guid id)
+        [HttpGet("{uuid}")]
+        public async Task<ActionResult<EncryptedPayload>> GetPreference(Guid uuid)
         {
-            var preference = await _context.Preferences.FindAsync(id);
+            var preference = await _context.Preferences.FirstOrDefaultAsync(p => p.PreferenceUuid == uuid);
 
             if (preference == null)
             {
@@ -70,8 +71,9 @@ namespace BookAPI.Controllers
                 UserUuid = preference.UserUuid,
                 LanguageUuid = preference.LanguageUuid,
                 ThemeUuid = preference.ThemeUuid,
-                ColorUuid = preference.ColorUuid,
-                OverrideFields = preference.OverrideFields,
+                PrimaryColorUuid = preference.PrimaryColorUuid,
+                SecondaryColorUuid= preference.SecondaryColorUuid,
+                BackgroundColorUuid = preference.BackgroundColorUuid,
                 CreatedAt = preference.CreatedAt,
                 UpdatedAt = preference.UpdatedAt,
             };
@@ -89,8 +91,8 @@ namespace BookAPI.Controllers
         // PUT: api/Preferences/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [Authorize]
-        [HttpPut("{id}")]
-        public async Task<ActionResult<EncryptedPayload>> PutPreference(Guid id, EncryptedPayload payload)
+        [HttpPut("{uuid}")]
+        public async Task<ActionResult<EncryptedPayload>> PutPreference(Guid uuid, EncryptedPayload payload)
         {
             try
             {
@@ -103,12 +105,12 @@ namespace BookAPI.Controllers
 
                 if (model == null) { return NotFound(); }
 
-                if (id != model.PreferenceUuid)
+                if (uuid != model.PreferenceUuid)
                 {
                     return BadRequest();
                 }
 
-                var preference = await _context.Preferences.FindAsync(id);
+                var preference = await _context.Preferences.FirstOrDefaultAsync(p => p.PreferenceUuid == uuid);
 
                 if (preference != null)
                 {
@@ -117,8 +119,9 @@ namespace BookAPI.Controllers
                     preference.UserUuid = model.UserUuid;
                     preference.LanguageUuid = model.LanguageUuid;
                     preference.ThemeUuid = model.ThemeUuid;
-                    preference.ColorUuid = model.ColorUuid;
-                    preference.OverrideFields = model.OverrideFields;
+                    preference.PrimaryColorUuid = model.PrimaryColorUuid;
+                    preference.SecondaryColorUuid = model.SecondaryColorUuid;
+                    preference.BackgroundColorUuid = model.BackgroundColorUuid;
                     preference.CreatedAt = model.CreatedAt;
                     preference.UpdatedAt = DateTimeOffset.UtcNow;
                 }
@@ -129,7 +132,7 @@ namespace BookAPI.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!PreferenceExists(id))
+                    if (!PreferenceExists(uuid))
                     {
                         return NotFound();
                     }
@@ -174,8 +177,9 @@ namespace BookAPI.Controllers
                     UserUuid = model.UserUuid,
                     LanguageUuid = model.LanguageUuid,
                     ThemeUuid = model.ThemeUuid,
-                    ColorUuid = model.ColorUuid,
-                    OverrideFields = model.OverrideFields,
+                    PrimaryColorUuid = model.PrimaryColorUuid,
+                    SecondaryColorUuid = model.SecondaryColorUuid,
+                    BackgroundColorUuid = model.BackgroundColorUuid,
                     CreatedAt = DateTimeOffset.UtcNow,
                     UpdatedAt = DateTimeOffset.UtcNow,
                 };
@@ -183,7 +187,7 @@ namespace BookAPI.Controllers
                 _context.Preferences.Add(preference);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetPreference", new { id = model.PreferenceUuid }, model);
+                return CreatedAtAction("GetPreference", new { uuid = model.PreferenceUuid }, model);
             }
             catch (JsonException ex)
             {
@@ -215,9 +219,9 @@ namespace BookAPI.Controllers
             return NoContent();
         }
 
-        private bool PreferenceExists(Guid id)
+        private bool PreferenceExists(Guid uuid)
         {
-            return _context.Preferences.Any(e => e.PreferenceUuid == id);
+            return _context.Preferences.Any(e => e.PreferenceUuid == uuid);
         }
     }
 }
