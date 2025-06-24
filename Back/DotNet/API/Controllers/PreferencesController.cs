@@ -36,7 +36,6 @@ namespace BookAPI.Controllers
                     ThemeUuid = x.ThemeUuid,
                     PrimaryColorUuid = x.PrimaryColorUuid,
                     SecondaryColorUuid = x.SecondaryColorUuid,
-                    BackgroundColorUuid = x.BackgroundColorUuid,
                     CreatedAt = x.CreatedAt,
                     UpdatedAt = x.UpdatedAt,
                 }).ToList();
@@ -72,8 +71,7 @@ namespace BookAPI.Controllers
                 LanguageUuid = preference.LanguageUuid,
                 ThemeUuid = preference.ThemeUuid,
                 PrimaryColorUuid = preference.PrimaryColorUuid,
-                SecondaryColorUuid= preference.SecondaryColorUuid,
-                BackgroundColorUuid = preference.BackgroundColorUuid,
+                SecondaryColorUuid = preference.SecondaryColorUuid,
                 CreatedAt = preference.CreatedAt,
                 UpdatedAt = preference.UpdatedAt,
             };
@@ -114,14 +112,10 @@ namespace BookAPI.Controllers
 
                 if (preference != null)
                 {
-                    preference.PreferenceId = model.PreferenceId;
-                    preference.PreferenceUuid = model.PreferenceUuid;
-                    preference.UserUuid = model.UserUuid;
                     preference.LanguageUuid = model.LanguageUuid;
                     preference.ThemeUuid = model.ThemeUuid;
                     preference.PrimaryColorUuid = model.PrimaryColorUuid;
                     preference.SecondaryColorUuid = model.SecondaryColorUuid;
-                    preference.BackgroundColorUuid = model.BackgroundColorUuid;
                     preference.CreatedAt = model.CreatedAt;
                     preference.UpdatedAt = DateTimeOffset.UtcNow;
                 }
@@ -165,11 +159,24 @@ namespace BookAPI.Controllers
             try
             {
                 string decryptedData = EncryptionHelper.DecryptData(payload.EncryptedData, payload.Iv);
-                var model = JsonSerializer.Deserialize<PreferenceDto>(decryptedData);
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true // Enable case-insensitive matching
+                };
+                
+                var model = JsonSerializer.Deserialize<PreferenceDto>(decryptedData, options);
 
                 if (model == null)
                 {
                     return NoContent();
+                }
+
+                var existing = await _context.Preferences
+                    .FirstOrDefaultAsync(p => p.UserUuid == model.UserUuid);
+
+                if (existing != null)
+                {
+                    return Conflict(new { message = "A preference already exists for this user." });
                 }
 
                 var preference = new Preference()
@@ -179,7 +186,6 @@ namespace BookAPI.Controllers
                     ThemeUuid = model.ThemeUuid,
                     PrimaryColorUuid = model.PrimaryColorUuid,
                     SecondaryColorUuid = model.SecondaryColorUuid,
-                    BackgroundColorUuid = model.BackgroundColorUuid,
                     CreatedAt = DateTimeOffset.UtcNow,
                     UpdatedAt = DateTimeOffset.UtcNow,
                 };
@@ -199,7 +205,6 @@ namespace BookAPI.Controllers
                 // Handle other errors
                 return StatusCode(500, new { message = "An error occurred.", details = ex.Message });
             }
-
         }
 
         // DELETE: api/Preferences/5

@@ -6,13 +6,9 @@ import { useSession } from 'next-auth/react';
 import {
   Autocomplete,
   Box,
-  FormControl,
-  FormControlLabel,
-  FormLabel,
-  Radio,
-  RadioGroup,
   ToggleButton,
   ToggleButtonGroup,
+  Tooltip,
   Typography,
 } from '@mui/material';
 
@@ -32,12 +28,15 @@ import generateColorVariants from '@/utils/colorUtils';
 import { selectAllColors } from '../colors/colorSelector';
 import getCountryCode from '@/utils/flagUtils';
 import { useTheme } from '@/components/context/ThemeContext';
+import { useRouter } from 'next/router';
 
 const PreferencesPage: React.FC = () => {
   const { data: session } = useSession();
   const dispatch = useDispatch<AppDispatch>();
   const { applyTheme } = useTheme();
+  const router = useRouter();
 
+  
   const { uuid } = useMemo(() => {
     if (session?.user?.encryptedSession) {
       const { encryptedData, iv } = session.user.encryptedSession;
@@ -55,24 +54,20 @@ const PreferencesPage: React.FC = () => {
     return { uuid: '' };
   }, [session]);
 
+  useEffect(() => {
+    if (!uuid) {
+      if (typeof window !== 'undefined') {
+          router.replace('/');
+        }
+    }
+  }, [uuid, router]);
+
   const preference = useSelector(selectAllPreferences);
 
   const userPreference = preference.find(p => p.userUuid === uuid);
 
   const languages = useSelector(selectAllLanguages);
   const colors = useSelector(selectAllColors);
-
-  useEffect(() => {
-    if (languages.length > 0) {
-      const defaultLang = languages.find(l => l.isDefault);
-      if (defaultLang) {
-        setFormData(prev => ({
-          ...prev,
-          languageUuid: defaultLang.languageUuid || defaultLang.isoCode,
-        }));
-      }
-    }
-  }, [languages]);
 
   const [primaryColor, setPrimaryColor] = useState({
     light: '',
@@ -88,44 +83,49 @@ const PreferencesPage: React.FC = () => {
     contrast: '',
   });
 
-  const handleColorPick = (hex: string) => {
+  const handleColorPick = (hex: string, type: 'primary' | 'secondary') => {
     const variants = generateColorVariants(hex);
-    setPrimaryColor(variants);
+
+    if (type === 'primary') {
+      setPrimaryColor(variants);
+    } else if (type === 'secondary') {
+      setSecondaryColor(variants);
+    }
   };
 
   const themes = useSelector(selectAllThemes);
-  
+
   const defaultLanguage = languages.find(l => l.isDefault);
   const defaultTheme = themes.find(t => t.themeName === 'Light');
-  const defaultPrimaryColor = colors.find(c => c.colorName === '');
-  const defaultSecondaryColor = colors.find(c => c.colorName === '');
-  const defaultBackground = colors.find(c => c.colorName === '');
+  const defaultPrimaryColor = colors.find(
+    c => c.colorName === 'Indigo',
+  )?.colorUuid;
+  const defaultSecondaryColor = colors.find(
+    c => c.colorName === 'Limonana',
+  )?.colorUuid;
 
   const defaultPreferences = {
-    preferenceUuid: '',
+    preferenceUuid: '00000000-0000-0000-0000-000000000000',
     userUuid: uuid,
-    languageUuid: defaultLanguage?.languageUuid ?? '',
-    themeUuid: defaultTheme?.themeUuid ?? '',
-    primaryColorUuid: typeof defaultPrimaryColor === 'string' ? defaultPrimaryColor : '',
-    secondaryColorUuid: typeof defaultSecondaryColor === 'string' ? defaultSecondaryColor : '',
-    backgroundColorUuid: typeof defaultBackground === 'string' ? defaultBackground : '',
+    languageUuid: defaultLanguage?.languageUuid,
+    themeUuid: defaultTheme?.themeUuid,
+    primaryColorUuid: defaultPrimaryColor,
+    secondaryColorUuid: defaultSecondaryColor,
   };
 
   const [formData, setFormData] = useState({
-    preferenceUuid: userPreference?.preferenceUuid || '',
-    userUuid: userPreference?.userUuid || uuid,
-    languageUuid: userPreference?.languageUuid || defaultPreferences.languageUuid,
+    preferenceUuid:
+      userPreference?.preferenceUuid || defaultPreferences.preferenceUuid,
+    userUuid: userPreference?.userUuid || defaultPreferences.userUuid,
+    languageUuid:
+      userPreference?.languageUuid || defaultPreferences.languageUuid,
     themeUuid: userPreference?.themeUuid || defaultPreferences.themeUuid,
-    primaryColorUuid: userPreference?.primaryColorUuid || primaryColor.main,
+    primaryColorUuid:
+      userPreference?.primaryColorUuid || defaultPreferences.primaryColorUuid,
     secondaryColorUuid:
-      userPreference?.secondaryColorUuid || secondaryColor.main,
-    backgroundColorUuid: userPreference?.backgroundColorUuid || '',
+      userPreference?.secondaryColorUuid ||
+      defaultPreferences.secondaryColorUuid,
   });
-
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
 
   const handleChangeButton = (
     e: React.MouseEvent<HTMLElement>,
@@ -149,17 +149,18 @@ const PreferencesPage: React.FC = () => {
     }
   }, [formData.themeUuid, themes]);
 
-    const resetToDefault = () => {
+  const resetToDefault = () => {
     setFormData(defaultPreferences);
     applyTheme(defaultTheme?.themeName.toLowerCase() || 'light');
-};
+  };
 
   const savePreferences = () => {
     try {
       const encryptedPayload: EncryptedPayload = encryptPayload(
         formData as Record<string, unknown>,
       );
-      if (formData.preferenceUuid === '') {
+
+      if (!userPreference) {
         dispatch(createPreference(encryptedPayload)).unwrap();
       } else {
         dispatch(
@@ -240,34 +241,115 @@ const PreferencesPage: React.FC = () => {
             Thème
           </label>
           <ToggleButtonGroup
-            color='primary'
             value={formData.themeUuid}
             exclusive
             onChange={handleChangeButton}
             aria-label='Theme'
             className='rounded px-3 py-2'
+            sx={{
+              '& .MuiToggleButton, .Mui-selected': {
+                color: 'var(--color-primary-main)',
+              },
+            }}
           >
             {themes.map(opt => (
-              <ToggleButton key={opt.themeUuid} value={opt.themeUuid} className='text-primary-light'>
+              <ToggleButton
+                key={opt.themeUuid}
+                value={opt.themeUuid}
+                className='text-primary-light'
+              >
                 {opt.themeName}
               </ToggleButton>
             ))}
           </ToggleButtonGroup>
         </Box>
 
-        <Box>
-          {/* <label className='block text-sm font-medium my-2 text-primary'>Couleur</label> */}
-
+        <Box display='flex'>
           <Box className='w-1/3'>
-          {colors.map(color => (
-            <span className='bg-transparent border-0 outline-0 m-0 cursor-pointer align-middle border-r-[50%] p-0 justify-center relative items-center inline-flex'>
-              <input type='radio' aria-label={color.colorName} name='primaryColorUuid' value={color.colorUuid} className='absolute opacity-0 w-full h-full top-0 left-0 m-0 p-0 z-1 cursor-pointer'/>
-              <Box className='w-12 h-12 cursor-pointer' sx={{
-                backgroundColor: `${color.colorHex}`
-              }}/>
-              <span className='overflow-hidden pointer-events-none absolute z-0 inset-0 border-r-inherit'></span>
-            </span>
-          ))}
+            <label
+              aria-label='primaryColorUuid'
+              className='block text-sm font-medium my-2'
+              style={{
+                color: `${primaryColor.main}`,
+              }}
+            >
+              Couleur du texte
+            </label>
+            {colors.map(color => (
+              <Tooltip key={color.colorName} title={color.colorName} arrow>
+                <span className='bg-transparent border-0 outline-0 m-0 cursor-pointer align-middle border-r-[50%] p-0 justify-center relative items-center inline-flex'>
+                  <input
+                    type='radio'
+                    aria-label={color.colorName}
+                    name='primaryColorUuid'
+                    value={color.colorUuid}
+                    checked={formData.primaryColorUuid === color.colorUuid}
+                    onChange={() => {
+                      setFormData(prev => ({
+                        ...prev,
+                        primaryColorUuid: color.colorUuid,
+                      }));
+                      handleColorPick(color.colorHex, 'primary');
+                    }}
+                    className='absolute opacity-0 w-full h-full top-0 left-0 m-0 p-0 z-1'
+                  />
+                  <Box
+                    className='w-12 h-12'
+                    sx={{
+                      backgroundColor: `${color.colorHex}`,
+                    }}
+                  />
+                  {formData.primaryColorUuid === color.colorUuid && (
+                    <span className='overflow-hidden pointer-events-none absolute z-0 inset-0 border-r-inherit'>
+                      ✔
+                    </span>
+                  )}
+                </span>
+              </Tooltip>
+            ))}
+          </Box>
+          <Box className='w-1/3'>
+            <label
+              aria-label='secondaryColorUuid'
+              className='block text-sm font-medium my-2'
+              style={{
+                color: `${secondaryColor.main}`,
+              }}
+            >
+              Couleur des boutons
+            </label>
+            {colors.map(color => (
+              <Tooltip key={color.colorName} title={color.colorName} arrow>
+                <span className='bg-transparent border-0 outline-0 m-0 cursor-pointer align-middle border-r-[50%] p-0 justify-center relative items-center inline-flex'>
+                  <input
+                    type='radio'
+                    aria-label={color.colorName}
+                    name='secondaryColorUuid'
+                    value={color.colorUuid}
+                    checked={formData.secondaryColorUuid === color.colorUuid}
+                    onChange={() => {
+                      setFormData(prev => ({
+                        ...prev,
+                        secondaryColorUuid: color.colorUuid,
+                      }));
+                      handleColorPick(color.colorHex, 'secondary');
+                    }}
+                    className='absolute opacity-0 w-full h-full top-0 left-0 m-0 p-0 z-1'
+                  />
+                  <Box
+                    className='w-12 h-12'
+                    sx={{
+                      backgroundColor: `${color.colorHex}`,
+                    }}
+                  />
+                  {formData.secondaryColorUuid === color.colorUuid && (
+                    <span className='overflow-hidden pointer-events-none absolute z-0 inset-0 border-r-inherit'>
+                      ✔
+                    </span>
+                  )}
+                </span>
+              </Tooltip>
+            ))}
           </Box>
         </Box>
 

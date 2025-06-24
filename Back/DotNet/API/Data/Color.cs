@@ -30,7 +30,4 @@ public partial class Color
 
     [InverseProperty("SecondaryColor")]
     public virtual ICollection<Preference> PreferencesAsSecondary { get; set; } = new List<Preference>();
-
-    [InverseProperty("BackgroundColor")]
-    public virtual ICollection<Preference> PreferencesAsBackground { get; set; } = new List<Preference>();
 }

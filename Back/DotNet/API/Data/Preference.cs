@@ -31,12 +31,6 @@ public partial class Preference
     [Column("secondary_color_uuid")]
     public Guid SecondaryColorUuid { get; set; }
 
-    [Column("background_color_uuid")]
-    public Guid BackgroundColorUuid { get; set; }
-
-    [Column("text_color_uuid")]
-    public Guid TextColorUuid { get; set; }
-
     [Column("created_at")]
     public DateTimeOffset CreatedAt { get; set; }
 
@@ -50,10 +44,6 @@ public partial class Preference
     [ForeignKey("SecondaryColorUuid")]
     [InverseProperty("PreferencesAsSecondary")]
     public virtual Color SecondaryColor { get; set; } = null!;
-
-    [ForeignKey("BackgroundColorUuid")]
-    [InverseProperty("PreferencesAsBackground")]
-    public virtual Color BackgroundColor { get; set; } = null!;
 
     // Other FKs (unchanged)
     [ForeignKey("LanguageUuid")]

@@ -33,6 +33,8 @@ import { selectUserRightStatus } from '../userRights/userRightSelector';
 import { selectColorStatus } from '../colors/colorSelector';
 import { selectThemeStatus } from '../themes/themeSelector';
 import { selectLanguageStatus } from '../languages/languageSelector';
+import { selectPreferenceStatus } from '../preferences/preferenceSelector';
+import { fetchPreferencesAsync } from '../preferences/PreferenceSlice';
 
 const BookList: React.FC = () => {
   const books = useSelector(selectAllBooks);
@@ -47,6 +49,7 @@ const BookList: React.FC = () => {
   const languageStatus = useSelector(selectLanguageStatus);
   const themesStatus = useSelector(selectThemeStatus);
   const colorStatus = useSelector(selectColorStatus);
+  const preprefrenceStatus = useSelector(selectPreferenceStatus);
 
   const { data: session } = useSession();
   const router = useRouter();
@@ -107,7 +110,8 @@ const BookList: React.FC = () => {
         userRightStatus,
         languageStatus,
         themesStatus,
-        colorStatus
+        colorStatus,
+        preprefrenceStatus
       ].every(status => status === 'idle');
       
       if (allSucceeded) {
@@ -116,6 +120,7 @@ const BookList: React.FC = () => {
         dispatch(fetchLanguagesAsync());
         dispatch(fetchThemesAsync());
         dispatch(fetchColorsAsync());
+        dispatch(fetchPreferencesAsync());
       }
     }
   }, [session, userStatus, userRightStatus, languageStatus, themesStatus, colorStatus]);

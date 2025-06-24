@@ -46,16 +46,24 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // On mount or preference change, determine user theme
   useEffect(() => {
     if (userTheme && uuid && themes.length > 0) {
-      const selectedThemeUuid = userTheme.find((t: { userUuid: string }) => t.userUuid === uuid)?.themeUuid;
-      const themeObj = themes.find((t: { themeUuid: string }) => t.themeUuid === selectedThemeUuid);
+      const selectedThemeUuid = userTheme.find(
+        (t: { userUuid: string }) => t.userUuid === uuid,
+      )?.themeUuid;
+      const themeObj = themes.find(
+        (t: { themeUuid: string }) => t.themeUuid === selectedThemeUuid,
+      );
 
       if (themeObj?.themeName === 'System') {
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const prefersDark = window.matchMedia(
+          '(prefers-color-scheme: dark)',
+        ).matches;
         setIsSystem(true);
         applyTheme(prefersDark ? 'dark' : 'light');
       } else {
         setIsSystem(false);
-        applyTheme(themeObj?.themeName === 'dark' ? 'dark' : 'light');
+        applyTheme(
+          themeObj?.themeName.toLowerCase() === 'dark' ? 'dark' : 'light',
+        );
       }
     }
   }, [userTheme, uuid, themes, applyTheme]);

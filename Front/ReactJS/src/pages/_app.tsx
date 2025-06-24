@@ -5,6 +5,7 @@ import { SessionProvider } from 'next-auth/react';
 import store from '@redux/store';
 
 import { ThemeProvider } from '@components/context/ThemeContext';
+import { ColorProvider } from '@/components/context/ColorContext';
 import '@styles/globals.css';
 import { Navbar } from '@/components/layout';
 
@@ -13,8 +14,10 @@ const MyApp = ({ Component, pageProps: { session, ...pageProps } }: AppProps) =>
     <SessionProvider session={session}>
       <Provider store={store}>
         <ThemeProvider>
-          <Navbar />
-          <Component {...pageProps} />
+          <ColorProvider>
+            <Navbar />
+            <Component {...pageProps} />
+          </ColorProvider>
         </ThemeProvider>
       </Provider>
     </SessionProvider>

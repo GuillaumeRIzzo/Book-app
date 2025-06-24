@@ -147,12 +147,12 @@ namespace BookAPI.Controllers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [Authorize]
         [HttpPost]
-        public async Task<ActionResult<EncryptedPayload>> PostThemes(ThemeDto model)
+        public async Task<ActionResult<EncryptedPayload>> PostThemes(EncryptedPayload payload)
         {
             try
             {
-                //string decryptedData = EncryptionHelper.DecryptData(payload.EncryptedData, payload.Iv);
-                //var model = JsonSerializer.Deserialize<ThemeDto>(decryptedData);
+                string decryptedData = EncryptionHelper.DecryptData(payload.EncryptedData, payload.Iv);
+                var model = JsonSerializer.Deserialize<ThemeDto>(decryptedData);
 
                 if (model == null)
                 {

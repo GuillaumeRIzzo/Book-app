@@ -433,12 +433,6 @@ public partial class BookDbContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_PREFERENCES_SECONDARY_COLOR_UUID");
 
-            entity.HasOne(d => d.BackgroundColor).WithMany(p => p.PreferencesAsBackground)
-                .HasPrincipalKey(p => p.ColorUuid)
-                .HasForeignKey(d => d.BackgroundColorUuid)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_PREFERENCES_BACKGROUND_COLOR_UUID");
-
             entity.HasOne(d => d.LanguageUu).WithMany(p => p.Preferences)
                 .HasPrincipalKey(p => p.LanguageUuid)
                 .HasForeignKey(d => d.LanguageUuid)

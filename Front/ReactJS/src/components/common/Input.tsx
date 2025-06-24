@@ -51,22 +51,22 @@ const Input: React.FC<InputProps> = ({
   // Inject custom border + label color styles
   const sharedStyles = {
     '& .MuiOutlinedInput-notchedOutline': {
-      borderColor: 'primary.dark',
+      borderColor: 'var(--color-primary-dark)',
     },
     '&:hover .MuiOutlinedInput-notchedOutline': {
-      borderColor: 'primary.dark',
+      borderColor: 'var(--color-primary-dark)',
     },
     '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-      borderColor: 'primary.dark',
+      borderColor: 'var(--color-primary-dark)',
     },
     '& .MuiInputLabel-root': {
-      color: 'primary.light',
+      color: 'var(--color-primary-light)',
     },
     '& .MuiInputLabel-root.Mui-focused': {
-      color: 'primary.main',
+      color: 'var(--color-primary-main)',
     },
     '& .MuiOutlinedInput-root': {
-      color: 'primary.main',
+      color: 'var(--color-primary-main)',
     },
   };
 

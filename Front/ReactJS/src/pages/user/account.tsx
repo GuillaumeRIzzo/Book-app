@@ -11,11 +11,13 @@ import {
 } from '@mui/material';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { useEffect, useMemo, useState } from 'react';
 
 const Account: React.FC = () => {
   const { data: session } = useSession();
   const [headerHeight, setHeaderHeight] = useState(0);
+  const router = useRouter();
 
   useEffect(() => {
     const header = document.getElementById('app-header');
@@ -48,6 +50,15 @@ const Account: React.FC = () => {
     }
     return { uuid: '' };
   }, [session]);
+
+    useEffect(() => {
+      if (!uuid) {
+        if (typeof window !== 'undefined') {
+            router.replace('/');
+          }
+      }
+    }, [uuid, router]);
+    
   const cards = [
     {
       title: 'Votre profile',
@@ -131,7 +142,7 @@ const Account: React.FC = () => {
                       sx={{
                         lineBreak: 'auto',
                       }}
-                      className='text-secondary'
+                      className='text-primary-light'
                     >
                       {card.description}
                     </Typography>

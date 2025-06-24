@@ -25,6 +25,7 @@ import {
   EncryptedPayload,
   encryptPayload,
 } from '@/utils/encryptUtils';
+import { selectUserModelViews } from '@/features/userViews/userViewSelectors';
 
 const FormWrapper = styled.div`
   ${tw`w-2/4 p-6`}
@@ -48,27 +49,30 @@ const UserProfileForm: React.FC<FormProps> = ({ title }) => {
   const [loading, setLoading] = useState(true);
 
   // Memoized userFind logic
+  const userViews = useSelector(selectUserModelViews);
+
   const userFind = useMemo(() => {
     return session
-      ? users.find((u: User) => u.userUuid === id)
+      ? userViews.find(u => u.user.userUuid === id)
       : undefined;
-  }, [session, users, id]);
+  }, [session, userViews, id]);
 
   // Memoized session decryption
-  const { right, sessionId } = useMemo(() => {
+  const { right, uuid } = useMemo(() => {
     if (session?.user?.encryptedSession) {
       const { encryptedData, iv } = session.user.encryptedSession;
       try {
-        const decryptedData = decryptPayload<{ right: string, sessionId: number }>(
+        const decryptedData = decryptPayload<{ right: string, uuid: string }>(
           encryptedData,
           iv,
         );
-        return { right: decryptedData.right, sessionId: decryptedData.sessionId};
+        
+        return { right: decryptedData.right, uuid: decryptedData.uuid};
       } catch (error) {
         console.error('Failed to decrypt session data:', error);
       }
     }
-    return { right: '', sessionId: '' };
+    return { right: '', uuid: '' };
   }, [session]);
 
   // Fetch users when UserStatus is idle
@@ -81,20 +85,20 @@ const UserProfileForm: React.FC<FormProps> = ({ title }) => {
   // User validation and redirection
   useEffect(() => {
     if (
-      // (userFind?.userRight === 'Super Admin' && right !== 'Super Admin') ||
-      (right === 'User' && id != sessionId)
+      (userFind?.right.userRightName === 'Super Admin' && right !== 'Super Admin') ||
+      (right === 'User' && id != uuid)
     ) {
       if (typeof window !== 'undefined') {
-        // router.replace('/');
+        router.replace('/');
       }
     }
-  }, [userFind, right, id, sessionId, router]);
+  }, [userFind, right, id, uuid, router]);
 
   // Fetch user by ID if not found
   useEffect(() => {
     if (id && !userFind) {
         dispatch(fetchUserById(id.toString())).finally(() => setLoading(false));
-        // router.push('/');
+        router.push('/');
       }
       setLoading(false);
   }, [id, userFind, dispatch, router]);
@@ -157,15 +161,15 @@ const UserProfileForm: React.FC<FormProps> = ({ title }) => {
 
   return (
     <FormWrapper>
-      <h1 className='text-2xl mb-6 text-center font-semibold'>{title}</h1>
+      <h1 className='text-2xl mb-6 text-center font-semibold text-primary-dark'>{title}</h1>
       <PersonalInfoForm
         user={userFind}
         right={right}
         onSubmit={handlePersonalInfoSubmit}
       />
-      {userFind?.userId === Number(sessionId) && (
+      {userFind?.user.userUuid === uuid && (
         <PasswordChangeForm
-          user={userFind}
+          user={userFind?.user}
           onSubmit={handlePasswordChangeSubmit}
         />
       )}

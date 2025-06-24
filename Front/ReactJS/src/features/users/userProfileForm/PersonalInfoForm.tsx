@@ -1,16 +1,16 @@
 import { useState, useEffect } from 'react';
-import { MenuItem, Select } from '@mui/material';
+import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material';
 
 import Input from '@/components/common/Input';
 import CustomButton from '@/components/common/Button';
-import { User } from '@/models/user/user';
 
 import useEmailValidator from '@/hooks/useEmailValidator';
 import useLoginValidator from '@/hooks/useLoginValidator';
+import { UserModelView } from '@/models/userViews/UserModelView';
 
 interface PersonalInfoFormProps {
-  user: User | undefined;
+  user: UserModelView | undefined;
   right: string;
   onSubmit: (formData: any, event: React.FormEvent<HTMLFormElement>) => void;
 }
@@ -21,12 +21,12 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
   onSubmit,
 }) => {
   const [formData, setFormData] = useState({
-    UserId: user?.userId || 0,
-    UserFirstname: user?.userFirstname || '',
-    UserLastname: user?.userLastname || '',
-    UserLogin: user?.userLogin || '',
-    UserEmail: user?.userEmail || '',
-    // UserRight: user?.userRight || 'User',
+    UserId: user?.user.userId || 0,
+    UserFirstname: user?.user.userFirstname || '',
+    UserLastname: user?.user.userLastname || '',
+    UserLogin: user?.user.userLogin || '',
+    UserEmail: user?.user.userEmail || '',
+    UserRight: user?.right.userRightName || 'User',
   });
 
   const [touched, setTouched] = useState({
@@ -43,12 +43,12 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
   useEffect(() => {
     if (user) {
       setFormData({
-        UserId: user.userId,
-        UserFirstname: user.userFirstname,
-        UserLastname: user.userLastname,
-        UserLogin: user.userLogin,
-        UserEmail: user.userEmail,
-        // UserRight: user.userRight,
+        UserId: user.user.userId,
+        UserFirstname: user.user.userFirstname,
+        UserLastname: user.user.userLastname,
+        UserLogin: user.user.userLogin,
+        UserEmail: user.user.userEmail,
+        UserRight: user.right.userRightName,
       });
     }
   }, [user]);
@@ -77,7 +77,7 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
     !loginError &&
     !!formData.UserFirstname &&
     !!formData.UserLastname;
-    // !!formData.UserRight;
+    !!formData.UserRight;
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault(); // Prevent page reload
@@ -140,19 +140,33 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
         helperText={touched.userEmail ? emailError : ''}
         required
       />
-      {/* {right !== 'User' && formData.UserRight !== 'Super Admin' && (
-        <Select
-          label='Right'
-          name='UserRight'
-          value={formData.UserRight}
-          onChange={handleSelectChange}
-          onBlur={handleBlur}
-          required
-        >
-          <MenuItem value='Admin'>Admin</MenuItem>
-          <MenuItem value='User'>User</MenuItem>
-        </Select>
-      )} */}
+      {right !== 'User' && formData.UserRight !== 'Super Admin' && (
+        <FormControl sx={{
+            "& .MuiFormLabel-root, .MuiInputLabel-root": {
+              color: 'var(--color-primary-light)'
+            }
+          }}>
+          <InputLabel id="selectLabel">Droit</InputLabel>
+          <Select
+            label='Droit'
+            labelId='selectLabel'
+            name='UserRight'
+            value={formData.UserRight}
+            onChange={handleSelectChange}
+            onBlur={handleBlur}
+            required
+            sx={{
+              '& fieldset.MuiOutlinedInput-notchedOutline.css-1d3z3hw-MuiOutlinedInput-notchedOutline': {
+                borderColor: 'var(--color-primary-dark)'
+              },
+              color: 'var(--color-primary-main)'
+            }}
+          >
+            <MenuItem value='Admin'>Admin</MenuItem>
+            <MenuItem value='User'>User</MenuItem>
+          </Select>
+        </FormControl>
+      )}
 
       <CustomButton text='Submit' type='submit' disable={!formValidator} />
     </form>
