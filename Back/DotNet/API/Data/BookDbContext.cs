@@ -421,11 +421,17 @@ public partial class BookDbContext : DbContext
         {
             entity.HasKey(e => e.PreferenceId).HasName("PK__PREFEREN__FB41DBCF8B9195D3");
 
-            entity.HasOne(d => d.ColorUu).WithMany(p => p.Preferences)
+            entity.HasOne(d => d.PrimaryColor).WithMany(p => p.PreferencesAsPrimary)
+        .HasPrincipalKey(p => p.ColorUuid)
+        .HasForeignKey(d => d.PrimaryColorUuid)
+        .OnDelete(DeleteBehavior.ClientSetNull)
+        .HasConstraintName("FK_PREFERENCES_PRIMARY_COLOR_UUID");
+
+            entity.HasOne(d => d.SecondaryColor).WithMany(p => p.PreferencesAsSecondary)
                 .HasPrincipalKey(p => p.ColorUuid)
-                .HasForeignKey(d => d.ColorUuid)
+                .HasForeignKey(d => d.SecondaryColorUuid)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_PREFERENCES_COLOR");
+                .HasConstraintName("FK_PREFERENCES_SECONDARY_COLOR_UUID");
 
             entity.HasOne(d => d.LanguageUu).WithMany(p => p.Preferences)
                 .HasPrincipalKey(p => p.LanguageUuid)

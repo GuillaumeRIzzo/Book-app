@@ -5,20 +5,24 @@ import { SessionProvider } from 'next-auth/react';
 import store from '@redux/store';
 
 import { ThemeProvider } from '@components/context/ThemeContext';
+import { ColorProvider } from '@/components/context/ColorContext';
 import '@styles/globals.css';
 import { Navbar } from '@/components/layout';
 
-const MyApp = ({ Component,  pageProps: { session, ...pageProps } }: AppProps) => {
+const MyApp = ({ Component, pageProps: { session, ...pageProps } }: AppProps) => {
   return (
     <SessionProvider session={session}>
-      <ThemeProvider>
-        <Provider store={store}>
-          <Navbar />
-          <Component {...pageProps} />
-        </Provider>
-      </ThemeProvider>
+      <Provider store={store}>
+        <ThemeProvider>
+          <ColorProvider>
+            <Navbar />
+            <Component {...pageProps} />
+          </ColorProvider>
+        </ThemeProvider>
+      </Provider>
     </SessionProvider>
   );
 };
+
 
 export default MyApp;

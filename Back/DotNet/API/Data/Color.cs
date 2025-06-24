@@ -25,6 +25,9 @@ public partial class Color
     [Unicode(false)]
     public string ColorHex { get; set; } = string.Empty;
 
-    [InverseProperty("ColorUu")]
-    public virtual ICollection<Preference> Preferences { get; set; } = new List<Preference>();
+    [InverseProperty("PrimaryColor")]
+    public virtual ICollection<Preference> PreferencesAsPrimary { get; set; } = new List<Preference>();
+
+    [InverseProperty("SecondaryColor")]
+    public virtual ICollection<Preference> PreferencesAsSecondary { get; set; } = new List<Preference>();
 }

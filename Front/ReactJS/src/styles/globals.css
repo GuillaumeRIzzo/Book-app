@@ -2,52 +2,61 @@
 @tailwind components;
 @tailwind utilities;
 
-/* :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
-}
-
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
-}
-
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-} */
 /* Define light and dark theme variables */
 :root {
-  --primary: #14171A;
-  --secondary: #1DA1F2;
+  --color-primary-dark: #002884;
+  --color-primary-main: #3f50b5;
+  --color-primary-light: #757ce8;
+  --color-primary-contrast: #ffffff;
+
+  --color-secondary-dark: #00a152;
+  --color-secondary-main: #00e676;
+  --color-secondary-light: #33eb91;
+  --color-secondary-contrast: #000000;
+
   --accent: #657786;
   --background: #f9f9f9;
   --border: #AAB8C2;
   --hover: #E1E8ED;
+
+  --navBar: #f3f4f6;
+
+  --search-container:  #e2e8f0;
+  --search-item: #f1f5f9;
+  --search-item-hover: #f1f5f9;
+  --search-no-item: #f8fafc;
+  --search-noResults: #f8fafc;
+  --search-footer: #e2e8f0;
+  --search-border-footer: #e2e8f0;
+  --search-footer-hover: #f1f5f9;
 }
 
 .theme-dark {
-  --primary: #ffffff;
-  --secondary: #1a1a1a;
+  --color-primary-dark: #1769aa;
+  --color-primary-main: #2196f3;
+  --color-primary-light: #4dabf5;
+  --color-primary-contrast: #ffffff;
+
+  --color-secondary-dark: #8ab200;
+  --color-secondary-main: #c6ff00;
+  --color-secondary-light: #d1ff33;
+  --color-secondary-contrast: #000000;
+
   --accent: #4a4a4a;
   --background: #2e2e2e;
   --border: #3a3a3a;
   --hover: #4a4a4a;
+
+  --navBar: #333; 
+
+  --search-container:  #eaf1fb;
+  --search-item: #dbeafe;
+  --search-item-hover: #f5f5f5;
+  --search-no-item: #ffffff;
+  --search-noResults: #aaa;
+  --search-footer: #f9f9f9;
+  --search-border-footer: #e0e0e0;
+  --search-footer-hover: #f0f0f0;
 }
 /* Apply the CSS variables to Tailwind classes */
 body {

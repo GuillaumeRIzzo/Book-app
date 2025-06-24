@@ -21,6 +21,9 @@ public partial class Theme
     [Unicode(false)]
     public string ThemeName { get; set; } = string.Empty;
 
+    [Column("is_default")]
+    public bool IsDefault { get; set; }
+
     [InverseProperty("ThemeUu")]
     public virtual ICollection<Preference> Preferences { get; set; } = new List<Preference>();
 }

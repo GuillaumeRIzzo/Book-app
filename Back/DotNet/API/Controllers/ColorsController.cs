@@ -31,9 +31,11 @@ namespace BookAPI.Controllers
                 {
                     ColorId = x.ColorId,
                     ColorUuid = x.ColorUuid,
+                    ColorName = x.ColorName,
                     ColorHex = x.ColorHex,
                 }).ToList();
                 // Encrypt the list of colors
+
                 var encryptedData = EncryptionHelper.EncryptData(JsonSerializer.Serialize(model));
 
                 return Ok(new EncryptedPayload
@@ -47,10 +49,10 @@ namespace BookAPI.Controllers
         }
 
         // GET: api/Colors/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<EncryptedPayload>> GetColor(Guid id)
+        [HttpGet("{uuid}")]
+        public async Task<ActionResult<EncryptedPayload>> GetColor(Guid uuid)
         {
-            var color = await _context.Colors.FindAsync(id);
+            var color = await _context.Colors.FirstOrDefaultAsync(c => c.ColorUuid == uuid);
 
             if (color == null)
             {
@@ -78,8 +80,8 @@ namespace BookAPI.Controllers
         // PUT: api/Colors/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [Authorize]
-        [HttpPut("{id}")]
-        public async Task<ActionResult<EncryptedPayload>> PutColor(Guid id, EncryptedPayload payload)
+        [HttpPut("{uuid}")]
+        public async Task<ActionResult<EncryptedPayload>> PutColor(Guid uuid, EncryptedPayload payload)
         {
             try
             {
@@ -92,17 +94,17 @@ namespace BookAPI.Controllers
 
                 if (model == null) { return NotFound(); }
 
-                if (id != model.ColorUuid)
+                if (uuid != model.ColorUuid)
                 {
                     return BadRequest();
                 }
 
-                if (ColorNameExists(model.ColorName, id))
+                if (ColorNameExists(model.ColorName, uuid))
                 {
                     return BadRequest("Name already exists");
                 }
 
-                var color = await _context.Colors.FindAsync(id);
+                var color = await _context.Colors.FirstOrDefaultAsync(c => c.ColorUuid == uuid);
 
                 if (color != null)
                 {
@@ -110,7 +112,6 @@ namespace BookAPI.Controllers
                     color.ColorUuid = model.ColorUuid;
                     color.ColorName = model.ColorName;
                     color.ColorHex = model.ColorHex;
-
                 }
 
                 try
@@ -119,7 +120,7 @@ namespace BookAPI.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ColorExists(id))
+                    if (!ColorExists(uuid))
                     {
                         return NotFound();
                     }
@@ -173,7 +174,7 @@ namespace BookAPI.Controllers
                 _context.Colors.Add(color);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetColor", new { id = model.ColorUuid }, model);
+                return CreatedAtAction("GetColor", new { uuid = model.ColorUuid }, model);
             }
             catch (JsonException ex)
             {
@@ -205,14 +206,14 @@ namespace BookAPI.Controllers
             return NoContent();
         }
 
-        private bool ColorExists(Guid id)
+        private bool ColorExists(Guid uuid)
         {
-            return _context.Colors.Any(e => e.ColorUuid == id);
+            return _context.Colors.Any(e => e.ColorUuid == uuid);
         }
 
-        private bool ColorNameExists(string name, Guid id)
+        private bool ColorNameExists(string name, Guid uuid)
         {
-            return _context.Colors.Any(p => p.ColorName == name && p.ColorUuid != id);
+            return _context.Colors.Any(p => p.ColorName == name && p.ColorUuid != uuid);
         }
     }
 }

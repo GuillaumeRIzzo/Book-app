@@ -58,7 +58,7 @@ const SearchItem: React.FC<SearchItemProps> = ({
     <Box>
       <SearchContainer $isOpen={isOpen} ref={searchBarRef}>
         <SearchIconButton onClick={toggleSearch}>
-          <span role='img' aria-label='search'>
+          <span role='img' aria-label='search' className='text-primary-dark'>
             🔍 {!isOpen && ' : ctrl + k'}
           </span>
         </SearchIconButton>
@@ -74,6 +74,7 @@ const SearchItem: React.FC<SearchItemProps> = ({
               onKeyDown={handleKeyDown}
               autoFocus={true}
               placeholder='Recherche : livres / auteurs / catégories / éditeurs'
+              className='text-primary-dark'
             />
             <CloseButton
               onClick={() => {
@@ -114,16 +115,18 @@ const SearchItem: React.FC<SearchItemProps> = ({
       >
         <Box display='flex' alignItems='center' justifyContent='space-between'>
           <Box display='flex'>
-            <p className='mr-2'>
+            <p className='mr-2 text-primary-dark'>
               <strong>{result.type}:</strong>
             </p>
             {result.type === 'History' ? (
-              <p className='w-96'>{result.item}</p>
+              <p className='w-96 text-primary-dark'>{result.item}</p>
             ) : (
-              result.item.bookTitle ||
+              <p className='text-primary-dark'>
+              {result.item.bookTitle ||
               result.item.authorFullName ||
               result.item.publisherName ||
-              result.item.categoryName
+              result.item.categoryName}
+              </p>
             )}
           </Box>
           {result.type === 'History' && (
@@ -144,7 +147,7 @@ const SearchItem: React.FC<SearchItemProps> = ({
     <ResultsFooter onClick={() => goToSearch(0)}>
       <span role="img" aria-label="search">🔍</span>
       <h3>Tous les résultats pour "{searchTerm}"</h3>
-      <span>Cliquez <strong>ici</strong> ou <br />appuyez sur <strong>ENTRER</strong> <br /> pour voir plus de détails.</span>
+      <span className='text-primary-dark'>Cliquez <strong>ici</strong> ou <br />appuyez sur <strong>ENTRER</strong> <br /> pour voir plus de détails.</span>
     </ResultsFooter>
   </>
 ) : (

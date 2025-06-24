@@ -32,6 +32,7 @@ namespace BookAPI.Controllers
                     ThemeId = x.ThemeId,
                     ThemeUuid = x.ThemeUuid,
                     ThemeName = x.ThemeName,
+                    IsDefault = x.IsDefault,
                 }).ToList();
                 // Encrypt the list of themes
                 var encryptedData = EncryptionHelper.EncryptData(JsonSerializer.Serialize(model));
@@ -47,10 +48,10 @@ namespace BookAPI.Controllers
         }
 
         // GET: api/Themes/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<EncryptedPayload>> GetThemes(Guid id)
+        [HttpGet("{uuid}")]
+        public async Task<ActionResult<EncryptedPayload>> GetThemes(Guid uuid)
         {
-            var theme = await _context.Themes.FindAsync(id);
+            var theme = await _context.Themes.FirstOrDefaultAsync(t => t.ThemeUuid == uuid);
 
             if (theme == null)
             {
@@ -62,6 +63,7 @@ namespace BookAPI.Controllers
                 ThemeId = theme.ThemeId,
                 ThemeUuid = theme.ThemeUuid,
                 ThemeName = theme.ThemeName,
+                IsDefault = theme.IsDefault,
             };
 
             // Encrypt the list of themes
@@ -77,8 +79,8 @@ namespace BookAPI.Controllers
         // PUT: api/Themes/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [Authorize]
-        [HttpPut("{id}")]
-        public async Task<ActionResult<EncryptedPayload>> PutThemes(Guid id, EncryptedPayload payload)
+        [HttpPut("{uuid}")]
+        public async Task<ActionResult<EncryptedPayload>> PutThemes(Guid uuid, EncryptedPayload payload)
         {
             try
             {
@@ -91,23 +93,24 @@ namespace BookAPI.Controllers
 
                 if (model == null) { return NotFound(); }
 
-                if (id != model.ThemeUuid)
+                if (uuid != model.ThemeUuid)
                 {
                     return BadRequest();
                 }
 
-                if (ThemeNameExists(model.ThemeName, id))
+                if (ThemeNameExists(model.ThemeName, uuid))
                 {
                     return BadRequest("Name already exists");
                 }
 
-                var theme = await _context.Themes.FindAsync(id);
+                var theme = await _context.Themes.FirstOrDefaultAsync(t => t.ThemeUuid == uuid);
 
                 if (theme != null)
                 {
                     theme.ThemeId = model.ThemeId;
                     theme.ThemeUuid = model.ThemeUuid;
                     theme.ThemeName = model.ThemeName;
+                    theme.IsDefault = model.IsDefault;
                 }
 
                 try
@@ -116,7 +119,7 @@ namespace BookAPI.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ThemesExists(id))
+                    if (!ThemesExists(uuid))
                     {
                         return NotFound();
                     }
@@ -164,12 +167,13 @@ namespace BookAPI.Controllers
                 var theme = new Theme()
                 {
                     ThemeName = model.ThemeName,
+                    IsDefault = false,
                 };
 
                 _context.Themes.Add(theme);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetThemes", new { id = model.ThemeUuid }, model);
+                return CreatedAtAction("GetThemes", new { uuid = model.ThemeUuid }, model);
             }
             catch (JsonException ex)
             {
@@ -201,14 +205,14 @@ namespace BookAPI.Controllers
             return NoContent();
         }
 
-        private bool ThemesExists(Guid id)
+        private bool ThemesExists(Guid uuid)
         {
-            return _context.Themes.Any(e => e.ThemeUuid == id);
+            return _context.Themes.Any(e => e.ThemeUuid == uuid);
         }
 
-        private bool ThemeNameExists(string name, Guid id)
+        private bool ThemeNameExists(string name, Guid uuid)
         {
-            return _context.Themes.Any(p => p.ThemeName == name && p.ThemeUuid != id);
+            return _context.Themes.Any(p => p.ThemeName == name && p.ThemeUuid != uuid);
         }
     }
 }

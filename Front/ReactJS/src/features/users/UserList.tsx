@@ -9,21 +9,26 @@ import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-import { AppDispatch, RootState } from '@/redux/store';
+import { AppDispatch } from '@/redux/store';
 import { fetchUsersAsync } from './UserSlice';
 import Loading from '@/components/common/Loading';
 import { Dialog } from '@/components/common/dialog';
-import { User } from '@/models/user/user';
 import { decryptPayload } from '@/utils/encryptUtils';
+import { selectUserError, selectUserStatus } from './userSelector';
+import { User } from '@/models/user/user';
+import { selectUserModelViews } from '../userViews/userViewSelectors';
+import { setUserViews } from '../userViews/userViewSlice';
+import { selectUserRightStatus } from '../userRights/userRightSelector';
+import { fetchUserRightsAsync } from '../userRights/UserRightSlice';
+import { UserModelView } from '@/models/userViews/UserModelView';
 
 const UserList: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>();
-  const users = useSelector((state: RootState) => state.users.users);
-  const status = useSelector((state: RootState) => state.users.status);
-  const error = useSelector((state: RootState) => state.users.error);
-  const router = useRouter();
-
+  const userStatus = useSelector(selectUserStatus);
+  const rightStatus = useSelector(selectUserRightStatus);
+  const userError = useSelector(selectUserError);
   const { data: session } = useSession();
+  const router = useRouter();
+  const dispatch = useDispatch<AppDispatch>();
 
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -32,38 +37,45 @@ const UserList: React.FC = () => {
   const [dialogAction, setDialogAction] = useState<() => void>(() => {});
 
   useEffect(() => {
-    if (status === 'idle') {
+    if (userStatus === 'idle') {
       dispatch(fetchUsersAsync());
+      dispatch(fetchUserRightsAsync());
     }
-  }, [dispatch, status]);
+  }, [userStatus]);
 
-  if (status === 'loading') {
-    return <Loading />;
-  }
-
-  if (status === 'failed') {
-    return <div>Error: {error}</div>;
-  }
-
-  const { right, token } = useMemo(() => {
-      if (session?.user?.encryptedSession) {
-        const { encryptedData, iv } = session.user.encryptedSession;
-        try {
-          const { right: decryptedRight, token: decryptToken } = decryptPayload(encryptedData, iv);
-          return { right: decryptedRight as string, token: decryptToken as string };
-        } catch (error) {
-          console.error('Failed to decrypt session data:', error);
-        }
+  const { right } = useMemo(() => {
+    if (session?.user?.encryptedSession) {
+      const { encryptedData, iv } = session.user.encryptedSession;
+      try {
+        // Explicitly cast the decrypted data to the expected type
+        const decryptedData = decryptPayload<{ right: string }>(encryptedData, iv);
+        return { right: decryptedData.right };
+      } catch (error) {
+        console.error('Failed to decrypt session data:', error);
       }
-      return { right: '', sessionId: '' };
-    }, [session]);
+    }
+    return { right: '' };
+  }, [session]);
+
+  const userViews = useSelector(selectUserModelViews);
+  useEffect(() => {
+      const allSucceeded = [
+        userStatus,
+        rightStatus
+      ].every(status => status === 'succeeded');
+  
+      if (allSucceeded && userViews.length > 0) {
+        dispatch(setUserViews(userViews));
+      }
+    }, [userStatus, rightStatus, userViews]);
+  
 
   const handleEdit = (user: User) => {
     setSelectedUser(user);
     setDialogTitle('Edit User');
     setDialogContent(`Edit user: ${user.userLogin}`);
     setDialogAction(() => () => {
-      router.push(`/user/${user.userId}`);
+      router.push(`/user/${user.userUuid}`);
       handleCloseDialog();
     });
     setOpenDialog(true);
@@ -87,9 +99,10 @@ const UserList: React.FC = () => {
     setSelectedUser(null);
   };
 
-  const rows = users.map(user => ({
-    ...user,
-    id: user.userId,
+  const rows = userViews.map((user: UserModelView) => ({
+    ...user.user,
+    id: user.user.userId,
+    userRight: user.right.userRightName
   }));
 
   const columns: GridColDef[] = [
@@ -137,6 +150,13 @@ const UserList: React.FC = () => {
     },
   ];
 
+  if (userStatus === 'loading') {
+    return <Loading />;
+  }
+
+  if (userStatus === 'failed') {
+    return <div>Error: {userError}</div>;
+  }
   return (
     <Box>
       <DataGrid

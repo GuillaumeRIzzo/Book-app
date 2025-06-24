@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { Box, Fab } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 
-import { AppDispatch, RootState } from '@redux/store';
+import { AppDispatch } from '@redux/store';
 import { BookModelView } from '@/models/bookViews/BookModelView';
 import Loading from '@/components/common/Loading';
 import { fetchBooksAsync } from './bookSlice';
@@ -24,15 +24,33 @@ import { selectCategoriesStatus } from '../categories/categoriesSelector';
 import { selectPublisherStatus } from '../publishers/publisherSelector';
 import { selectImageStatus } from '../images/imageSelectors';
 import { setBookViews } from '../bookViews/bookViewSlice';
+import { fetchLanguagesAsync } from '../languages/LanguageSlice';
+import { fetchThemesAsync } from '../themes/ThemeSlice';
+import { fetchColorsAsync } from '../colors/ColorSlice';
+import { fetchUserRightsAsync } from '../userRights/UserRightSlice';
+import { selectUserStatus } from '../users/userSelector';
+import { selectUserRightStatus } from '../userRights/userRightSelector';
+import { selectColorStatus } from '../colors/colorSelector';
+import { selectThemeStatus } from '../themes/themeSelector';
+import { selectLanguageStatus } from '../languages/languageSelector';
+import { selectPreferenceStatus } from '../preferences/preferenceSelector';
+import { fetchPreferencesAsync } from '../preferences/PreferenceSlice';
 
 const BookList: React.FC = () => {
   const books = useSelector(selectAllBooks);
   const bookStatus = useSelector(selectBookStatus);
+  const error = useSelector(selectBookError);
   const authorStatus = useSelector(selectAuthorStatus);
   const categoryStatus = useSelector(selectCategoriesStatus);
   const publisherStatus = useSelector(selectPublisherStatus);
   const imageStatus = useSelector(selectImageStatus);
-  const error = useSelector(selectBookError);
+  const userStatus = useSelector(selectUserStatus);
+  const userRightStatus = useSelector(selectUserRightStatus);
+  const languageStatus = useSelector(selectLanguageStatus);
+  const themesStatus = useSelector(selectThemeStatus);
+  const colorStatus = useSelector(selectColorStatus);
+  const preprefrenceStatus = useSelector(selectPreferenceStatus);
+
   const { data: session } = useSession();
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
@@ -48,7 +66,7 @@ const BookList: React.FC = () => {
         console.error('Failed to decrypt session data:', error);
       }
     }
-    return { right: '', sessionId: '' };
+    return { right: ''};
   }, [session]);
   
 
@@ -59,7 +77,6 @@ const BookList: React.FC = () => {
       dispatch(fetchAuthorsAsync());
       dispatch(fetchPublishersAsync());
       dispatch(fetchCategoriesAsync());
-      dispatch(fetchUsersAsync());
     }
   }, [bookStatus]);
 
@@ -85,6 +102,28 @@ const BookList: React.FC = () => {
   imageStatus,
   modelViews,
 ]);
+
+  useEffect(() => {
+    if (session) {
+      const allSucceeded = [
+        userStatus,
+        userRightStatus,
+        languageStatus,
+        themesStatus,
+        colorStatus,
+        preprefrenceStatus
+      ].every(status => status === 'idle');
+      
+      if (allSucceeded) {
+        dispatch(fetchUsersAsync());
+        dispatch(fetchUserRightsAsync());
+        dispatch(fetchLanguagesAsync());
+        dispatch(fetchThemesAsync());
+        dispatch(fetchColorsAsync());
+        dispatch(fetchPreferencesAsync());
+      }
+    }
+  }, [session, userStatus, userRightStatus, languageStatus, themesStatus, colorStatus]);
 
   if (bookStatus === 'loading' || !books) {
     return <Loading />;

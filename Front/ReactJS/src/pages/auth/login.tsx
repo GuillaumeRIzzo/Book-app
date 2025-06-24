@@ -40,13 +40,16 @@ const Login: React.FC = () => {
     setApiErrors(null);
   
     try {
+      const encrypted = encryptPayload({
+        Identifier: formData.identifier,
+        Password: formData.password,
+      });
       const result = await signIn('credentials', {
         redirect: false,
-        encryptedPayload: JSON.stringify(encryptPayload({
-          Identifier: formData.identifier,
-          Password: formData.password,
-        })),
+        encryptedData: encrypted.encryptedData,
+        iv: encrypted.iv,
       });
+      
       if (result?.ok) {
         const session = await getSession();
         if (session) {

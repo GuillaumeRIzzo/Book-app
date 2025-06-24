@@ -25,11 +25,11 @@ public partial class Preference
     [Column("theme_uuid")]
     public Guid ThemeUuid { get; set; }
 
-    [Column("color_uuid")]
-    public Guid ColorUuid { get; set; }
+    [Column("primary_color_uuid")]
+    public Guid PrimaryColorUuid { get; set; }
 
-    [Column("override_fields")]
-    public string? OverrideFields { get; set; }
+    [Column("secondary_color_uuid")]
+    public Guid SecondaryColorUuid { get; set; }
 
     [Column("created_at")]
     public DateTimeOffset CreatedAt { get; set; }
@@ -37,13 +37,18 @@ public partial class Preference
     [Column("updated_at")]
     public DateTimeOffset UpdatedAt { get; set; }
 
-    [ForeignKey("ColorUuid")]
-    [InverseProperty("Preferences")]
-    public virtual Color ColorUu { get; set; } = null!;
+    [ForeignKey("PrimaryColorUuid")]
+    [InverseProperty("PreferencesAsPrimary")]
+    public virtual Color PrimaryColor { get; set; } = null!;
 
+    [ForeignKey("SecondaryColorUuid")]
+    [InverseProperty("PreferencesAsSecondary")]
+    public virtual Color SecondaryColor { get; set; } = null!;
+
+    // Other FKs (unchanged)
     [ForeignKey("LanguageUuid")]
     [InverseProperty("Preferences")]
-    public virtual Language LanguageUu { get; set; }
+    public virtual Language LanguageUu { get; set; } = null!;
 
     [ForeignKey("ThemeUuid")]
     [InverseProperty("Preferences")]
