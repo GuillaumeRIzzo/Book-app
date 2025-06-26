@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace BookAPI.Data;
+namespace API.Data;
 
 [Table("COLORS")]
 [Index("ColorUuid", Name = "UQ__COLORS__543625985ED772E5", IsUnique = true)]

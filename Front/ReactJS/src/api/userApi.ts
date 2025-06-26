@@ -12,6 +12,3 @@ export const addUser = (payload: EncryptedPayload) => apiClient.post<User>('User
 
 export const updateUserInfos = (userUuid: string, payload: EncryptedPayload): AxiosPromise<User> => 
   apiClient.put<User>(`Users/${userUuid}/infos`, payload);
-
-export const updateUserPassword = (userUuid: string, payload: EncryptedPayload): AxiosPromise<User> => 
-  apiClient.put<User>(`Users/${userUuid}/password`, payload);

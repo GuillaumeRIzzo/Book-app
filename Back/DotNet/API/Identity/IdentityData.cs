@@ -1,4 +1,4 @@
-﻿namespace BookAPI.Controllers
+﻿namespace API.Controllers
 {
     public class IdentityData
     {

@@ -1,6 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using API.Data;
+using Microsoft.EntityFrameworkCore;
 
-namespace BookAPI.Data;
+namespace API.Data;
 
 public partial class BookDbContext : DbContext
 {
@@ -84,6 +85,10 @@ public partial class BookDbContext : DbContext
     public virtual DbSet<UserBookState> UserBookStates { get; set; }
 
     public virtual DbSet<UserConnection> UserConnections { get; set; }
+
+    public virtual DbSet<UserEmail> UserEmails { get; set; }
+
+    public virtual DbSet<UserPassword> UserPasswords { get; set; }
 
     public virtual DbSet<UserRight> UserRights { get; set; }
 
@@ -601,6 +606,44 @@ public partial class BookDbContext : DbContext
                 .HasForeignKey(d => d.UserUuid)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_USER_CONNECTIONS");
+        });
+
+        modelBuilder.Entity<UserEmail>(entity =>
+        {
+            entity.ToTable("USER_EMAILS");
+
+            entity.HasKey(e => e.EmailId).HasName("PK__USER_EMAILS");
+
+            entity.HasIndex(e => e.EmailUuid)
+                .IsUnique()
+                .HasDatabaseName("UQ__USER_EMAIL_UUID");
+
+            entity.HasIndex(e => e.EmailAddress)
+                .IsUnique()
+                .HasDatabaseName("UQ__USER_EMAIL_ADDRESS");
+
+            entity.HasOne(e => e.UserUu).WithMany(u => u.UserEmailsUu)
+                .HasPrincipalKey(u => u.UserUuid)
+                .HasForeignKey(e => e.UserUuid)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_USER_EMAIL_USER");
+        });
+
+        modelBuilder.Entity<UserPassword>(entity =>
+        {
+            entity.ToTable("USER_PASSWORDS");
+
+            entity.HasKey(e => e.PasswordId).HasName("PK__USER_PASSWORDS");
+
+            entity.HasIndex(e => e.PasswordUuid)
+                .IsUnique()
+                .HasDatabaseName("UQ__USER_PASSWORD_UUID");
+
+            entity.HasOne(e => e.UserUu).WithOne(u => u.UserPassword)
+                .HasPrincipalKey<User>(u => u.UserUuid)
+                .HasForeignKey<UserPassword>(e => e.UserUuid)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_USER_PASSWORD_USER");
         });
 
         modelBuilder.Entity<UserRight>(entity =>

@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace BookAPI.Models
+namespace API.Models
 {
     public class BannedWordDto
     {

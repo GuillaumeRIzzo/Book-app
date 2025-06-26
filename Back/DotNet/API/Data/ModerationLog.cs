@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace BookAPI.Data;
+namespace API.Data;
 
 [Table("MODERATION_LOGS")]
 [Index("ModerationUuid", Name = "UQ__MODERATI__99EB959F7A9C9ACA", IsUnique = true)]

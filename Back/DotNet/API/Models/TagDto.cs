@@ -1,4 +1,4 @@
-﻿namespace BookAPI.Models
+﻿namespace API.Models
 {
     public class TagDto
     {

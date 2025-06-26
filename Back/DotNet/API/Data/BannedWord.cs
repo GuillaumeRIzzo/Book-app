@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace BookAPI.Data;
+namespace API.Data;
 
 [Table("BANNED_WORDS")]
 [Index("Word", Name = "UQ__BANNED_W__839740540FFAEFDD", IsUnique = true)]

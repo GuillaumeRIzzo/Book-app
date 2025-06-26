@@ -1,4 +1,4 @@
-﻿namespace BookAPI.Identity
+﻿namespace API.Identity
 {
     public class LoginResponseDto
     {

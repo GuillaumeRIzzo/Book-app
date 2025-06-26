@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace BookAPI.Data;
+namespace API.Data;
 
 [Table("USER_ROLE_HISTORY")]
 [Index("HistoryUuid", Name = "UQ__USER_ROL__EF0FC8D61098FA34", IsUnique = true)]

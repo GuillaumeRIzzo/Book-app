@@ -1,13 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using API.Data;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace BookAPI.Data;
+namespace API.Data;
 
 [Table("USERS")]
 [Index("UserUuid", Name = "UQ__USERS__37BE7BB64212B006", IsUnique = true)]
 [Index("UserLogin", Name = "UQ__USERS__9EA1B5AF7A9CE0EF", IsUnique = true)]
-[Index("UserEmail", Name = "UQ__USERS__B0FBA212A534DC8E", IsUnique = true)]
 public partial class User
 {
     [Key]
@@ -27,26 +27,10 @@ public partial class User
     [Unicode(false)]
     public string UserLastname { get; set; } = string.Empty;
 
-    [Column("user_password")]
-    [StringLength(100)]
-    [Unicode(false)]
-    public string UserPassword { get; set; } = string.Empty;
-
-    [Column("user_password_last_changed_at")]
-    public DateTimeOffset UserPasswordLastChangedAt { get; set; }
-
-    [Column("user_must_change_password")]
-    public bool UserMustChangePassword { get; set; } = false;
-
     [Column("user_login")]
     [StringLength(30)]
     [Unicode(false)]
     public string UserLogin { get; set; } = string.Empty;
-
-    [Column("user_email")]
-    [StringLength(50)]
-    [Unicode(false)]
-    public string UserEmail { get; set; } = string.Empty;
 
     [Column("user_birthDate")]
     public DateOnly? UserBirthDate { get; set; }
@@ -115,4 +99,10 @@ public partial class User
 
     [InverseProperty("UserUu")]
     public virtual ICollection<WishlistBook> WishlistBooks { get; set; } = new List<WishlistBook>();
+
+    [InverseProperty("UserUu")]
+    public virtual ICollection<UserEmail> UserEmailsUu { get; set; } = new List<UserEmail>();
+
+    [InverseProperty("UserUu")]
+    public virtual UserPassword? UserPassword { get; set; } = null;
 }

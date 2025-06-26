@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace BookAPI.Data;
+namespace API.Data;
 
 [Table("WISHLIST_BOOKS")]
 [Index("UserUuid", "BookUuid", Name = "UQ__WISHLIST__0D1680CFCAB0AB39", IsUnique = true)]

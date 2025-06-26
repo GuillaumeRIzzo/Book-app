@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace BookAPI.Data;
+namespace API.Data;
 
 [Table("NOTIFICATIONS")]
 [Index("NotificationUuid", Name = "UQ__NOTIFICA__AF8FFDCC5495BDAE", IsUnique = true)]

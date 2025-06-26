@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 
-namespace BookAPI.Identity
+namespace API.Identity
 {
     [AttributeUsage(AttributeTargets.Method| AttributeTargets.Class, AllowMultiple = true, Inherited = true)]
     public class RequiresCustomClaimAttribute : AuthorizeAttribute, IAuthorizationRequirement

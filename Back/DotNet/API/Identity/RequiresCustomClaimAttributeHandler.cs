@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 
-namespace BookAPI.Identity
+namespace API.Identity
 {
     public class RequiresCustomClaimAttributeHandler : AuthorizationHandler<RequiresCustomClaimAttribute>
     {

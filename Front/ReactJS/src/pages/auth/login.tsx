@@ -9,6 +9,8 @@ import CustomButton from '@/components/common/Button';
 import { encryptPayload } from '@/utils/encryptUtils';
 
 import styled from 'twin.macro';
+import Link from 'next/link';
+import { Alert, AlertColor, Box, Fade, Snackbar, Typography } from '@mui/material';
 
 const FormWrapper = styled.div`
   p-6 
@@ -22,7 +24,9 @@ const Login: React.FC = () => {
   const router = useRouter();
   const { error } = router.query;
 
-  const [apiErrors, setApiErrors] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
+  const [alertSeverity, setAlertSeverity] = useState<AlertColor>('success');
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -31,13 +35,14 @@ const Login: React.FC = () => {
 
   useEffect(() => {
     if (error) {
-      setApiErrors('Invalid credentials. Please try again.');
+      setAlertMessage('Invalid credentials. Please try again.');
     }
   }, [error]);
 
   const handleSignIn = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setApiErrors(null);
+    setAlertMessage(null);
+    setLoading(true);
   
     try {
       const encrypted = encryptPayload({
@@ -54,31 +59,60 @@ const Login: React.FC = () => {
         const session = await getSession();
         if (session) {
           saveSessionLocally(session);
+          setAlertMessage('Connexion réussi. Vous allez être redirigé.')
           router.push('/');
         }
-      } else {
-        setApiErrors('Login failed. Please check your credentials.');
       }
+      console.log(result);
+      
+      if (result?.error === 'Invalid credentials') {
+        setAlertMessage('Login incorrect.');
+      } else if (result?.error === 'UserNotFound') {
+        setAlertMessage('Utilisateur non trouvé.');
+      }
+      setAlertSeverity('error');
     } catch (error) {
       console.error('Error during login:', error);
-      setApiErrors('An unexpected error occurred. Please try again later.');
+      setAlertMessage('An unexpected error occurred. Please try again later.');
+      setAlertSeverity("error"); // ou "error"
+    } finally {
+      setLoading(false);
     }
   };
   
-
   return (
     <FormWrapper>
-      <div className='flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8'>
-        <div className='sm:mx-auto sm:w-full sm:max-w-sm'>
-          <h2 className='mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900'>
+      <Snackbar
+        open={!!alertMessage}
+        autoHideDuration={8000}
+        onClose={() => setAlertMessage('')}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        TransitionComponent={Fade}
+      >
+        <Alert
+          onClose={() => setAlertMessage('')}
+          severity={alertSeverity}
+          sx={{ width: '100%' }}
+        >
+          {alertMessage}
+        </Alert>
+      </Snackbar>
+      
+      <Box className='flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8'>
+        <Box className='sm:mx-auto sm:w-full sm:max-w-sm'>
+          <Typography
+            variant='h4'
+            component='h1'
+            className='mt-10 text-center font-bold leading-9 tracking-tight text-primary-dark'
+          >
             Connexion
-          </h2>
-        </div>
+          </Typography>
+        </Box>
 
-        <div className='mt-10 sm:mx-auto sm:w-full sm:max-w-sm'>
+        <Box className='mt-10 sm:mx-auto sm:w-full sm:max-w-sm'>
           <form onSubmit={handleSignIn}>
-            <div>
-              <div className='mt-2'>
+            <Box>
+              <Box className='mt-2'>
                 <Input
                   label='Login ou E-mail :'
                   type='text'
@@ -88,21 +122,11 @@ const Login: React.FC = () => {
                   autoFocus={true}
                   required
                 />
-              </div>
-            </div>
+              </Box>
+            </Box>
 
-            <div>
-              {/* <div className='flex items-center justify-between'>
-                <div className='text-sm'>
-                  <a
-                    href='#'
-                    className='font-semibold text-indigo-600 hover:text-indigo-500'
-                  >
-                    Forgot password?
-                  </a>
-                </div>
-              </div> */}
-              <div className='mt-2'>
+            <Box>
+              <Box className='mt-2'>
                 <Input
                   label='Mot de passe'
                   type='password'
@@ -110,18 +134,37 @@ const Login: React.FC = () => {
                   value={formData.password}
                   onChange={handleChange}
                   required
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleSignIn(e as any); // optional if already handled via form submit
+                    }
+                  }}
                 />
-              </div>
-            </div>
+              </Box>
+              <Box className='flex items-center justify-between'>
+                <Box className='text-sm'>
+                  <Link
+                    href='/forgot-password'
+                    className='font-semibold text-primary hover:text-primary-light'
+                  >
+                    Mot de pass oublié ?
+                  </Link>
+                </Box>
+              </Box>
+            </Box>
 
-            {apiErrors && <p className='text-red-500'>{apiErrors}</p>}
-
-            <div className='mt-4'>
-              <CustomButton text='Login' type='submit' />
-            </div>
+            <Box className='mt-4'>
+              <CustomButton
+                text={loading ? 'Connexion...' : 'Login'}
+                type='submit'                
+                disabled={loading}
+                className='bg-secondary hover:bg-secondary-light disabled:opacity-50 disabled:cursor-not-allowed'
+              />
+            </Box>
           </form>
-        </div>
-      </div>
+        </Box>
+      </Box>
     </FormWrapper>
   );
 };

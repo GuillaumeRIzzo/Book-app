@@ -1,7 +1,8 @@
-using BookAPI.Controllers;
-using BookAPI.Identity;
-using BookAPI.Data;
-using BookAPI.Swagger;
+using API.Services;
+using API.Controllers;
+using API.Data;
+using API.Identity;
+using API.Swagger;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
@@ -36,6 +37,8 @@ if (string.IsNullOrWhiteSpace(connectionString)) throw new Exception("Missing co
 if (string.IsNullOrWhiteSpace(jwtKey)) throw new Exception("Missing JWT key.");
 
 var encryptionKey = Environment.GetEnvironmentVariable("ENCRYPT_KEY");
+
+builder.Services.AddScoped<IEmailService, MailKitEmailService>();
 
 builder.Services.AddDbContext<BookDbContext>(options =>
 {

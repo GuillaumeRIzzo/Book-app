@@ -1,20 +1,20 @@
-﻿using BookAPI.Data;
-using BookAPI.Models;
-using BookAPI.Utils;
+﻿using API.Services;
+using API.Data;
+using API.Models;
+using API.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
-namespace BookAPI.Controllers
+namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class UsersController : ControllerBase
     {
         private readonly BookDbContext _context;
-        private readonly Regex emailRegex = new Regex(@"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$");
         private readonly Regex hasUpperCase = new Regex(@"[A-Z]");
         private readonly Regex hasLowerCase = new Regex(@"[a-z]");
         private readonly Regex hasNumber = new Regex(@"\d");
@@ -27,9 +27,11 @@ namespace BookAPI.Controllers
 
         // GET: api/Users
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<EncryptedPayload>>> GetUsers()
+        public async Task<ActionResult<EncryptedPayload>> GetUsers()
         {
-            var users = await _context.Users.ToListAsync();
+            var users = await _context.Users
+                .Include(u => u.UserEmailsUu)
+                .ToListAsync();
 
             if (users.Count >= 1)
             {
@@ -39,20 +41,17 @@ namespace BookAPI.Controllers
                     UserUuid = x.UserUuid,
                     UserFirstname = x.UserFirstname,
                     UserLastname = x.UserLastname,
-                    UserPassword = x.UserPassword,
-                    UserPasswordLastChangedAt = x.UserPasswordLastChangedAt,
-                    UserMustChangePassword = x.UserMustChangePassword,
                     UserLogin = x.UserLogin,
-                    UserEmail = x.UserEmail,
                     UserBirthDate = x.UserBirthDate,
                     IsDeleted = x.IsDeleted,
                     CreatedAt = x.CreatedAt,
                     UpdatedAt = x.UpdatedAt,
                     UserRightUuid = x.UserRightUuid,
                     GenderUuid = x.GenderUuid,
+                    UserEmail = x.UserEmailsUu?
+                        .FirstOrDefault(e => e.IsPrimary)?.EmailAddress // optional logic
                 }).ToList();
 
-                // Encrypt the list of users
                 var encryptedData = EncryptionHelper.EncryptData(JsonSerializer.Serialize(model));
 
                 return Ok(new EncryptedPayload
@@ -61,8 +60,10 @@ namespace BookAPI.Controllers
                     Iv = encryptedData.Iv
                 });
             }
+
             return NoContent();
         }
+
 
         // GET: api/Users/5
         [Authorize]
@@ -74,11 +75,25 @@ namespace BookAPI.Controllers
             if (string.IsNullOrWhiteSpace(identifier))
             {
                 user = await _context.Users.FirstOrDefaultAsync(u => u.UserUuid == uuid);
-
             }
             else
             {
-                user = await _context.Users.FirstAsync(u => u.UserLogin == identifier || u.UserEmail == identifier);
+                user = await _context.Users
+                .Where(u => u.UserLogin == identifier)
+                .FirstOrDefaultAsync();
+
+                // If not found by login, try to find user by primary email
+                if (user == null)
+                {
+                    var userEmail = await _context.UserEmails
+                        .Where(e => e.EmailAddress == identifier && e.IsPrimary)
+                        .FirstOrDefaultAsync();
+
+                    if (userEmail != null)
+                    {
+                        user = await _context.Users.FirstOrDefaultAsync(u => u.UserUuid == userEmail.UserUuid);
+                    }
+                }
             }
 
             if (user == null)
@@ -86,23 +101,25 @@ namespace BookAPI.Controllers
                 return NotFound();
             }
 
-            var model = new UserDto()
+            var primaryEmail = await _context.UserEmails
+                .Where(e => e.UserUuid == user.UserUuid && e.IsPrimary)
+                .Select(e => e.EmailAddress)
+                .FirstOrDefaultAsync();
+
+            var model = new UserDto
             {
                 UserId = user.UserId,
                 UserUuid = user.UserUuid,
                 UserFirstname = user.UserFirstname,
                 UserLastname = user.UserLastname,
-                UserPassword = user.UserPassword,
-                UserPasswordLastChangedAt = user.UserPasswordLastChangedAt,
-                UserMustChangePassword = user.UserMustChangePassword,
                 UserLogin = user.UserLogin,
-                UserEmail = user.UserEmail,
                 UserBirthDate = user.UserBirthDate,
                 IsDeleted = user.IsDeleted,
                 CreatedAt = user.CreatedAt,
                 UpdatedAt = user.UpdatedAt,
                 UserRightUuid = user.UserRightUuid,
-                GenderUuid = user.GenderUuid
+                GenderUuid = user.GenderUuid,
+                UserEmail = primaryEmail ?? string.Empty
             };
 
             // Encrypt the user data
@@ -136,12 +153,6 @@ namespace BookAPI.Controllers
                         return BadRequest(errorResponse);
                     }
 
-                    if (EmailExists(userData.UserEmail, uuid))
-                    {
-                        var errorResponse = new { name = "Email", message = "Email already exists." };
-                        return BadRequest(errorResponse);
-                    }
-
                     if (LoginExists(userData.UserLogin, uuid))
                     {
                         var errorResponse = new { name = "Login", message = "Login already exists." };
@@ -157,7 +168,6 @@ namespace BookAPI.Controllers
                     user.UserFirstname = userData.UserFirstname;
                     user.UserLastname = userData.UserLastname;
                     user.UserLogin = userData.UserLogin;
-                    user.UserEmail = userData.UserEmail;
                     user.UserBirthDate = userData.UserBirthDate;
                     user.IsDeleted = userData.IsDeleted;
                     user.UpdatedAt = DateTimeOffset.UtcNow;
@@ -191,81 +201,6 @@ namespace BookAPI.Controllers
             }
         }
 
-        [Authorize]
-        [HttpPut("{uuid}/password")]
-        public async Task<IActionResult> ChangePassword(Guid uuid, [FromBody] EncryptedPayload payload)
-        {
-            try
-            {
-                string decryptedData = EncryptionHelper.DecryptData(payload.EncryptedData, payload.Iv);
-                var userData = JsonSerializer.Deserialize<ChangePasswordRequest>(decryptedData);
-
-                if (userData != null)
-                {
-                    if (string.IsNullOrWhiteSpace(userData.CurrentPassword) || string.IsNullOrWhiteSpace(userData.NewPassword))
-                    {
-                        return BadRequest(new { name = "Password", message = "Passwords cannot be empty." });
-                    }
-
-                    var user = await _context.Users.FirstOrDefaultAsync(u => u.UserUuid == uuid);
-                    if (user == null)
-                    {
-                        return NotFound("User not found.");
-                    }
-
-                    // Verify current password
-                    if (!VerifyPassword(userData.CurrentPassword, user.UserPassword))
-                    {
-                        return BadRequest(/*new { name = "CurrentPassword", message = "Incorrect current password." }*/);
-                    }
-
-                    // Validate new password
-                    if (userData.NewPassword.Length < 8 ||
-                        !hasUpperCase.IsMatch(userData.NewPassword) ||
-                        !hasLowerCase.IsMatch(userData.NewPassword) ||
-                        !hasNumber.IsMatch(userData.NewPassword) ||
-                        !hasSpecialChar.IsMatch(userData.NewPassword))
-                    {
-                        return BadRequest(new
-                        {
-                            name = "NewPassword",
-                            message = "Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character."
-                        });
-                    }
-
-                    // Hash and update password
-                    user.UserPassword = HashPassword(userData.NewPassword);
-                    user.UserPasswordLastChangedAt = DateTimeOffset.UtcNow;
-
-                    try
-                    {
-                        await _context.SaveChangesAsync();
-                    }
-                    catch (DbUpdateConcurrencyException)
-                    {
-                        if (!UserExists(uuid))
-                        {
-                            return NotFound();
-                        }
-                        throw;
-                    }
-
-                }
-                return NoContent();
-            }
-            catch (JsonException ex)
-            {
-                // Handle JSON deserialization errors
-                return BadRequest(new { message = "Invalid JSON format.", details = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                // Handle other errors
-                return StatusCode(500, new { message = "An error occurred.", details = ex.Message });
-            }
-        }
-
-
         // POST: api/Users
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
@@ -278,7 +213,7 @@ namespace BookAPI.Controllers
                 {
                     PropertyNameCaseInsensitive = true // Enable case-insensitive matching
                 };
-                var model = JsonSerializer.Deserialize<UserDto>(decryptedData, options);
+                var model = JsonSerializer.Deserialize<CreateUserRequest>(decryptedData, options);
 
                     if (model == null)
                 {
@@ -292,13 +227,6 @@ namespace BookAPI.Controllers
                     return BadRequest(validationError);
                 }
 
-                // Check if email already exists
-                if (EmailExists(model.UserEmail, Guid.Empty))
-                {
-                    var errorResponse = new { name = "Email", message = "Email already exists." };
-                    return BadRequest(errorResponse);
-                }
-
                 // Check if login already exists
                 if (LoginExists(model.UserLogin, Guid.Empty))
                 {
@@ -306,21 +234,10 @@ namespace BookAPI.Controllers
                     return BadRequest(errorResponse);
                 }
 
-                //if (!IsUserRightValid(model.UserRight))
-                //{
-                //    var errorResponse = new { name = "Right", message = "Invalid userRight value." };
-                //    return BadRequest(errorResponse);
-                //}
-
                 var user = new User()
                 {
                     UserFirstname = model.UserFirstname,
                     UserLastname = model.UserLastname,
-                    UserPassword = HashPassword(model.UserPassword),
-                    UserPasswordLastChangedAt = DateTimeOffset.UtcNow,
-                    UserMustChangePassword = false,
-                    UserLogin = model.UserLogin,
-                    UserEmail = model.UserEmail,
                     UserBirthDate = model.UserBirthDate,
                     IsDeleted = false,
                     CreatedAt = DateTimeOffset.UtcNow,
@@ -329,6 +246,33 @@ namespace BookAPI.Controllers
                     GenderUuid = model.GenderUuid,
                 };
                 _context.Users.Add(user);
+
+                if (!ValidatePassword(model.UserPassword, out var validationMessage))
+                {
+                    return BadRequest(new { name = "Password", message = validationMessage });
+                }
+
+                // Now create UserPassword record
+                var userPassword = new UserPassword
+                {
+                    UserUuid = user.UserUuid,
+                    HashedPassword = HashPassword(model.UserPassword),
+                    MustChange = false,
+                    LastChangedAt = DateTimeOffset.UtcNow,
+                };
+                _context.UserPasswords.Add(userPassword);
+
+                // Now create UserEmail record (assuming model.UserEmail is provided)
+                var userEmail = new UserEmail
+                {
+                    UserUuid = user.UserUuid,
+                    EmailAddress = model.UserEmail,
+                    IsPrimary = true,
+                    IsValidated = false,
+                    CreatedAt = DateTimeOffset.UtcNow,
+                };
+                _context.UserEmails.Add(userEmail);
+
                 await _context.SaveChangesAsync();
 
                 return CreatedAtAction("GetUser", new { uuid = user.UserUuid }, model);
@@ -368,12 +312,29 @@ namespace BookAPI.Controllers
             return _context.Users.Any(e => e.UserUuid == id);
         }
 
-        private bool IsUserRightValid(string userRight)
+        private (string name, string message) ValidateUser(CreateUserRequest model)
         {
-            // Check if the userRight parameter is within the allowed values
-            return userRight == "Super Admin" || userRight == "Admin" || userRight == "User";
-        }
+            if (model.UserLogin.Contains('@'))
+            {
+                return (name: "Login", message: "Invalid, User login should not contain '@' symbol.");
+            }
 
+            return (name: "", message: "");
+        }
+        private bool ValidatePassword(string password, out string message)
+        {
+            message = "";
+            if (password.Length < 8 ||
+                !hasUpperCase.IsMatch(password) ||
+                !hasLowerCase.IsMatch(password) ||
+                !hasNumber.IsMatch(password) ||
+                !hasSpecialChar.IsMatch(password))
+            {
+                message = "Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character.";
+                return false;
+            }
+            return true;
+        }
         private string HashPassword(string password)
         {
             // Generate a random salt
@@ -383,41 +344,6 @@ namespace BookAPI.Controllers
             string hashedPassword = BCrypt.Net.BCrypt.HashPassword(password, salt);
 
             return hashedPassword;
-        }
-
-        private bool VerifyPassword(string password, string hashedPassword)
-        {
-            // Check if the provided password matches the hashed password
-            return BCrypt.Net.BCrypt.Verify(password, hashedPassword);
-        }
-
-        private (string name, string message) ValidateUser(UserDto model)
-        {
-            if (model.UserLogin.Contains('@'))
-            {
-                return (name: "Login", message: "Invalid, User login should not contain '@' symbol.");
-            }
-
-            if (!emailRegex.IsMatch(model.UserEmail))
-            {
-                return (name: "Email", message: "Invalid email address.");
-            }
-
-            if (model.UserPassword.Length < 8 ||
-                !hasUpperCase.IsMatch(model.UserPassword) ||
-                !hasLowerCase.IsMatch(model.UserPassword) ||
-                !hasNumber.IsMatch(model.UserPassword) ||
-                !hasSpecialChar.IsMatch(model.UserPassword))
-            {
-                return (name: "Password", message: "Invalid, Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character.");
-            }
-
-            return (name: "", message: "");
-        }
-
-        private bool EmailExists(string email, Guid userUuid)
-        {
-            return _context.Users.Any(u => u.UserEmail == email && u.UserUuid != userUuid);
         }
 
         private bool LoginExists(string login, Guid userUuid)

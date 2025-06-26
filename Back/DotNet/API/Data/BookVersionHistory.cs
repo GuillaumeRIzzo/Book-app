@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace BookAPI.Data;
+namespace API.Data;
 
 [Table("BOOK_VERSION_HISTORY")]
 [Index("VersionUuid", Name = "UQ__BOOK_VER__7240DF08882DC32E", IsUnique = true)]

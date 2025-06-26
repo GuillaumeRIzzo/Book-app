@@ -19,13 +19,15 @@ import {
   fetchUsersAsync,
   updateUserInState,
 } from '../UserSlice';
-import { updateUserInfos, updateUserPassword } from '@/api/userApi';
+import { updateUserInfos } from '@/api/userApi';
+import { updateUserPassword } from '@/api/passwordApi';
 import {
   decryptPayload,
   EncryptedPayload,
   encryptPayload,
 } from '@/utils/encryptUtils';
 import { selectUserModelViews } from '@/features/userViews/userViewSelectors';
+import { Alert, AlertColor, Snackbar } from '@mui/material';
 
 const FormWrapper = styled.div`
   ${tw`w-2/4 p-6`}
@@ -40,13 +42,14 @@ interface FormProps {
 
 const UserProfileForm: React.FC<FormProps> = ({ title }) => {
   const { data: session } = useSession();
-  const users = useSelector((state: RootState) => state.users.users);
   const UserStatus = useSelector((state: RootState) => state.users.status);
 
   const router = useRouter();
   const { id } = router.query;
   const dispatch = useDispatch<AppDispatch>();
   const [loading, setLoading] = useState(true);
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
+  const [alertSeverity, setAlertSeverity] = useState<AlertColor>('success');
 
   // Memoized userFind logic
   const userViews = useSelector(selectUserModelViews);
@@ -119,11 +122,13 @@ const UserProfileForm: React.FC<FormProps> = ({ title }) => {
           encryptedPayload,
         );
         dispatch(updateUserInState(updatedUser));
-        alert('User information updated successfully!');
+        setAlertMessage('User information updated successfully!');
+        setAlertSeverity("success");
       }
     } catch (error: any) {
       console.error('Error updating user:', error);
-      alert('Failed to update user information. Please try again.');
+      setAlertMessage('Failed to update user information. Please try again.');
+      setAlertSeverity('error');
     }
   };
 
@@ -143,11 +148,13 @@ const UserProfileForm: React.FC<FormProps> = ({ title }) => {
           encryptedPayload,
         );
         dispatch(updateUserInState(updatedUser));
-        alert('User password updated successfully!');
+        setAlertMessage('User password updated successfully!');
+        setAlertSeverity('success');
       }
     } catch (error: any) {
       console.error('Error updating user:', error);
-      alert('Failed to update user password. Please try again.');
+      setAlertMessage('Failed to update user password. Please try again.');
+      setAlertSeverity('error');
     }
   };
 
@@ -161,6 +168,21 @@ const UserProfileForm: React.FC<FormProps> = ({ title }) => {
 
   return (
     <FormWrapper>
+      <Snackbar
+        open={!!alertMessage}
+        autoHideDuration={5000}
+        onClose={() => setAlertMessage('')}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <Alert
+          onClose={() => setAlertMessage('')}
+          severity={alertSeverity}
+          sx={{ width: '100%' }}
+        >
+          {alertMessage}
+        </Alert>
+      </Snackbar>
+
       <h1 className='text-2xl mb-6 text-center font-semibold text-primary-dark'>{title}</h1>
       <PersonalInfoForm
         user={userFind}
