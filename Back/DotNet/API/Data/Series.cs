@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace BookAPI.Data;
+namespace API.Data;
 
 [Table("SERIES")]
 [Index("SeriesUuid", Name = "UQ__SERIES__93F3FD60530CD707", IsUnique = true)]

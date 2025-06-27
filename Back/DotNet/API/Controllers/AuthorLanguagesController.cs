@@ -1,12 +1,12 @@
-﻿using BookAPI.Data;
-using BookAPI.Models;
-using BookAPI.Utils;
+﻿using API.Data;
+using API.Models;
+using API.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 
-namespace BookAPI.Controllers
+namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

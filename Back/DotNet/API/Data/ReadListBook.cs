@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace BookAPI.Data;
+namespace API.Data;
 
 [PrimaryKey("ReadListUuid", "BookUuid")]
 [Table("READ_LIST_BOOKS")]

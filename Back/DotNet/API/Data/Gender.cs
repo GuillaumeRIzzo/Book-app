@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace BookAPI.Data;
+namespace API.Data;
 
 [Table("GENDERS")]
 [Index("GenderUuid", Name = "UQ__GENDERS__8D9124A0A24F5DCA", IsUnique = true)]

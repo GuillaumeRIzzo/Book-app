@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace BookAPI.Data;
+namespace API.Data;
 
 [Table("STATE_STATUS")]
 [Index("Code", Name = "UQ__STATE_ST__357D4CF97AED6E29", IsUnique = true)]

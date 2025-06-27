@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace BookAPI.Data;
+namespace API.Data;
 
 [Table("LANGUAGES")]
 [Index("IsoCode", Name = "UQ__LANGUAGE__153DD4A6953EA234", IsUnique = true)]

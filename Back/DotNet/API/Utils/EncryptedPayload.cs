@@ -1,4 +1,4 @@
-﻿namespace BookAPI.Utils
+﻿namespace API.Utils
 {
     public class EncryptedPayload
     {

@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace BookAPI.Data;
+namespace API.Data;
 
 [Table("BOOK_IMAGE_TYPE")]
 [Index("ImageTypeUuid", Name = "UQ__BOOK_IMA__3E43434813693BE3", IsUnique = true)]

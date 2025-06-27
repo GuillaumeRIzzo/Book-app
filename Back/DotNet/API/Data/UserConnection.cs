@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace BookAPI.Data;
+namespace API.Data;
 
 [Table("USER_CONNECTIONS")]
 [Index("ConnectionUuid", Name = "UQ__USER_CON__CEDB16623FF5D71E", IsUnique = true)]

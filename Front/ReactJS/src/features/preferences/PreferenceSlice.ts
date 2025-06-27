@@ -142,6 +142,20 @@ const preferencesSlice = createSlice({
         state.status = 'failed';
         state.error = action.error.message || null;
       })
+
+      // Create
+      .addCase(createPreference.pending, state => {
+        state.status = 'loading';
+      })
+      .addCase(createPreference.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.preferences.push(action.payload);
+      })
+      .addCase(createPreference.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message || null;
+      })
+
       .addCase(updatePreferenceAsync.fulfilled, (state, action) => {
         const decrypted = camelCaseKeys(action.payload.decryped, { deep: true }) as unknown as Preference;
         const index = state.preferences.findIndex(p => p.preferenceUuid === action.payload.preferenceUuid);

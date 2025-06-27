@@ -1,7 +1,7 @@
-﻿using BookAPI.Data;
-using BookAPI.Identity;
-using BookAPI.Models;
-using BookAPI.Utils;
+﻿using API.Data;
+using API.Identity;
+using API.Models;
+using API.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,7 +12,7 @@ using System.Text;
 using System.Text.Json;
 
 
-namespace BookAPI.Controllers
+namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -21,7 +21,7 @@ namespace BookAPI.Controllers
         private readonly IConfiguration _configuration;
         private readonly BookDbContext _context;
         private readonly UsersController _usersController;
-        private static readonly TimeSpan tokenLifetime = TimeSpan.FromDays(7);
+        private static readonly TimeSpan tokenLifetime = TimeSpan.FromDays(1);
 
         public IdentityController(IConfiguration configuration, BookDbContext context, UsersController usersController)
         {
@@ -110,9 +110,21 @@ namespace BookAPI.Controllers
                 {
                     return NotFound();
                 }
+                var userPassword = await _context.UserPasswords
+                    .FirstOrDefaultAsync(p => p.UserUuid == user.UserUuid);
+
+                if (userPassword == null)
+                {
+                    return Unauthorized("Password not set");
+                }
+
+                if (!VerifyPassword(model.Password, userPassword.HashedPassword))
+                {
+                    return Unauthorized("Invalid password");
+                }
 
                 // Step 3: Validate the credentials
-                if ((user.UserLogin == model.Identifier || user.UserEmail == model.Identifier) && VerifyPassword(model.Password, user.UserPassword))
+                if ((user.UserLogin == model.Identifier || user.UserEmail == model.Identifier))
                 {
 
                     var userRight = await _context.UserRights

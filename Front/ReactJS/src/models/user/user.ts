@@ -4,7 +4,6 @@ export class User {
   userFirstname: string;
   userLastname: string;
   userPassword: string;
-  userPasswordLastChangedAt : Date;
   userMustChangePassword: boolean;
   userLogin: string;
   userEmail: string;
@@ -21,7 +20,6 @@ export class User {
     userFirstname: string,
     userLastname: string,
     userPassword: string,
-    userPasswordLastChangedAt: Date,
     userMustChangePassword: boolean,
     userLogin: string,
     userEmail: string,
@@ -37,7 +35,6 @@ export class User {
     this.userFirstname = userFirstname;
     this.userLastname = userLastname;
     this.userPassword = userPassword;
-    this.userPasswordLastChangedAt = userPasswordLastChangedAt;
     this.userMustChangePassword = userMustChangePassword;
     this.userLogin = userLogin;
     this.userEmail = userEmail;

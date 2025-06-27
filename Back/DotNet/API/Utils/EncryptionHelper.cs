@@ -1,7 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 
-namespace BookAPI.Utils
+namespace API.Utils
 {
     public class EncryptionHelper
     {

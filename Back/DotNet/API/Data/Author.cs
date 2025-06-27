@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace BookAPI.Data;
+namespace API.Data;
 
 [Table("AUTHOR")]
 [Index("AuthorFullName", "AuthorBirthDate", Name = "UQ__AUTHOR__A1F124D0EC741F33", IsUnique = true)]

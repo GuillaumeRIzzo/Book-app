@@ -1,12 +1,12 @@
-﻿using BookAPI.Data;
-using BookAPI.Models;
-using BookAPI.Utils;
+﻿using API.Data;
+using API.Models;
+using API.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 
-namespace BookAPI.Controllers
+namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -155,12 +155,12 @@ namespace BookAPI.Controllers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [Authorize]
         [HttpPost]
-        public async Task<ActionResult<EncryptedPayload>> PostLanguage(EncryptedPayload payload)
+        public async Task<ActionResult<EncryptedPayload>> PostLanguage(LanguageDto model)
         {
             try
             {
-                string decryptedData = EncryptionHelper.DecryptData(payload.EncryptedData, payload.Iv);
-                var model = JsonSerializer.Deserialize<LanguageDto>(decryptedData);
+                //string decryptedData = EncryptionHelper.DecryptData(payload.EncryptedData, payload.Iv);
+                //var model = JsonSerializer.Deserialize<LanguageDto>(decryptedData);
 
                 if (model == null)
                 {

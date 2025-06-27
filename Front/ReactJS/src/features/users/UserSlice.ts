@@ -128,7 +128,20 @@ const usersSlice = createSlice({
       .addCase(fetchUserById.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message || null;
-      });
+      })
+      
+      // Create
+      .addCase(createUser.pending, state => {
+        state.status = 'loading';
+      })
+      .addCase(createUser.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.users.push(action.payload);
+      })
+      .addCase(createUser.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message || null;
+      })
   },
 });
 

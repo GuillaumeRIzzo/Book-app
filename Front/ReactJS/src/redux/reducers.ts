@@ -12,6 +12,8 @@ import UserModelView from '@features/userViews/userViewSlice';
 import PreferenceReducer  from '@/features/preferences/PreferenceSlice';
 import ThemeReducer  from '@/features/themes/ThemeSlice';
 import ColorReducer from '@/features/colors/ColorSlice';
+import EmailReducer from '@/features/users/emailSlice';
+import PasswordReducer from '@/features/users/passwordSlice';
 
 const rootReducer = combineReducers({
   books: bookReducer,
@@ -27,6 +29,8 @@ const rootReducer = combineReducers({
   preferences: PreferenceReducer,
   themes: ThemeReducer,
   colors: ColorReducer,
+  emails: EmailReducer,
+  passwords: PasswordReducer,
 });
 
 export default rootReducer;

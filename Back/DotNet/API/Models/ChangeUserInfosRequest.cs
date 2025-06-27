@@ -1,4 +1,4 @@
-﻿namespace BookAPI.Models
+﻿namespace API.Models
 {
     public class ChangeUserInfosRequest
     {
@@ -7,7 +7,6 @@
         public string? UserFirstname { get; set; }
         public string? UserLastname { get; set; }
         public string? UserLogin { get; set; }
-        public string? UserEmail { get; set; }
         public DateOnly? UserBirthDate { get; set; }
         public bool IsDeleted { get; set; }
         public DateTimeOffset UpdatedAt { get; set; }

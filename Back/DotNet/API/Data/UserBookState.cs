@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace BookAPI.Data;
+namespace API.Data;
 
 [PrimaryKey("UserUuid", "BookUuid")]
 [Table("USER_BOOK_STATE")]

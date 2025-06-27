@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace BookAPI.Data;
+namespace API.Data;
 
 [Table("THEMES")]
 [Index("ThemeUuid", Name = "UQ__THEMES__0444B772B0A708E5", IsUnique = true)]

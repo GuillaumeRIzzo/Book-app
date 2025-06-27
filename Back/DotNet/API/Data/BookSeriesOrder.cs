@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace BookAPI.Data;
+namespace API.Data;
 
 [PrimaryKey("SeriesUuid", "BookUuid")]
 [Table("BOOK_SERIES_ORDER")]
