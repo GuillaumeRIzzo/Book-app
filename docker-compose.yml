@@ -7,22 +7,58 @@ services:
     ports:
       - 1433:1433
     volumes:
-      - ./data:/var/opt/mssql/data
-      - ./init.sql:/init.sql
-      - ./entrypoint.sh:/entrypoint.sh
-    entrypoint: ["/bin/bash", "/entrypoint.sh"]
+      - ./data/sqlserver:/var/opt/mssql/data
+      - ./scripts/sqlserver/init.sql:/usr/local/bin/init.sql
+      - ./scripts/sqlserver/entrypoint.sh:/usr/local/bin/entrypoint.sh
+    entrypoint: ["/bin/bash", "/usr/local/bin/entrypoint.sh"]
     networks:
       - sqlnetwork
-    command: /bin/bash -c "/opt/mssql/bin/sqlservr & sleep 30 & /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P YourStrong!Passw0rd -i /docker-entrypoint-initdb.d/init.sql"
+
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: strapi
+      POSTGRES_USER: strapi
+      POSTGRES_PASSWORD: strapi
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./scripts/postgres/entrypoint.sh:/usr/local/bin/entrypoint.sh
+      - ./scripts/postgres/backup.sh:/usr/local/bin/backup.sh
+      - ./data/postgresql:/var/backups
+    entrypoint: ["/bin/bash", "/usr/local/bin/entrypoint.sh"]
+    networks:
+      - sqlnetwork
+      
+  strapi:
+    build:
+      context: ./Back/Strapi
+      dockerfile: Dockerfile
+    container_name: strapi
+    ports:
+      - "1337:1337"
+    env_file:
+      - .env
+    depends_on:
+      - postgresql
+    volumes:
+      - ./Back/StrapiCMS:/opt/app
+      - /app/node_modules
+    networks:
+      - sqlnetwork
 
   api:
     build:
-      context: ./Back
+      context: ./Back/DotNet/API
       dockerfile: Dockerfile
     container_name: api
+    env_file:
+      - .env
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DevConnection=Server=sqlserver;Database=BookDB;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;MultipleActiveResultSets=True;
+      - ConnectionStrings__DevConnection=${ConnectionStrings__DevConnection_Docker}
     ports:
       - "5000:80"
     depends_on:
@@ -30,34 +66,70 @@ services:
     networks:
       - sqlnetwork
     volumes:
-      - ./Back:/src/BookAPI
+      - ./Back:/src/API
     command: dotnet watch run --urls http://0.0.0.0:80
 
-  angular-dev:
-    build:
-      context: ./Front
-      dockerfile: Dockerfile.dev
-    container_name: angular-dev
-    ports:
-      - "4200:4200"
-    volumes:
-      - ./Front:/app:delegated
-    depends_on:
-      - api
-    networks:
-      - sqlnetwork
 
-  angular-prod:
+  # angular-dev:
+  #   build:
+  #     context: ./Front/Angular
+  #     dockerfile: Dockerfile.dev
+  #   container_name: angular-dev
+  #   ports:
+  #     - "4200:4200"
+  #   volumes:
+  #     - ./Front/Angular:/app:delegated
+  #   depends_on:
+  #     - api
+  #   networks:
+  #     - sqlnetwork
+
+  # angular-prod:
+  #   build:
+  #     context: ./Front/Angular
+  #     dockerfile: Dockerfile.nginx
+  #   container_name: angular-prod
+  #   ports:
+  #     - "80:80"
+  #   depends_on:
+  #     - api
+  #   networks:
+  #     - sqlnetwork
+
+  react:
     build:
-      context: ./Front
+      context: ./Front/ReactJS
       dockerfile: Dockerfile
-    container_name: angular-prod
+    container_name: react
     ports:
-      - "80:80"
+      - '3000:3000'
+    environment:
+      - PORT=3000
+    volumes:
+      - ./Front/ReactJS:/app
+      - ./scripts:/scripts:ro
+      - ./.env:/env/.env:ro
     depends_on:
       - api
     networks:
       - sqlnetwork
+    command: sh -c "node /scripts/sync-react-env.js && npm run dev"
+
+
+  # jenkins:
+  #   image: jenkins/jenkins:lts-jdk17
+  #   container_name: jenkins
+  #   ports:
+  #     - "8080:8080"
+  #     - "50000:50000"
+  #   volumes:
+  #     - jenkins_home:/var/jenkins_home
+  #   networks:
+  #     - sqlnetwork
 
 networks:
   sqlnetwork:
+
+volumes:
+  jenkins_home:
+  pgdata:

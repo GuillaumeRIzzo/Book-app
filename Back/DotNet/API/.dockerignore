@@ -1,0 +1,29 @@
+# Build output
+bin/
+obj/
+out/
+
+# User-specific files and IDEs
+.vs/
+.vscode/
+*.user
+*.suo
+
+# Logs
+*.log
+logs/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Environment and configuration
+.env
+secrets.json
+appsettings.Development.json
+appsettings.*.json
+!appsettings.json  # Include only the base config file if needed
+
+# Docker artifacts
+Dockerfile*
+docker-compose*

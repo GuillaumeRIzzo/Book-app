@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "sync-react-env": "node scripts/sync-react-env.js",
+    "generate-env": "node scripts/generate-env.mjs"
+  },
+  "devDependencies": {
+    "dotenv": "^16.5.0"
+  }
+}

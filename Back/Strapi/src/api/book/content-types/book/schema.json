@@ -1,0 +1,79 @@
+{
+  "kind": "collectionType",
+  "collectionName": "books",
+  "info": {
+    "singularName": "book",
+    "pluralName": "books",
+    "displayName": "Book",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "bookTitle": {
+      "type": "string",
+      "required": true
+    },
+    "bookDescription": {
+      "type": "text",
+      "required": true
+    },
+    "bookPublishDate": {
+      "type": "date",
+      "required": true
+    },
+    "bookPageCount": {
+      "type": "integer",
+      "required": true
+    },
+    "bookAverageRating": {
+      "type": "decimal",
+      "default": 0,
+      "required": false
+    },
+    "bookRatingCount": {
+      "type": "integer",
+      "default": 0
+    },
+    "bookImage": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images",
+        "files"
+      ]
+    },
+    "bookImageLink": {
+      "type": "string"
+    },
+    "bookLanguage": {
+      "type": "string",
+      "required": true
+    },
+    "read": {
+      "type": "boolean",
+      "default": false
+    },
+    "inList": {
+      "type": "boolean",
+      "default": false
+    },
+    "publisherId": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::publisher.publisher"
+    },
+    "authorId": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::author.author"
+    },
+    "categories": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::book-category.book-category"
+    }
+  }
+}
