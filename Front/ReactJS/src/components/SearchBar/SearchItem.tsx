@@ -14,6 +14,7 @@ import {
   NoResults,
   ResultsFooter
 } from './StyledComponents';
+import Image from 'next/image';
 
 interface SearchItemProps {
   isOpen: boolean;
@@ -31,8 +32,8 @@ interface SearchItemProps {
   deleteRecentSearches: (index: number) => void;
   resultImage: (result: SearchResult) => string;
   goToSearch: (index: number) => void;
-  selectHistoryItem: (item: any) => void;
-  setHistory: (item: any) => void;
+  selectHistoryItem: (item: string) => void;
+  setHistory: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
 const SearchItem: React.FC<SearchItemProps> = ({
@@ -54,6 +55,15 @@ const SearchItem: React.FC<SearchItemProps> = ({
   selectHistoryItem,
   setHistory
 }) => {
+    const getTitle = (result: SearchResult): string => {
+    switch (result.type) {
+      case 'Livre': return result.item.bookTitle;
+      case 'Auteur': return result.item.authorFullName;
+      case 'Éditeur': return result.item.publisherName;
+      case 'Catégorie': return result.item.categoryName;
+      case 'History': return result.item;
+    }
+  }
   return (
     <Box>
       <SearchContainer $isOpen={isOpen} ref={searchBarRef}>
@@ -102,13 +112,8 @@ const SearchItem: React.FC<SearchItemProps> = ({
             selectHistoryItem(result.item);
             handleSearch(result.item);
           } else {
-            setSearchTerm(
-              result.item.bookTitle ||
-                result.item.authorFullName ||
-                result.item.publisherName ||
-                result.item.categoryName,
-            );
-            setHistory((prev: any) => [...new Set([searchTerm, ...prev])]);
+            setSearchTerm(getTitle(result));
+            setHistory((prev) => [...new Set([searchTerm, ...prev])]);
             goToSearch(index);
           }
         }}
@@ -122,10 +127,7 @@ const SearchItem: React.FC<SearchItemProps> = ({
               <p className='w-96 text-primary-dark'>{result.item}</p>
             ) : (
               <p className='text-primary-dark'>
-              {result.item.bookTitle ||
-              result.item.authorFullName ||
-              result.item.publisherName ||
-              result.item.categoryName}
+              {getTitle(result)}
               </p>
             )}
           </Box>
@@ -140,13 +142,18 @@ const SearchItem: React.FC<SearchItemProps> = ({
             </DeleteButton>
           )}
         </Box>
-        <img src={resultImage(result)} width={30} />
+        <Image
+          src={resultImage(result)}
+          width={30}
+          height={30}
+          alt={`Résultat ${index}`}
+        />
       </ResultItem>
     ))}
     {/* New Section Styled as Row and Clickable */}
     <ResultsFooter onClick={() => goToSearch(0)}>
       <span role="img" aria-label="search">🔍</span>
-      <h3>Tous les résultats pour "{searchTerm}"</h3>
+      <h3>Tous les résultats pour &quot;{searchTerm}&quot;</h3>
       <span className='text-primary-dark'>Cliquez <strong>ici</strong> ou <br />appuyez sur <strong>ENTRER</strong> <br /> pour voir plus de détails.</span>
     </ResultsFooter>
   </>

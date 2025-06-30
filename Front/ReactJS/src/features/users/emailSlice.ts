@@ -1,5 +1,6 @@
 import { confirmEmailApi } from '@/api/emailApi';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { AxiosError } from 'axios';
 
 export const confirmEmail = createAsyncThunk(
   'users/confirmEmail',
@@ -8,8 +9,12 @@ export const confirmEmail = createAsyncThunk(
       const response = await confirmEmailApi(token);
 
       return response.data;
-    } catch (error: any) {
-      return rejectWithValue(error.message || 'Confirmation failed');
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response) {
+        return rejectWithValue(axiosError.message || 'Confirmation failed');
+      }
+      return rejectWithValue('Erreur inconnue');
     }
   }
 );

@@ -1,15 +1,24 @@
 import { forgotPassword, resetPasswordApi } from '@/api/passwordApi';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { AxiosError } from 'axios';
+
+interface SendResetPasswordPayload {
+  email: string;
+}
 
 export const sendResetPasswordEmail = createAsyncThunk(
   'users/sendResetPasswordEmail',
-  async (email: any, { rejectWithValue }) => {
+  async (payload: SendResetPasswordPayload, { rejectWithValue }) => {
     try {
-      const response = await forgotPassword(email);
+      const response = await forgotPassword(payload.email);
 
       return response.data;
-    } catch (error: any) {
-      return rejectWithValue(error.response.data || 'Email send failed');
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response) {
+        return rejectWithValue(axiosError.response.data || 'Email send failed');
+      }
+      return rejectWithValue('Erreur inconnue');
     }
   }
 );
@@ -26,8 +35,12 @@ export const resetPassword = createAsyncThunk(
       const response = await resetPasswordApi(payload); // this refers to the API method
 
       return response.data;
-    } catch (error: any) {
-      return rejectWithValue(error.message || 'Reset failed');
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response) {
+        return rejectWithValue(axiosError.message || 'Reset failed');
+      }
+      return rejectWithValue('Erreur inconnue');
     }
   }
 );

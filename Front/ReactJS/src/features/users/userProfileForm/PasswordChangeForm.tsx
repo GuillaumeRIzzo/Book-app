@@ -7,15 +7,18 @@ import { User } from '@/models/user/user';
 
 import usePasswordValidator from '@/hooks/usePasswordValidator';
 import useConfirmPasswordValidator from '@/hooks/useConfirmPasswordValidator';
+import { UserFormData } from './UserProfileForm';
 
 interface PasswordChangeFormProps {
   user: User | undefined;
-  onSubmit: (formData: any, event: React.FormEvent<HTMLFormElement>) => void;
+  onSubmit: (formData: UserFormData, event: React.FormEvent<HTMLFormElement>) => void;
 }
 
 const PasswordChangeForm: React.FC<PasswordChangeFormProps> = ({ user, onSubmit }) => {
+
   const [formData, setFormData] = useState({
     UserId: user?.userId,
+    UserUuid: user?.userUuid || '',
     CurrentPassword: '',
     NewPassword: ''
   });
@@ -56,6 +59,7 @@ const PasswordChangeForm: React.FC<PasswordChangeFormProps> = ({ user, onSubmit 
       onSubmit(formData, event); // Pass formData and event to parent handler
       setFormData({
         UserId: user?.userId,
+        UserUuid: user?.userUuid || '',
         CurrentPassword: '',
         NewPassword: ''
       })

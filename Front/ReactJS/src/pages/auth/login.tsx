@@ -11,6 +11,7 @@ import { encryptPayload } from '@/utils/encryptUtils';
 import styled from 'twin.macro';
 import Link from 'next/link';
 import { Alert, AlertColor, Box, Fade, Snackbar, Typography } from '@mui/material';
+import { withNoSSR } from '@/components/common/withNoSSR';
 
 const FormWrapper = styled.div`
   p-6 
@@ -39,7 +40,7 @@ const Login: React.FC = () => {
     }
   }, [error]);
 
-  const handleSignIn = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSignIn = async (event: React.FormEvent<HTMLFormElement> | React.KeyboardEvent<HTMLInputElement>) => {
     event.preventDefault();
     setAlertMessage(null);
     setLoading(true);
@@ -134,10 +135,10 @@ const Login: React.FC = () => {
                   value={formData.password}
                   onChange={handleChange}
                   required
-                  onKeyDown={(e) => {
+                  onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
                     if (e.key === 'Enter') {
                       e.preventDefault();
-                      handleSignIn(e as any); // optional if already handled via form submit
+                      handleSignIn(e);
                     }
                   }}
                 />
@@ -169,4 +170,4 @@ const Login: React.FC = () => {
   );
 };
 
-export default Login;
+export default withNoSSR(Login);

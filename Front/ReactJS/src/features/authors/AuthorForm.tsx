@@ -64,7 +64,7 @@ const AuthorForm: React.FC<AuthorProps> = ({ title }) => {
         })).unwrap();
         router.push(`/author/${formData.AuthorId}`);
       }
-    } catch (error: any) {}
+    } catch (error: unknown) {}
   };
 
   return (

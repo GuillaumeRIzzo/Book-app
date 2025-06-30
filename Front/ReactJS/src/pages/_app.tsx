@@ -8,6 +8,7 @@ import { ThemeProvider } from '@components/context/ThemeContext';
 import { ColorProvider } from '@/components/context/ColorContext';
 import '@styles/globals.css';
 import { Navbar } from '@/components/layout';
+import ClientOnly from '@/components/common/ClientOnly'; // 👈 Ajoute ce wrapper
 
 const MyApp = ({ Component, pageProps: { session, ...pageProps } }: AppProps) => {
   return (
@@ -16,13 +17,14 @@ const MyApp = ({ Component, pageProps: { session, ...pageProps } }: AppProps) =>
         <ThemeProvider>
           <ColorProvider>
             <Navbar />
-            <Component {...pageProps} />
+            <ClientOnly> {/* ✅ Ici tu forces le rendu client uniquement */}
+              <Component {...pageProps} />
+            </ClientOnly>
           </ColorProvider>
         </ThemeProvider>
       </Provider>
     </SessionProvider>
   );
 };
-
 
 export default MyApp;

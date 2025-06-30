@@ -6,6 +6,7 @@ import { getColor, getColors, addColor, updateColor } from '@/api/colorApi';
 import { Color } from '@/models/color/color';
 import { ColorState } from '@/models/color/ColorState';
 import { decryptPayload, EncryptedPayload } from '@/utils/encryptUtils';
+import { AxiosError } from 'axios';
 
 export const fetchColorsAsync = createAsyncThunk('colors/getColors', async () => {
   try {
@@ -32,6 +33,13 @@ export const fetchColorsAsync = createAsyncThunk('colors/getColors', async () =>
   }
 });
 
+interface DecryptedColorData {
+  colorId: string;
+  colorUuid: string;
+  colorName: string;
+  [key: string]: unknown;
+}
+
 export const fetchColorById = createAsyncThunk(
   'colors/getColor',
   async (colorUuid: string) => {
@@ -41,12 +49,12 @@ export const fetchColorById = createAsyncThunk(
       const encryptedData = response.data.encryptedData as string;
       const iv = response.data.iv as string;
 
-      const decryptedData = decryptPayload(encryptedData, iv);
+      const decryptedData = decryptPayload<DecryptedColorData>(encryptedData, iv);
 
       // Parse decrypted data as a Color object
       const color = {
         ...camelCaseKeys(decryptedData, { deep: true }),
-        colorId: (decryptedData as any).id, // manually set the colorUuid
+        colorId: decryptedData.id, // manually set the colorUuid
       } as Color;
 
       return color;
@@ -63,8 +71,11 @@ export const createColor = createAsyncThunk(
     try {
       const response = await addColor(payload);
       return response.data;
-    } catch (error: any) {
-      return rejectWithValue(error.response.data);
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response) {
+        return rejectWithValue(axiosError.response.data);
+      }
     }
   }
 );
@@ -81,8 +92,11 @@ export const updateColorAsync = createAsyncThunk(
       await updateColor(colorUuid, payload);
       
       return { colorUuid, decryped : decryptPayload(payload.encryptedData, payload.iv) };
-    } catch (error: any) {
-      console.error('Failed to update color:', error);
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response) {
+        console.error('Failed to update color:', axiosError.response);
+      }
       // Throw error to handle it in UI
       throw error; 
     }

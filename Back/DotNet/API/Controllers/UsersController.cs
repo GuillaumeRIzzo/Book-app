@@ -48,8 +48,7 @@ namespace API.Controllers
                     UpdatedAt = x.UpdatedAt,
                     UserRightUuid = x.UserRightUuid,
                     GenderUuid = x.GenderUuid,
-                    UserEmail = x.UserEmailsUu?
-                        .FirstOrDefault(e => e.IsPrimary)?.EmailAddress // optional logic
+                    UserEmail = x.UserEmailsUu?.FirstOrDefault(e => e.IsPrimary)?.EmailAddress // optional logic
                 }).ToList();
 
                 var encryptedData = EncryptionHelper.EncryptData(JsonSerializer.Serialize(model));

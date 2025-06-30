@@ -8,6 +8,7 @@ import useLoginValidator from '@/hooks/useLoginValidator';
 import usePasswordValidator from '@/hooks/usePasswordValidator';
 import useConfirmPasswordValidator from '@/hooks/useConfirmPasswordValidator';
 import { EncryptedPayload, encryptPayload } from '@/utils/encryptUtils';
+import axios from 'axios';
 
 const FormWrapper = styled.div`
   w-2/4
@@ -88,19 +89,21 @@ const UserForm: React.FC<FormProps> = ({ title }) => {
           UserRight: formData.userRight,
         });
 
-        const result = await addUser(encryptedPayload);
+        await addUser(encryptedPayload);
       } else {
         console.error('Validation failed');
       }
-    } catch (error: any) {
-      if (error.response && error.response.data) {
-        const { name, message } = error.response.data;
-        setApiErrors(prevErrors => ({
-          ...prevErrors,
-          [name]: message,
-        }));
-      }
+    } catch (error: unknown) {
+    if (axios.isAxiosError(error) && error.response && error.response.data) {
+      const { name, message } = error.response.data as { name: string; message: string };
+      setApiErrors(prevErrors => ({
+        ...prevErrors,
+        [name]: message,
+      }));
+    } else {
+      console.error('Unexpected error', error);
     }
+  }
   };
 
   return (

@@ -3,10 +3,14 @@ import React, { useState, useRef, useEffect } from 'react';
 
 import store from '@/redux/store';
 import SearchItem from './SearchItem';
-export interface SearchResult {
-  type: string;
-  item: any;
-}
+
+export type SearchResult =
+  | { type: 'History'; item: string }
+  | { type: 'Livre'; item: { bookTitle: string; bookId: number; } }
+  | { type: 'Auteur'; item: { authorFullName: string; authorId: number } }
+  | { type: 'Éditeur'; item: { publisherName: string; publisherId: number } }
+  | { type: 'Catégorie'; item: { categoryName: string; categoryId: number } };
+
 
 const SearchBar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -14,10 +18,11 @@ const SearchBar: React.FC = () => {
   const [results, setResults] = useState<SearchResult[]>([]);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [history, setHistory] = useState<string[]>([]);
-  const combinedResults = [
-    ...history.map(item => ({ type: 'History', item })),
+  const combinedResults: SearchResult[] = [
+    ...history.map(item => ({ type: 'History' as const, item })),
     ...results,
   ];
+
   const inputRef = useRef<HTMLInputElement | null>(null);
   const searchBarRef = useRef<HTMLDivElement | null>(null);
   const overlayRef = useRef<HTMLDivElement | null>(null);
@@ -53,13 +58,24 @@ const SearchBar: React.FC = () => {
     );
 
     setResults([
-      ...filteredBooks.map(b => ({ type: 'Livre', item: b })),
-      ...filteredAuthors.map(a => ({ type: 'Auteur', item: a })),
-      ...filteredPublishers.map(p => ({ type: 'Éditeur', item: p })),
-      ...filteredCategories.map(c => ({ type: 'Catégorie', item: c })),
+      ...filteredBooks.map(b => ({ type: 'Livre' as const, item: b })),
+      ...filteredAuthors.map(a => ({ type: 'Auteur' as const, item: a })),
+      ...filteredPublishers.map(p => ({ type: 'Éditeur' as const, item: p })),
+      ...filteredCategories.map(c => ({ type: 'Catégorie' as const, item: c })),
     ]);
+
     setSelectedIndex(null);
   };
+
+  const getTitle = (result: SearchResult): string => {
+  switch (result.type) {
+    case 'Livre': return result.item.bookTitle;
+    case 'Auteur': return result.item.authorFullName;
+    case 'Éditeur': return result.item.publisherName;
+    case 'Catégorie': return result.item.categoryName;
+    case 'History': return result.item;
+  }
+}
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'ArrowDown' && combinedResults.length > 0) {
@@ -82,12 +98,7 @@ const SearchBar: React.FC = () => {
             setSearchTerm(selected.item);
             handleSearch(selected.item);
           } else {
-            setSearchTerm(
-              selected.item.bookTitle ||
-                selected.item.AuthorFullName ||
-                selected.item.publisherName ||
-                selected.item.categoryName,
-            );
+            setSearchTerm(getTitle(selected));
           }
           goToSearch(selectedIndex);
         }
@@ -160,23 +171,18 @@ const SearchBar: React.FC = () => {
     setResults([]);
   };
 
-  const resultImage = (result: SearchResult) => {
-    let img = '';
-    switch (result.type) {
-      case 'Livre':
-        img = result.item.bookImageLink;
-        break;
-      case 'Auteur':
-      case 'Éditeur':
-      case 'Catégorie':
-        img =
-          'https://img.freepik.com/premium-vector/user-profile-icon-flat-style-member-avatar-vector-illustration-isolated-background-human-permission-sign-business-concept_157943-15752.jpg';
-        break;
-      default:
-        break;
-    }
-    return img;
-  };
+const resultImage = (result: SearchResult) => {
+  switch (result.type) {
+    case 'Livre':
+      return '/default-book-image.png'; // image générique ou selon un autre mécanisme
+    case 'Auteur':
+    case 'Éditeur':
+    case 'Catégorie':
+      return 'https://img.freepik.com/premium-vector/user-profile-icon-flat-style-member-avatar-vector-illustration-isolated-background-human-permission-sign-business-concept_157943-15752.jpg';
+    default:
+      return '';
+  }
+};
 
   const handleClickOutside = (event: MouseEvent) => {
     if (
