@@ -7,6 +7,7 @@ import { ImagesState } from '@/models/images/imagesState';
 import { getImages, getImage, addImage, updateImage, delImage } from '@/api/bookImagesApi';
 import { decryptPayload, EncryptedPayload } from '@/utils/encryptUtils';
 import { mapIdToCustomKeys, ModelType } from '@/utils/mapIdToCustomKeys';
+import { AxiosError } from 'axios';
 
 export const fetchImagesAsync = createAsyncThunk('images/getImages', async () => {
   try {
@@ -42,6 +43,12 @@ export const fetchImagesAsync = createAsyncThunk('images/getImages', async () =>
   }
 });
 
+interface DecryptedImageData {
+  imageId: string;
+  imageUuid: string;
+  [key: string]: unknown;
+}
+
 export const fetchImageByUuid = createAsyncThunk(
   'images/getImage',
   async (imageUuid: string) => {
@@ -52,12 +59,12 @@ export const fetchImageByUuid = createAsyncThunk(
       const iv = response.data.iv as string;
 
       // Decrypt data
-      const decryptedData = decryptPayload(encryptedData, iv);
+      const decryptedData = decryptPayload<DecryptedImageData>(encryptedData, iv);
 
       // DecryptedData is a single Book object here
       const book = {
         ...camelCaseKeys(decryptedData, { deep: true }),
-        imageId: (decryptedData as any).id, // manually set the imageUuid
+        imageId: decryptedData.id, // manually set the imageUuid
       } as Image;
 
       return book;
@@ -75,8 +82,11 @@ export const createImage = createAsyncThunk(
     try {
       const response = await addImage(payload);
       return response.data;
-    } catch (error: any) {
-      return rejectWithValue(error.response.data);
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response) {
+        return rejectWithValue(axiosError.response.data);
+      }
     }
   }
 );
@@ -93,8 +103,11 @@ export const updateImageAsync = createAsyncThunk(
       await updateImage(imageUuid, payload);
       
       return { imageUuid, decryped : decryptPayload(payload.encryptedData, payload.iv) };
-    } catch (error: any) {
-      console.error('Failed to update book:', error);
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response) {
+        console.error('Failed to update book:', axiosError.response);
+      }
       // Throw error to handle it in UI
       throw error; 
     }

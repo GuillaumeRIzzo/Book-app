@@ -8,15 +8,32 @@ import {
   useState,
   useEffect,
   useMemo,
-  useCallback
+  useCallback,
 } from 'react';
 import { useSelector } from 'react-redux';
 
-const ThemeContext = createContext<any>(null);
+export interface ThemeContextType {
+  theme: 'light' | 'dark';
+  setTheme: (theme: 'light' | 'dark') => void;
+  applyTheme: (theme: 'light' | 'dark') => void;
+  toggleTheme: () => void;
+  isSystem: boolean;
+}
 
-export const useTheme = () => useContext(ThemeContext);
+const ThemeContext = createContext<ThemeContextType | null>(null);
 
-export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const useTheme = (): ThemeContextType => {
+  const context = useContext(ThemeContext);
+  if (!context) {
+    throw new Error('useTheme must be used within a ThemeProvider');
+  }
+  return context;
+};
+
+
+export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const { data: session } = useSession();
   const userTheme = useSelector(selectAllPreferences);
   const themes = useSelector(selectAllThemes);
@@ -28,7 +45,10 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (session?.user?.encryptedSession) {
       const { encryptedData, iv } = session.user.encryptedSession;
       try {
-        const decryptedData = decryptPayload<{ uuid: string }>(encryptedData, iv);
+        const decryptedData = decryptPayload<{ uuid: string }>(
+          encryptedData,
+          iv,
+        );
         return { uuid: decryptedData.uuid };
       } catch (error) {
         console.error('Failed to decrypt session data:', error);
@@ -39,7 +59,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // Apply current theme to <html> class
   const applyTheme = useCallback((newTheme: 'light' | 'dark') => {
-    document.documentElement.className = newTheme === 'dark' ? 'theme-dark' : 'theme-light';
+    document.documentElement.className =
+      newTheme === 'dark' ? 'theme-dark' : 'theme-light';
     setTheme(newTheme);
   }, []);
 
@@ -87,7 +108,9 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, applyTheme, isSystem }}>
+    <ThemeContext.Provider
+      value={{ theme, setTheme, toggleTheme, applyTheme, isSystem }}
+    >
       {children}
     </ThemeContext.Provider>
   );

@@ -7,6 +7,7 @@ import { Author } from '@/models/author/author';
 import { AuthorState } from '@/models/author/AuthorState';
 import { decryptPayload, EncryptedPayload } from '@/utils/encryptUtils';
 import { mapIdToCustomKeys, ModelType } from '@/utils/mapIdToCustomKeys';
+import { AxiosError } from 'axios';
 
 export const fetchAuthorsAsync = createAsyncThunk('authors/getAuthors', async () => {
   try {
@@ -41,6 +42,13 @@ export const fetchAuthorsAsync = createAsyncThunk('authors/getAuthors', async ()
   }
 });
 
+interface DecryptedAuthorData {
+  authorId: string;
+  authorUuid: string;
+  authorFullName: string;
+  [key: string]: unknown;
+}
+
 export const fetchAuthorById = createAsyncThunk(
   'authors/getAuthor',
   async (authorUuid: string) => {
@@ -53,12 +61,12 @@ export const fetchAuthorById = createAsyncThunk(
       const iv = response.data.iv as string;
 
       // Decrypt the data
-      const decryptedData = decryptPayload(encryptedData, iv);
+      const decryptedData = decryptPayload<DecryptedAuthorData>(encryptedData, iv);
       
       const author = {
         ...camelCaseKeys(decryptedData, { deep: true }),
-        authorId: (decryptedData as any).id, // manually set the authorUuid
-      } as Author;      
+        authorId: decryptedData.id, // manually set the authorId
+      } as Author;
       
       return author;
     } catch (error) {
@@ -74,8 +82,12 @@ export const createAuthor = createAsyncThunk(
     try {
       const response = await addAuthor(payload);
       return response.data;
-    } catch (error: any) {
-      return rejectWithValue(error.response.data);
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response) {
+        return rejectWithValue(axiosError.response.data);
+      }
+      return rejectWithValue('Erreur inconnue');
     }
   }
 );
@@ -87,15 +99,21 @@ type UpdateAuthorParams = {
 
 export const updateAuthorAsync = createAsyncThunk(
   'authors/updateAuthor',
-  async ({ authorUuid, payload }: UpdateAuthorParams) => {
+  async ({ authorUuid, payload }: UpdateAuthorParams, { rejectWithValue }) => {
     try {
       await updateAuthor(authorUuid, payload);
 
-      return { authorUuid, decrypted: decryptPayload(payload.encryptedData, payload.iv) };
-    } catch (error: any) {
-      console.error('Failed to update author:', error);
-      // Throw error to handle it in UI
-      throw error;
+      return {
+        authorUuid,
+        decrypted: decryptPayload(payload.encryptedData, payload.iv),
+      };
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response) {
+        console.error('Failed to update author:', error);
+        return rejectWithValue(axiosError.response.data); // ✅
+      }
+      throw error; // <- ou return rejectWithValue('Unknown error')
     }
   }
 );

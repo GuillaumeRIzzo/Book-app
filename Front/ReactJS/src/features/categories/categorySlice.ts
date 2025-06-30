@@ -7,6 +7,7 @@ import { Category } from '@/models/category/Category';
 import { CategoryState } from '@/models/category/CategoryState';
 import { decryptPayload, EncryptedPayload } from '@/utils/encryptUtils';
 import { mapIdToCustomKeys, ModelType } from '@/utils/mapIdToCustomKeys';
+import { AxiosError } from 'axios';
 
 export const fetchCategoriesAsync = createAsyncThunk('categories/getCategories', async () => {
   try {
@@ -42,6 +43,13 @@ export const fetchCategoriesAsync = createAsyncThunk('categories/getCategories',
   }
 });
 
+interface DecryptedCategoryData {
+  categoryId: string;
+  categoryUuid: string;
+  CategoryName: string;
+  [key: string]: unknown;
+}
+
 export const fetchCategoryById = createAsyncThunk(
   'category/fetchById',
   async (categoryUuid: string) => {
@@ -49,19 +57,19 @@ export const fetchCategoryById = createAsyncThunk(
       // Call API to fetch encrypted author data
       const response = await getCategory(categoryUuid);
 
-       // Ensure data types for encrypted payload
-       const encryptedData = response.data.encryptedData as string;
-       const iv = response.data.iv as string;
+      // Ensure data types for encrypted payload
+      const encryptedData = response.data.encryptedData as string;
+      const iv = response.data.iv as string;
 
-       // Decrypt the data
-       const decryptedData = decryptPayload(encryptedData, iv);
- 
-    const author = {
-      ...camelCaseKeys(decryptedData, { deep: true }),
-      categoryId: (decryptedData as any).id, // manually set the bookId
-    } as Category;
-    
-    return author;
+      // Decrypt the data
+      const decryptedData = decryptPayload<DecryptedCategoryData>(encryptedData, iv);
+
+      const author = {
+        ...camelCaseKeys(decryptedData, { deep: true }),
+        categoryId: decryptedData.id, // manually set the bookId
+      } as Category;
+
+      return author;
     } catch (error) {
       console.error('Failed to fetch author:', error);
       throw error; // Throw error to handle it in UI
@@ -75,8 +83,12 @@ export const createCategory = createAsyncThunk(
     try {
       const response = await addCategory(payload);
       return response.data;
-    } catch (error: any) {
-      return rejectWithValue(error.response.data);
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response) {
+        return rejectWithValue(axiosError.response.data);
+      }
+      return rejectWithValue('Erreur inconnue');
     }
   }
 );
@@ -91,12 +103,15 @@ export const updateCategoryAsync = createAsyncThunk(
   async ({ categoryId, payload }: UpdateCategoryParams) => {
     try {
       await updateCategory(categoryId, payload);
-      
+
       return { categoryId, decrypted: decryptPayload(payload.encryptedData, payload.iv) };
-    } catch (error: any) {
-      console.error('Failed to update book category:', error);
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response) {
+        console.error('Failed to update book category:', error);
+      }
       // Throw error to handle it in UI
-      throw error; 
+      throw error;
     }
   }
 );
@@ -151,7 +166,7 @@ const categorySlice = createSlice({
         state.status = 'failed';
         state.error = action.error.message || null;
       })
-      
+
       // Create
       .addCase(createCategory.pending, state => {
         state.status = 'loading';
@@ -164,7 +179,7 @@ const categorySlice = createSlice({
         state.status = 'failed';
         state.error = action.error.message || null;
       })
-      
+
       // Update
       .addCase(updateCategoryAsync.pending, state => {
         state.status = 'loading';

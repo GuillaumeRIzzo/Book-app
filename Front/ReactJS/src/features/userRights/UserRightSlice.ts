@@ -6,6 +6,7 @@ import { getUserRight, getUserRights, addUserRight } from '@/api/userRightApi';
 import { UserRight } from '@/models/userRight/userRight';
 import { UserRightState } from '@/models/userRight/UserRightState';
 import { decryptPayload, EncryptedPayload } from '@/utils/encryptUtils';
+import { AxiosError } from 'axios';
 
 export const fetchUserRightsAsync = createAsyncThunk('userRights/getUserRights', async () => {
   try {
@@ -32,6 +33,12 @@ export const fetchUserRightsAsync = createAsyncThunk('userRights/getUserRights',
   }
 });
 
+interface DecryptedUserRightData {
+  userRightId: string;
+  userRightUuid: string;
+  [key: string]: unknown;
+}
+
 export const fetchUserRightById = createAsyncThunk(
   'userRights/getUserRight',
   async (userRightUuid: string) => {
@@ -41,12 +48,12 @@ export const fetchUserRightById = createAsyncThunk(
       const encryptedData = response.data.encryptedData as string;
       const iv = response.data.iv as string;
 
-      const decryptedData = decryptPayload(encryptedData, iv);
+      const decryptedData = decryptPayload<DecryptedUserRightData>(encryptedData, iv);
 
       // Parse decrypted data as a UserRight object
       const userRight = {
         ...camelCaseKeys(decryptedData, { deep: true }),
-        userRightId: (decryptedData as any).id, // manually set the bookUuid
+        userRightId: decryptedData.id, // manually set the bookUuid
       } as UserRight;
 
       return userRight;
@@ -63,9 +70,13 @@ export const createUserRight = createAsyncThunk(
     try {
       const response = await addUserRight(payload);
       return response.data;
-    } catch (error: any) {
-      return rejectWithValue(error.response.data);
-    }
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        if (axiosError.response) {
+          return rejectWithValue(axiosError.response.data);
+        }
+        return rejectWithValue('Erreur inconnue');
+      }
   }
 );
 

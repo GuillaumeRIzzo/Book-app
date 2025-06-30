@@ -29,11 +29,19 @@ import { selectAllColors } from '../colors/colorSelector';
 import getCountryCode from '@/utils/flagUtils';
 import { useTheme } from '@/components/context/ThemeContext';
 import { useRouter } from 'next/router';
+import Image from 'next/image';
 
 const PreferencesPage: React.FC = () => {
   const { data: session } = useSession();
   const dispatch = useDispatch<AppDispatch>();
-  const { applyTheme } = useTheme();
+  const themeContext = useTheme();
+
+  if (!themeContext) {
+    throw new Error('useTheme must be used within a ThemeProvider');
+  }
+
+  const { applyTheme } = themeContext;
+
   const router = useRouter();
 
   
@@ -140,18 +148,28 @@ const PreferencesPage: React.FC = () => {
     const selectedTheme = themes.find(t => t.themeUuid === formData.themeUuid);
 
     if (selectedTheme?.themeName === 'System') {
-      const prefersDark = window.matchMedia(
-        '(prefers-color-scheme: dark)',
-      ).matches;
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       applyTheme(prefersDark ? 'dark' : 'light');
     } else {
-      applyTheme(selectedTheme?.themeName.toLowerCase());
+      const name = selectedTheme?.themeName?.toLowerCase();
+      if (name === 'dark' || name === 'light') {
+        applyTheme(name);
+      } else {
+        applyTheme('light'); // fallback par défaut
+      }
     }
-  }, [formData.themeUuid, themes]);
+
+  }, [formData.themeUuid, themes, applyTheme]);
 
   const resetToDefault = () => {
     setFormData(defaultPreferences);
-    applyTheme(defaultTheme?.themeName.toLowerCase() || 'light');
+
+    const name = defaultTheme?.themeName?.toLowerCase();
+    if (name === 'dark' || name === 'light') {
+      applyTheme(name);
+    } else {
+      applyTheme('light'); // fallback de sécurité
+    }
   };
 
   const savePreferences = () => {
@@ -222,7 +240,7 @@ const PreferencesPage: React.FC = () => {
                 style={{ display: 'flex', alignItems: 'center' }}
               >
                 {countryCode && (
-                  <img
+                  <Image
                     loading='lazy'
                     width='24'
                     src={flagUrl}

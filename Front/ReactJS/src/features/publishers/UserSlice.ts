@@ -6,7 +6,8 @@ import { getUser, getUsers, addUser } from '@/api/userApi';
 import { User } from '@/models/user/user';
 import { UserState } from '@/models/user/UserState';
 import { decryptPayload, EncryptedPayload } from '@/utils/encryptUtils';
-import { mapStrapiUserToUserModel } from '@/utils/mapStrapiUserToUserModel';
+import { AxiosError } from 'axios';
+// import { mapStrapiUserToUserModel } from '@/utils/mapStrapiUserToUserModel';
 
 export const fetchUsersAsync = createAsyncThunk('users/getUsers', async () => {
   try {
@@ -35,6 +36,12 @@ export const fetchUsersAsync = createAsyncThunk('users/getUsers', async () => {
   }
 });
 
+interface DecrypteduserData {
+  userId: string;
+  userUuid: string;
+  [key: string]: unknown;
+}
+
 export const fetchUserById = createAsyncThunk(
   'users/getUser',
   async (userUuid: string) => {
@@ -44,12 +51,12 @@ export const fetchUserById = createAsyncThunk(
       const encryptedData = response.data.encryptedData as string;
       const iv = response.data.iv as string;
 
-      const decryptedData = decryptPayload(encryptedData, iv);
+      const decryptedData = decryptPayload<DecrypteduserData>(encryptedData, iv);
 
       // Parse decrypted data as a User object
       const user = {
         ...camelCaseKeys(decryptedData, { deep: true }),
-        userId: (decryptedData as any).id, // manually set the bookUuid
+        userId: decryptedData.id, // manually set the bookUuid
       } as User;
 
       // Use the mapStrapiUserToUserModel to map the Strapi user to the local model
@@ -69,9 +76,13 @@ export const createUser = createAsyncThunk(
     try {
       const response = await addUser(payload);
       return response.data;
-    } catch (error: any) {
-      return rejectWithValue(error.response.data);
-    }
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        if (axiosError.response) {
+          return rejectWithValue(axiosError.response.data);
+        }
+        return rejectWithValue('Erreur inconnue');
+      }
   }
 );
 

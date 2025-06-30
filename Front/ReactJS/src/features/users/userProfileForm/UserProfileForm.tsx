@@ -8,7 +8,6 @@ import { useSession } from 'next-auth/react';
 
 import { AppDispatch, RootState } from '@/redux/store';
 
-import { User } from '@/models/user/user';
 import Loading from '@/components/common/Loading';
 
 import PersonalInfoForm from './PersonalInfoForm';
@@ -40,6 +39,18 @@ interface FormProps {
   title: string;
 }
 
+export interface UserFormData {
+  UserId?: number;
+  UserUuid: string;
+  UserFirstname?: string;
+  UserLastname?: string;
+  UserLogin?: string;
+  UserEmail?: string;
+  CurrentPassword?: string;
+  NewPassword?: string;
+  UserRight?: string;
+}
+
 const UserProfileForm: React.FC<FormProps> = ({ title }) => {
   const { data: session } = useSession();
   const UserStatus = useSelector((state: RootState) => state.users.status);
@@ -55,9 +66,8 @@ const UserProfileForm: React.FC<FormProps> = ({ title }) => {
   const userViews = useSelector(selectUserModelViews);
 
   const userFind = useMemo(() => {
-    return session
-      ? userViews.find(u => u.user.userUuid === id)
-      : undefined;
+    if (!session) return undefined;
+    return userViews.find(u => u.user.userUuid === id);
   }, [session, userViews, id]);
 
   // Memoized session decryption
@@ -100,14 +110,22 @@ const UserProfileForm: React.FC<FormProps> = ({ title }) => {
   // Fetch user by ID if not found
   useEffect(() => {
     if (id && !userFind) {
-        dispatch(fetchUserById(id.toString())).finally(() => setLoading(false));
-        router.push('/');
-      }
+      setLoading(true);
+      dispatch(fetchUserById(id.toString()))
+        .then(() => {
+          setLoading(false);
+        })
+        .catch(() => {
+          setLoading(false);
+          // Optionnel : afficher un message d’erreur ou rediriger ici
+        });
+    } else {
       setLoading(false);
-  }, [id, userFind, dispatch, router]);
+    }
+  }, [id, userFind, dispatch]);
 
   const handlePersonalInfoSubmit = async (
-    formData: any,
+    formData: Pick<UserFormData, 'UserUuid'>,
     event: React.FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
@@ -116,16 +134,16 @@ const UserProfileForm: React.FC<FormProps> = ({ title }) => {
         formData as Record<string, unknown>,
       );
 
-      if (formData.UserId !== undefined) {
+      if (formData.UserUuid !== undefined) {
         const { data: updatedUser } = await updateUserInfos(
-          formData.UserId,
+          formData.UserUuid,
           encryptedPayload,
         );
         dispatch(updateUserInState(updatedUser));
         setAlertMessage('User information updated successfully!');
         setAlertSeverity("success");
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error updating user:', error);
       setAlertMessage('Failed to update user information. Please try again.');
       setAlertSeverity('error');
@@ -133,7 +151,7 @@ const UserProfileForm: React.FC<FormProps> = ({ title }) => {
   };
 
   const handlePasswordChangeSubmit = async (
-    formData: any,
+    formData: Pick<UserFormData, 'UserUuid' | 'CurrentPassword'>,
     event: React.FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
@@ -142,16 +160,16 @@ const UserProfileForm: React.FC<FormProps> = ({ title }) => {
         formData as Record<string, unknown>,
       );
 
-      if (formData.UserId !== undefined) {
+      if (formData.UserUuid !== undefined) {
         const { data: updatedUser } = await updateUserPassword(
-          formData.UserId,
+          formData.UserUuid,
           encryptedPayload,
         );
         dispatch(updateUserInState(updatedUser));
         setAlertMessage('User password updated successfully!');
         setAlertSeverity('success');
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error updating user:', error);
       setAlertMessage('Failed to update user password. Please try again.');
       setAlertSeverity('error');

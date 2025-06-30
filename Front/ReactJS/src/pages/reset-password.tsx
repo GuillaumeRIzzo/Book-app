@@ -1,5 +1,6 @@
 import CustomButton from '@/components/common/Button';
 import Input from '@/components/common/Input';
+import { withNoSSR } from '@/components/common/withNoSSR';
 import { resetPassword } from '@/features/users/passwordSlice';
 import useConfirmPasswordValidator from '@/hooks/useConfirmPasswordValidator';
 import usePasswordValidator from '@/hooks/usePasswordValidator';
@@ -205,4 +206,4 @@ const ResetPasswordPage: React.FC = () => {
   );
 };
 
-export default ResetPasswordPage;
+export default withNoSSR(ResetPasswordPage);

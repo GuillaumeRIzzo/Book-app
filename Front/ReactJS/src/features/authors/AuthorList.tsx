@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useSession } from 'next-auth/react';
 
 import { Box, Fab, IconButton } from '@mui/material';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -33,24 +33,19 @@ const AuthorList: React.FC = () => {
   const [dialogAction, setDialogAction] = useState<() => void>(() => {});
 
   // Check if the session is available and contains the encrypted session
-  // const { right, token } = useMemo(() => {
-  //   if (session?.user?.encryptedSession) {
-  //     const { encryptedData, iv } = session.user.encryptedSession;
-  //     try {
-  //       const { right: decryptedRight, token: decryptToken } = decryptPayload(
-  //         encryptedData,
-  //         iv,
-  //       );
-  //       return {
-  //         right: decryptedRight as string,
-  //         token: decryptToken as string,
-  //       };
-  //     } catch (error) {
-  //       console.error('Failed to decrypt session data:', error);
-  //     }
-  //   }
-  //   return { right: '', sessionId: '' };
-  // }, [session]);
+  const { right } = useMemo(() => {
+    if (session?.user?.encryptedSession) {
+      const { encryptedData, iv } = session.user.encryptedSession;
+      try {
+        // Explicitly cast the decrypted data to the expected type
+        const decryptedData = decryptPayload<{ right: string }>(encryptedData, iv);
+        return { right: decryptedData.right };
+      } catch (error) {
+        console.error('Failed to decrypt session data:', error);
+      }
+    }
+    return { right: '' };
+  }, [session]);
 
   const handleEdit = (author: Author) => {
     setSelectedAuthor(author);
@@ -101,15 +96,15 @@ const AuthorList: React.FC = () => {
   }));
 
   const columns: GridColDef[] = [
-    // ...(right !== null && (right === 'Admin' || right === 'Super Admin')
-    //   ? [{ field: 'authorId', headerName: 'ID' }]
-    //   : []),
+    ...(right !== null && (right === 'Admin' || right === 'Super Admin')
+      ? [{ field: 'authorId', headerName: 'ID' }]
+      : []),
     {
       field: 'authorFullName',
       headerName: 'Nom',
       width: 150,
       minWidth: 150,
-      renderCell: (params: any) => (
+      renderCell: (params: GridRenderCellParams<Author>) => (
         <Link
           href={`/author/${params.row.authorId}`}
           style={{
@@ -122,39 +117,39 @@ const AuthorList: React.FC = () => {
         </Link>
       ),
     },
-    // ...(right !== null && (right === 'Admin' || right === 'Super Admin')
-    //   ? [
-    //       {
-    //         field: 'actions',
-    //         headerName: 'Actions',
-    //         width: 150,
-    //         sortable: false,
-    //         renderCell: (params: any) => (
-    //           <>
-    //             <IconButton
-    //               color='primary'
-    //               aria-label='edit author'
-    //               onClick={() => handleEdit(params.row)}
-    //             >
-    //               <EditIcon />
-    //             </IconButton>
-    //             <IconButton
-    //               color='secondary'
-    //               aria-label='delete author'
-    //               onClick={() => handleDelete(params.row)}
-    //             >
-    //               <DeleteIcon />
-    //             </IconButton>
-    //           </>
-    //         ),
-    //       },
-    //     ]
-    //   : []),
+    ...(right !== null && (right === 'Admin' || right === 'Super Admin')
+      ? [
+          {
+            field: 'actions',
+            headerName: 'Actions',
+            width: 150,
+            sortable: false,
+            renderCell: (params: GridRenderCellParams<Author>) => (
+              <>
+                <IconButton
+                  color='primary'
+                  aria-label='edit author'
+                  onClick={() => handleEdit(params.row)}
+                >
+                  <EditIcon />
+                </IconButton>
+                <IconButton
+                  color='secondary'
+                  aria-label='delete author'
+                  onClick={() => handleDelete(params.row)}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </>
+            ),
+          },
+        ]
+      : []),
   ];
 
   return (
     <Box>
-      {/* right && (right === 'Admin' || right === 'Super Admin') &&  */(
+      {right && (right === 'Admin' || right === 'Super Admin') && (
         <Box
           sx={{
             display: 'flex',

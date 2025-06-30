@@ -7,6 +7,7 @@ import { PublisherState } from '@/models/publisher/PublisherState';
 import { getPublisher, getPublishers, addPublisher, updatePublisher } from '@/api/publisherApi';
 import { decryptPayload, EncryptedPayload } from '@/utils/encryptUtils';
 import { mapIdToCustomKeys, ModelType } from '@/utils/mapIdToCustomKeys';
+import { AxiosError } from 'axios';
 
 export const fetchPublishersAsync = createAsyncThunk('publishers/getPublishers', async () => {
   try {
@@ -42,6 +43,12 @@ export const fetchPublishersAsync = createAsyncThunk('publishers/getPublishers',
   }
 });
 
+interface DecryptedPublicherData {
+  publisherId: string;
+  publisherUuid: string;
+  [key: string]: unknown;
+}
+
 export const fetchPublisherById = createAsyncThunk(
   'publishers/fetchById',
   async (publisherId: string) => {
@@ -54,11 +61,11 @@ export const fetchPublisherById = createAsyncThunk(
        const iv = response.data.iv as string;
 
        // Decrypt the data
-       const decryptedData = decryptPayload(encryptedData, iv);
+       const decryptedData = decryptPayload<DecryptedPublicherData>(encryptedData, iv);
  
       const publisher = {
         ...camelCaseKeys(decryptedData, { deep: true }),
-        publisherId: (decryptedData as any).id, // manually set the publisherId
+        publisherId: decryptedData.id, // manually set the publisherId
       } as Publisher;
 
       return publisher;
@@ -75,8 +82,12 @@ export const createPublisher = createAsyncThunk(
     try {
       const response = await addPublisher(payload);
       return response.data;
-    } catch (error: any) {
-      return rejectWithValue(error.response.data);
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response) {
+        return rejectWithValue(axiosError.response.data);
+      }
+      return rejectWithValue('Erreur inconnue');
     }
   }
 );
@@ -95,8 +106,11 @@ export const updatePublisherAsync = createAsyncThunk(
       
       return { publisherId, decrypted: decryptPayload(payload.encryptedData, payload.iv) };
     }
-    catch (error: any) {
-      console.error('Failed to update publisher:', error);
+    catch (error) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response) {
+        console.error('Failed to update publisher:', error);
+      }
       // Throw error to handle it in UI
       throw error; 
     }

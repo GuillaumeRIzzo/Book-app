@@ -1,3 +1,4 @@
+import { withNoSSR } from '@/components/common/withNoSSR';
 import { decryptPayload } from '@/utils/encryptUtils';
 import {
   Box,
@@ -5,8 +6,6 @@ import {
   CardActionArea,
   CardContent,
   CardMedia,
-  Grid,
-  Paper,
   Typography,
 } from '@mui/material';
 import { useSession } from 'next-auth/react';
@@ -24,7 +23,7 @@ const Account: React.FC = () => {
     if (!header) return;
 
     const observer = new ResizeObserver(entries => {
-      for (let entry of entries) {
+      for (const entry of entries) {
         setHeaderHeight(entry.contentRect.height);
       }
     });
@@ -157,4 +156,4 @@ const Account: React.FC = () => {
   );
 };
 
-export default Account;
+export default withNoSSR(Account);

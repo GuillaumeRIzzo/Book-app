@@ -1,4 +1,4 @@
-import { Publisher } from './Publisher';
+import { Publisher } from "./publisher";
 
 export interface PublisherState {
   publishers: Publisher[];

@@ -66,7 +66,7 @@ const CategoryForm: React.FC<CategoryProps> = ({ title }) => {
         })).unwrap();
         router.push(`/bookcategory/${formData.BookCategoId}`);
       }
-    } catch (error: any) {}
+    } catch (error) {}
   };
 
   return (
