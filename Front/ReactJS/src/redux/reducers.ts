@@ -1,6 +1,6 @@
 import { combineReducers } from '@reduxjs/toolkit';
 import bookReducer from '@/features/books/bookSlice';
-import imagesReducer from '@/features/images/imageSlice';
+import imagesReducer from '@/features/bookImages/bookImageSlice';
 import userReducer from '@/features/users/UserSlice';
 import authorReducer from '@/features/authors/AuthorSlice';
 import publisherReducer from '@/features/publishers/PublisherSlice';

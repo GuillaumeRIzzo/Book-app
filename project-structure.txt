@@ -2,71 +2,180 @@
 ```
 book-app
 ├─ Back
-│  ├─ BookAPI
-│  │  ├─ BookAPI.csproj
-│  │  ├─ BookAPI.csproj.user
-│  │  ├─ BookAPI.http
-│  │  ├─ BookAPI.sln
-│  │  ├─ Controllers
-│  │  │  ├─ AuthorsController.cs
-│  │  │  ├─ BookCategoryController.cs
-│  │  │  ├─ BooksController.cs
-│  │  │  ├─ CategorieListsController.cs
-│  │  │  ├─ IdentityController.cs
-│  │  │  ├─ PublishersController.cs
-│  │  │  ├─ ReadlistsController.cs
-│  │  │  └─ UsersController.cs
-│  │  ├─ Data
-│  │  │  ├─ Author.cs
-│  │  │  ├─ Book.cs
-│  │  │  ├─ BookAction.cs
-│  │  │  ├─ BookCategory.cs
-│  │  │  ├─ BookDbContext.cs
-│  │  │  ├─ CategoryList.cs
-│  │  │  ├─ Modify.cs
-│  │  │  ├─ Publisher.cs
-│  │  │  ├─ Readlist.cs
-│  │  │  └─ User.cs
-│  │  ├─ Identity
-│  │  │  ├─ IdentityData.cs
-│  │  │  ├─ LoginResponseDto.cs
-│  │  │  ├─ RequiresCustomClaimAttribute.cs
-│  │  │  └─ RequiresCustomClaimAttributeHandler.cs
-│  │  ├─ Models
-│  │  │  ├─ ChangePasswordRequest.cs
-│  │  │  ├─ ChangeUserInfosRequest.cs
-│  │  │  ├─ LoginViewModel.cs
-│  │  │  ├─ ModelViewAuthor.cs
-│  │  │  ├─ ModelViewBook.cs
-│  │  │  ├─ ModelViewBookCategory.cs
-│  │  │  ├─ ModelViewCategoryList.cs
-│  │  │  ├─ ModelViewPublisher.cs
-│  │  │  ├─ ModelViewReadlist.cs
-│  │  │  └─ ModelViewUser.cs
-│  │  ├─ Program.cs
-│  │  ├─ Properties
-│  │  │  └─ launchSettings.json
-│  │  ├─ Swagger
-│  │  │  └─ ConfigureSwaggerOptions.cs
-│  │  ├─ Utils
-│  │  │  ├─ EncryptedPayload.cs
-│  │  │  └─ EncryptionHelper.cs
-│  │  ├─ appsettings.Development.json
-│  │  └─ appsettings.json
-│  ├─ BookAPI.Tests
-│  │  ├─ AuthorsControllerTests.cs
-│  │  ├─ BookAPI.Tests.csproj
-│  │  ├─ BookCategoryControllerTests.cs
-│  │  ├─ BooksControllerTests.cs
-│  │  ├─ CategoryListsControllerTests.cs
-│  │  ├─ IdentityControllerTests.cs
-│  │  ├─ PublishersControllerTests.cs
-│  │  ├─ TestAsyncEnumerable.cs
-│  │  ├─ TestAsyncEnumerator.cs
-│  │  ├─ TestAsyncQueryProvider.cs
-│  │  └─ UsersControllerTests.cs
-│  ├─ Dockerfile
-│  └─ StrapiCMS
+│  ├─ DotNet
+│  │  ├─ API
+│  │  │  ├─ .dockerignore
+│  │  │  ├─ API.csproj
+│  │  │  ├─ API.csproj.user
+│  │  │  ├─ API.sln
+│  │  │  ├─ appsettings.Development.json
+│  │  │  ├─ appsettings.json
+│  │  │  ├─ BookAPI.http
+│  │  │  ├─ Controllers
+│  │  │  │  ├─ ActivityTypesController.cs
+│  │  │  │  ├─ AuditTrailController.cs
+│  │  │  │  ├─ AuthorDistinctionsController.cs
+│  │  │  │  ├─ AuthorLanguagesController.cs
+│  │  │  │  ├─ AuthorsController.cs
+│  │  │  │  ├─ BannedWordsController.cs
+│  │  │  │  ├─ BookImagesController.cs
+│  │  │  │  ├─ BookImageTypesController.cs
+│  │  │  │  ├─ BookLanguagesController.cs
+│  │  │  │  ├─ BookNotesController.cs
+│  │  │  │  ├─ BooksController.cs
+│  │  │  │  ├─ BookSeriesOrdersController.cs
+│  │  │  │  ├─ BookTranslationsController.cs
+│  │  │  │  ├─ BookVersionHistoriesController.cs
+│  │  │  │  ├─ CategorieListsController.cs
+│  │  │  │  ├─ CategoriesController.cs
+│  │  │  │  ├─ ColorsController.cs
+│  │  │  │  ├─ GendersController.cs
+│  │  │  │  ├─ IdentityController.cs
+│  │  │  │  ├─ LanguagesController.cs
+│  │  │  │  ├─ ModerationLogsController.cs
+│  │  │  │  ├─ NotificationsController.cs
+│  │  │  │  ├─ OrderHistoriesController.cs
+│  │  │  │  ├─ OrderItemsController.cs
+│  │  │  │  ├─ PreferencesController.cs
+│  │  │  │  ├─ PublishersController.cs
+│  │  │  │  ├─ ReadListBooksController.cs
+│  │  │  │  ├─ ReadListsController.cs
+│  │  │  │  ├─ SeriesController.cs
+│  │  │  │  ├─ ShoppingBasketItemsController.cs
+│  │  │  │  ├─ ShoppingBasketsController.cs
+│  │  │  │  ├─ StateStatusesController.cs
+│  │  │  │  ├─ TagsController.cs
+│  │  │  │  ├─ ThemesController.cs
+│  │  │  │  ├─ UserBookActivitiesController.cs
+│  │  │  │  ├─ UserBookStatesController.cs
+│  │  │  │  ├─ UserConnectionsController.cs
+│  │  │  │  ├─ UserEmailsController.cs
+│  │  │  │  ├─ UserPasswordsController.cs
+│  │  │  │  ├─ UserRightsController.cs
+│  │  │  │  ├─ UserRoleHistoriesController.cs
+│  │  │  │  ├─ UsersController.cs
+│  │  │  │  └─ WishlistBooksController.cs
+│  │  │  ├─ Data
+│  │  │  │  ├─ ActivityType.cs
+│  │  │  │  ├─ AuditTrail.cs
+│  │  │  │  ├─ Author.cs
+│  │  │  │  ├─ AuthorDistinction.cs
+│  │  │  │  ├─ AuthorLanguage.cs
+│  │  │  │  ├─ BannedWord.cs
+│  │  │  │  ├─ Book.cs
+│  │  │  │  ├─ BookDbContext.cs
+│  │  │  │  ├─ BookImage.cs
+│  │  │  │  ├─ BookImageType.cs
+│  │  │  │  ├─ BookLanguage.cs
+│  │  │  │  ├─ BookNote.cs
+│  │  │  │  ├─ BookSeriesOrder.cs
+│  │  │  │  ├─ BookTranslation.cs
+│  │  │  │  ├─ BookVersionHistory.cs
+│  │  │  │  ├─ Category.cs
+│  │  │  │  ├─ Color.cs
+│  │  │  │  ├─ Gender.cs
+│  │  │  │  ├─ Language.cs
+│  │  │  │  ├─ ModerationLog.cs
+│  │  │  │  ├─ Notification.cs
+│  │  │  │  ├─ OrderHistory.cs
+│  │  │  │  ├─ OrderItem.cs
+│  │  │  │  ├─ Preference.cs
+│  │  │  │  ├─ Publisher.cs
+│  │  │  │  ├─ Readlist.cs
+│  │  │  │  ├─ ReadListBook.cs
+│  │  │  │  ├─ Series.cs
+│  │  │  │  ├─ ShoppingBasket.cs
+│  │  │  │  ├─ ShoppingBasketItem.cs
+│  │  │  │  ├─ StateStatus.cs
+│  │  │  │  ├─ Tag.cs
+│  │  │  │  ├─ Theme.cs
+│  │  │  │  ├─ User.cs
+│  │  │  │  ├─ UserBookActivity.cs
+│  │  │  │  ├─ UserBookState.cs
+│  │  │  │  ├─ UserConnection.cs
+│  │  │  │  ├─ UserEmail.cs
+│  │  │  │  ├─ UserPassword.cs
+│  │  │  │  ├─ UserRight.cs
+│  │  │  │  ├─ UserRoleHistory.cs
+│  │  │  │  └─ WishlistBook.cs
+│  │  │  ├─ Dockerfile
+│  │  │  ├─ Identity
+│  │  │  │  ├─ IdentityData.cs
+│  │  │  │  ├─ LoginResponseDto.cs
+│  │  │  │  ├─ RequiresCustomClaimAttribute.cs
+│  │  │  │  └─ RequiresCustomClaimAttributeHandler.cs
+│  │  │  ├─ Models
+│  │  │  │  ├─ ActivityTypeDto.cs
+│  │  │  │  ├─ AuditTrailDto.cs
+│  │  │  │  ├─ AuthorDistinctionDto.cs
+│  │  │  │  ├─ AuthorDto.cs
+│  │  │  │  ├─ AuthorLanguageDto.cs
+│  │  │  │  ├─ BannedWordDto.cs
+│  │  │  │  ├─ BookDto.cs
+│  │  │  │  ├─ BookImageDto.cs
+│  │  │  │  ├─ BookImageTypeDto.cs
+│  │  │  │  ├─ BookLanguageDto.cs
+│  │  │  │  ├─ BookNoteDto.cs
+│  │  │  │  ├─ BookSeriesOrderDto.cs
+│  │  │  │  ├─ BookTranslationDto.cs
+│  │  │  │  ├─ BookVersionHistoryDto.cs
+│  │  │  │  ├─ CategoryDto.cs
+│  │  │  │  ├─ ChangePasswordRequest.cs
+│  │  │  │  ├─ ChangeUserInfosRequest.cs
+│  │  │  │  ├─ ColorDto.cs
+│  │  │  │  ├─ CreateUserRequest.cs
+│  │  │  │  ├─ ForgotPasswordRequest.cs
+│  │  │  │  ├─ GenderDto.cs
+│  │  │  │  ├─ LanguageDto.cs
+│  │  │  │  ├─ LoginDto.cs
+│  │  │  │  ├─ ModerationLogDto.cs
+│  │  │  │  ├─ NotificationDto.cs
+│  │  │  │  ├─ OrderHistoryDto.cs
+│  │  │  │  ├─ OrderItemDto.cs
+│  │  │  │  ├─ PreferenceDto.cs
+│  │  │  │  ├─ PublisherDto.cs
+│  │  │  │  ├─ ReadListBookDto.cs
+│  │  │  │  ├─ ReadlistDto.cs
+│  │  │  │  ├─ ResetPasswordRequest.cs
+│  │  │  │  ├─ SeriesDto.cs
+│  │  │  │  ├─ ShoppingBasketDto.cs
+│  │  │  │  ├─ ShoppingBasketItemDto.cs
+│  │  │  │  ├─ StateStatusDto.cs
+│  │  │  │  ├─ TagDto.cs
+│  │  │  │  ├─ ThemeDto.cs
+│  │  │  │  ├─ UserBookActivityDto.cs
+│  │  │  │  ├─ UserBookStateDto.cs
+│  │  │  │  ├─ UserConnectionDto.cs
+│  │  │  │  ├─ UserDto.cs
+│  │  │  │  ├─ UserEmailDto.cs
+│  │  │  │  ├─ UserPasswordDto.cs
+│  │  │  │  ├─ UserRightDto.cs
+│  │  │  │  ├─ UserRoleHistoryDto.cs
+│  │  │  │  └─ WishlistBookDto.cs
+│  │  │  ├─ Program.cs
+│  │  │  ├─ Properties
+│  │  │  │  └─ launchSettings.json
+│  │  │  ├─ Services
+│  │  │  │  ├─ IEmailService.cs
+│  │  │  │  └─ MailKitEmailService.cs
+│  │  │  ├─ Swagger
+│  │  │  │  └─ ConfigureSwaggerOptions.cs
+│  │  │  └─ Utils
+│  │  │     ├─ EncryptedPayload.cs
+│  │  │     └─ EncryptionHelper.cs
+│  │  └─ Tests
+│  │     ├─ AuthorsControllerTests.cs
+│  │     ├─ BookCategoryControllerTests.cs
+│  │     ├─ BooksControllerTests.cs
+│  │     ├─ CategoryListsControllerTests.cs
+│  │     ├─ IdentityControllerTests.cs
+│  │     ├─ PublishersControllerTests.cs
+│  │     ├─ TestAsyncEnumerable.cs
+│  │     ├─ TestAsyncEnumerator.cs
+│  │     ├─ TestAsyncQueryProvider.cs
+│  │     ├─ Tests.csproj
+│  │     └─ UsersControllerTests.cs
+│  └─ Strapi
 │     ├─ .dockerignore
 │     ├─ .strapi
 │     │  └─ client
@@ -74,8 +183,7 @@ book-app
 │     │     └─ index.html
 │     ├─ .strapi-updater.json
 │     ├─ .tmp
-│     ├─ Dockerfile
-│     ├─ README.md
+│     │  └─ data.db
 │     ├─ config
 │     │  ├─ admin.ts
 │     │  ├─ api.ts
@@ -84,15 +192,14 @@ book-app
 │     │  └─ plugins.ts
 │     ├─ database
 │     │  └─ migrations
+│     ├─ Dockerfile
 │     ├─ favicon.png
 │     ├─ package-lock.json
 │     ├─ package.json
 │     ├─ public
 │     │  ├─ robots.txt
 │     │  └─ uploads
-│     │     ├─ dragon_Duck_dc6e433438.png
-│     │     ├─ small_dragon_Duck_dc6e433438.png
-│     │     └─ thumbnail_dragon_Duck_dc6e433438.png
+│     ├─ README.md
 │     ├─ src
 │     │  ├─ admin
 │     │  │  ├─ app.example.tsx
@@ -106,7 +213,8 @@ book-app
 │     │  │  │  ├─ controllers
 │     │  │  │  │  └─ author.ts
 │     │  │  │  ├─ routes
-│     │  │  │  │  └─ author.ts
+│     │  │  │  │  ├─ custom-routes.ts
+│     │  │  │  │  └─ index.ts
 │     │  │  │  └─ services
 │     │  │  │     └─ author.ts
 │     │  │  ├─ book
@@ -117,7 +225,8 @@ book-app
 │     │  │  │  ├─ controllers
 │     │  │  │  │  └─ book.ts
 │     │  │  │  ├─ routes
-│     │  │  │  │  └─ book.ts
+│     │  │  │  │  ├─ custom-routes.ts
+│     │  │  │  │  └─ index.ts
 │     │  │  │  └─ services
 │     │  │  │     └─ book.ts
 │     │  │  ├─ book-category
@@ -127,7 +236,8 @@ book-app
 │     │  │  │  ├─ controllers
 │     │  │  │  │  └─ book-category.ts
 │     │  │  │  ├─ routes
-│     │  │  │  │  └─ book-category.ts
+│     │  │  │  │  ├─ custom-routes.ts
+│     │  │  │  │  └─ index.ts
 │     │  │  │  └─ services
 │     │  │  │     └─ book-category.ts
 │     │  │  └─ publisher
@@ -137,7 +247,8 @@ book-app
 │     │  │     ├─ controllers
 │     │  │     │  └─ publisher.ts
 │     │  │     ├─ routes
-│     │  │     │  └─ publisher.ts
+│     │  │     │  ├─ custom-routes.ts
+│     │  │     │  └─ index.ts
 │     │  │     └─ services
 │     │  │        └─ publisher.ts
 │     │  ├─ extensions
@@ -147,7 +258,7 @@ book-app
 │     │  │     │     └─ schema.json
 │     │  │     ├─ controllers
 │     │  │     │  └─ user.ts
-│     │  │     └─ services
+│     │  │     └─ routes
 │     │  │        └─ user.ts
 │     │  ├─ index.ts
 │     │  └─ utils
@@ -159,352 +270,430 @@ book-app
 │        └─ generated
 │           ├─ components.d.ts
 │           └─ contentTypes.d.ts
-├─ Front
-│  ├─ .dockerignore
-│  ├─ Dockerfile.dev
-│  ├─ Dockerfile.nginx
-│  ├─ README.md
-│  ├─ angular.json
-│  ├─ generate-env.js
-│  ├─ nginx.conf
-│  ├─ package-lock.json
-│  ├─ package.json
-│  ├─ src
-│  │  ├─ .editorconfig
-│  │  ├─ app
-│  │  │  ├─ app-routing.module.ts
-│  │  │  ├─ app.component.css
-│  │  │  ├─ app.component.html
-│  │  │  ├─ app.component.ts
-│  │  │  ├─ app.module.ts
-│  │  │  ├─ auth
-│  │  │  │  ├─ auth.guard.ts
-│  │  │  │  ├─ authService.service.ts
-│  │  │  │  ├─ inscription
-│  │  │  │  │  ├─ inscription.component.css
-│  │  │  │  │  ├─ inscription.component.html
-│  │  │  │  │  └─ inscription.component.ts
-│  │  │  │  └─ login
-│  │  │  │     ├─ login.component.css
-│  │  │  │     ├─ login.component.html
-│  │  │  │     └─ login.component.ts
-│  │  │  ├─ author
-│  │  │  │  ├─ addAuthor
-│  │  │  │  │  ├─ addAuthor.component.css
-│  │  │  │  │  ├─ addAuthor.component.html
-│  │  │  │  │  └─ addAuthor.component.ts
-│  │  │  │  ├─ author.module.ts
-│  │  │  │  ├─ author.service.ts
-│  │  │  │  ├─ author.ts
-│  │  │  │  ├─ authorDetails
-│  │  │  │  │  ├─ authorDetails.component.css
-│  │  │  │  │  ├─ authorDetails.component.html
-│  │  │  │  │  └─ authorDetails.component.ts
-│  │  │  │  ├─ authorForm
-│  │  │  │  │  ├─ authorForm.component.css
-│  │  │  │  │  ├─ authorForm.component.html
-│  │  │  │  │  └─ authorForm.component.ts
-│  │  │  │  ├─ authorsList
-│  │  │  │  │  ├─ authorsList.component.css
-│  │  │  │  │  ├─ authorsList.component.html
-│  │  │  │  │  └─ authorsList.component.ts
-│  │  │  │  └─ editAuthor
-│  │  │  │     ├─ editAuthor.component.css
-│  │  │  │     ├─ editAuthor.component.html
-│  │  │  │     └─ editAuthor.component.ts
-│  │  │  ├─ book
-│  │  │  │  ├─ addBook
-│  │  │  │  │  ├─ addBook.component.css
-│  │  │  │  │  ├─ addBook.component.html
-│  │  │  │  │  └─ addBook.component.ts
-│  │  │  │  ├─ book-filter-service.service.ts
-│  │  │  │  ├─ book.module.ts
-│  │  │  │  ├─ book.service.ts
-│  │  │  │  ├─ book.ts
-│  │  │  │  ├─ bookDetail
-│  │  │  │  │  ├─ bookDetail.component.css
-│  │  │  │  │  ├─ bookDetail.component.html
-│  │  │  │  │  └─ bookDetail.component.ts
-│  │  │  │  ├─ bookForm
-│  │  │  │  │  ├─ bookForm.component.css
-│  │  │  │  │  ├─ bookForm.component.html
-│  │  │  │  │  └─ bookForm.component.ts
-│  │  │  │  ├─ booksList
-│  │  │  │  │  ├─ booksList.component.css
-│  │  │  │  │  ├─ booksList.component.html
-│  │  │  │  │  └─ booksList.component.ts
-│  │  │  │  └─ editBook
-│  │  │  │     ├─ editBook.component.css
-│  │  │  │     ├─ editBook.component.html
-│  │  │  │     └─ editBook.component.ts
-│  │  │  ├─ book-category
-│  │  │  │  ├─ addbookcategory
-│  │  │  │  │  ├─ addbookcategory.component.css
-│  │  │  │  │  ├─ addbookcategory.component.html
-│  │  │  │  │  └─ addbookcategory.component.ts
-│  │  │  │  ├─ book-category.module.ts
-│  │  │  │  ├─ bookCategory.service.ts
-│  │  │  │  ├─ bookCategory.ts
-│  │  │  │  ├─ bookCategoryDetails
-│  │  │  │  │  ├─ bookCategoryDetails.component.css
-│  │  │  │  │  ├─ bookCategoryDetails.component.html
-│  │  │  │  │  └─ bookCategoryDetails.component.ts
-│  │  │  │  ├─ bookCategoryEdit
-│  │  │  │  │  ├─ bookCategoryEdit.component.css
-│  │  │  │  │  ├─ bookCategoryEdit.component.html
-│  │  │  │  │  └─ bookCategoryEdit.component.ts
-│  │  │  │  ├─ bookCategoryForm
-│  │  │  │  │  ├─ bookCategoryForm.component.css
-│  │  │  │  │  ├─ bookCategoryForm.component.html
-│  │  │  │  │  └─ bookCategoryForm.component.ts
-│  │  │  │  └─ bookCategoryList
-│  │  │  │     ├─ bookCategoryList.component.css
-│  │  │  │     ├─ bookCategoryList.component.html
-│  │  │  │     └─ bookCategoryList.component.ts
-│  │  │  ├─ dialog
-│  │  │  │  ├─ dialog.component.css
-│  │  │  │  ├─ dialog.component.html
-│  │  │  │  └─ dialog.component.ts
-│  │  │  ├─ navabar
-│  │  │  │  ├─ navabar.component.css
-│  │  │  │  ├─ navabar.component.html
-│  │  │  │  └─ navabar.component.ts
-│  │  │  ├─ publisher
-│  │  │  │  ├─ addPublisher
-│  │  │  │  │  ├─ addPublisher.component.css
-│  │  │  │  │  ├─ addPublisher.component.html
-│  │  │  │  │  └─ addPublisher.component.ts
-│  │  │  │  ├─ editPublisher
-│  │  │  │  │  ├─ editPublisher.component.css
-│  │  │  │  │  ├─ editPublisher.component.html
-│  │  │  │  │  └─ editPublisher.component.ts
-│  │  │  │  ├─ publisher.module.ts
-│  │  │  │  ├─ publisher.service.ts
-│  │  │  │  ├─ publisher.ts
-│  │  │  │  ├─ publisherDetails
-│  │  │  │  │  ├─ publisherDetails.component.css
-│  │  │  │  │  ├─ publisherDetails.component.html
-│  │  │  │  │  └─ publisherDetails.component.ts
-│  │  │  │  ├─ publisherForm
-│  │  │  │  │  ├─ publisherForm.component.css
-│  │  │  │  │  ├─ publisherForm.component.html
-│  │  │  │  │  └─ publisherForm.component.ts
-│  │  │  │  └─ publisherList
-│  │  │  │     ├─ publisherList.component.css
-│  │  │  │     ├─ publisherList.component.html
-│  │  │  │     └─ publisherList.component.ts
-│  │  │  ├─ rating
-│  │  │  │  ├─ rating.component.css
-│  │  │  │  ├─ rating.component.html
-│  │  │  │  └─ rating.component.ts
-│  │  │  ├─ search
-│  │  │  │  ├─ SharedSearchResults.service.ts
-│  │  │  │  ├─ quickResultsList
-│  │  │  │  │  ├─ quickResultsList.component.css
-│  │  │  │  │  ├─ quickResultsList.component.html
-│  │  │  │  │  └─ quickResultsList.component.ts
-│  │  │  │  ├─ search.component.css
-│  │  │  │  ├─ search.component.html
-│  │  │  │  ├─ search.component.ts
-│  │  │  │  ├─ search.service.ts
-│  │  │  │  ├─ searchOverlay
-│  │  │  │  │  ├─ searchOverlay.component.css
-│  │  │  │  │  ├─ searchOverlay.component.html
-│  │  │  │  │  └─ searchOverlay.component.ts
-│  │  │  │  ├─ searchResults
-│  │  │  │  │  ├─ searchResults.component.css
-│  │  │  │  │  ├─ searchResults.component.html
-│  │  │  │  │  └─ searchResults.component.ts
-│  │  │  │  └─ searchResults.service.ts
-│  │  │  ├─ shared-data.service.ts
-│  │  │  ├─ truncate.pipe.ts
-│  │  │  └─ user
-│  │  │     ├─ user.module.ts
-│  │  │     ├─ user.service.ts
-│  │  │     ├─ user.ts
-│  │  │     ├─ userEdit
-│  │  │     │  ├─ userEdit.component.css
-│  │  │     │  ├─ userEdit.component.html
-│  │  │     │  └─ userEdit.component.ts
-│  │  │     ├─ userForm
-│  │  │     │  ├─ userForm.component.css
-│  │  │     │  ├─ userForm.component.html
-│  │  │     │  └─ userForm.component.ts
-│  │  │     └─ userList
-│  │  │        ├─ userList.component.css
-│  │  │        ├─ userList.component.html
-│  │  │        └─ userList.component.ts
-│  │  ├─ assets
-│  │  ├─ custom-theme.scss
-│  │  ├─ environments
-│  │  ├─ favicon.ico
-│  │  ├─ index.html
-│  │  ├─ main.ts
-│  │  └─ styles.css
-│  ├─ tsconfig.app.json
-│  └─ tsconfig.json
-├─ FrontReactJs
-│  ├─ .babelrc
-│  ├─ .dockerignore
-│  ├─ .eslintrc.json
-│  ├─ .prettierrc
-│  ├─ Dockerfile
-│  ├─ README.md
-│  ├─ next-env.d.ts
-│  ├─ next.config.mjs
-│  ├─ package-lock.json
-│  ├─ package.json
-│  ├─ postcss.config.mjs
-│  ├─ public
-│  │  ├─ favicon.ico
-│  │  ├─ next.svg
-│  │  └─ vercel.svg
-│  ├─ src
-│  │  ├─ api
-│  │  │  ├─ auth
-│  │  │  │  └─ session.ts
-│  │  │  ├─ authApi.ts
-│  │  │  ├─ authorApi.ts
-│  │  │  ├─ bookApi.ts
-│  │  │  ├─ bookcategoryApi.ts
-│  │  │  ├─ publisherApi.ts
-│  │  │  └─ userApi.ts
-│  │  ├─ components
-│  │  │  ├─ SearchBar
-│  │  │  │  ├─ SearchBar.tsx
-│  │  │  │  ├─ SearchItem.tsx
-│  │  │  │  ├─ StyledComponents.ts
-│  │  │  │  └─ index.ts
-│  │  │  ├─ common
-│  │  │  │  ├─ Button.tsx
-│  │  │  │  ├─ Header
-│  │  │  │  │  ├─ Header.tsx
-│  │  │  │  │  └─ index.ts
-│  │  │  │  ├─ Input.tsx
-│  │  │  │  ├─ Loading.tsx
-│  │  │  │  ├─ ProtectedRoute.tsx
-│  │  │  │  └─ dialog
-│  │  │  │     ├─ Dialog.tsx
-│  │  │  │     └─ index.ts
-│  │  │  ├─ context
-│  │  │  │  └─ ThemeContext.tsx
-│  │  │  └─ layout
-│  │  │     ├─ Navbar.tsx
-│  │  │     └─ index.ts
-│  │  ├─ features
-│  │  │  ├─ authors
-│  │  │  │  ├─ AuthorDetails.tsx
-│  │  │  │  ├─ AuthorForm.tsx
-│  │  │  │  ├─ AuthorList.tsx
-│  │  │  │  └─ AuthorSlice.ts
-│  │  │  ├─ bookCategory
-│  │  │  │  ├─ BookCategoryDetails.tsx
-│  │  │  │  ├─ BookCategoryForm.tsx
-│  │  │  │  ├─ BookCategoryList.tsx
-│  │  │  │  └─ BookCategorySlice.ts
-│  │  │  ├─ books
-│  │  │  │  ├─ BookDetails
-│  │  │  │  │  ├─ BookDetails.tsx
-│  │  │  │  │  └─ components
-│  │  │  │  │     ├─ BookImage.tsx
-│  │  │  │  │     └─ BookInfo.tsx
-│  │  │  │  ├─ BookForm.tsx
-│  │  │  │  ├─ BookList.tsx
-│  │  │  │  └─ bookSlice.ts
-│  │  │  ├─ publishers
-│  │  │  │  ├─ PublisherDetails.tsx
-│  │  │  │  ├─ PublisherForm.tsx
-│  │  │  │  ├─ PublisherList.tsx
-│  │  │  │  └─ PublisherSlice.ts
-│  │  │  └─ users
-│  │  │     ├─ UserForm.tsx
-│  │  │     ├─ UserList.tsx
-│  │  │     ├─ UserSlice.ts
-│  │  │     └─ userProfileForm
-│  │  │        ├─ AccountDeletionForm.tsx
-│  │  │        ├─ PasswordChangeForm.tsx
-│  │  │        ├─ PersonalInfoForm.tsx
-│  │  │        ├─ UserProfileForm.tsx
-│  │  │        └─ index.ts
-│  │  ├─ hooks
-│  │  │  ├─ imgValidator.ts
-│  │  │  ├─ useConfirmPasswordValidator.ts
-│  │  │  ├─ useEmailValidator.ts
-│  │  │  ├─ useLoginValidator.ts
-│  │  │  └─ usePasswordValidator.ts
-│  │  ├─ middleware.ts
-│  │  ├─ models
-│  │  │  ├─ author
-│  │  │  │  ├─ AuthorState.ts
-│  │  │  │  └─ author.ts
-│  │  │  ├─ book
-│  │  │  │  ├─ Book.ts
-│  │  │  │  └─ BookState.ts
-│  │  │  ├─ book-category
-│  │  │  │  ├─ BookCategory.ts
-│  │  │  │  └─ BookCategoryState.ts
-│  │  │  ├─ publisher
-│  │  │  │  ├─ PublisherState.ts
-│  │  │  │  └─ publisher.ts
-│  │  │  └─ user
-│  │  │     ├─ UserState.ts
-│  │  │     └─ user.ts
-│  │  ├─ pages
-│  │  │  ├─ _app.tsx
-│  │  │  ├─ api
-│  │  │  │  └─ auth
-│  │  │  ├─ auth
-│  │  │  │  ├─ login.tsx
-│  │  │  │  └─ signin.tsx
-│  │  │  ├─ author
-│  │  │  │  ├─ [id]
-│  │  │  │  │  ├─ edit.tsx
-│  │  │  │  │  └─ index.tsx
-│  │  │  │  ├─ add.tsx
-│  │  │  │  └─ authors.tsx
-│  │  │  ├─ book
-│  │  │  │  ├─ [id]
-│  │  │  │  │  ├─ edit.tsx
-│  │  │  │  │  └─ index.tsx
-│  │  │  │  └─ add.tsx
-│  │  │  ├─ book-category
-│  │  │  │  ├─ [id]
-│  │  │  │  │  ├─ edit.tsx
-│  │  │  │  │  └─ index.tsx
-│  │  │  │  ├─ add.tsx
-│  │  │  │  └─ bookcategories.tsx
-│  │  │  ├─ index.tsx
-│  │  │  ├─ publisher
-│  │  │  │  ├─ [id]
-│  │  │  │  │  ├─ edit.tsx
-│  │  │  │  │  └─ index.tsx
-│  │  │  │  ├─ add.tsx
-│  │  │  │  └─ publishers.tsx
-│  │  │  ├─ rootLayout.tsx
-│  │  │  └─ user
-│  │  │     ├─ [id].tsx
-│  │  │     └─ users.tsx
-│  │  ├─ redux
-│  │  │  ├─ reducers.ts
-│  │  │  └─ store.ts
-│  │  ├─ styles
-│  │  │  └─ globals.css
-│  │  ├─ types
-│  │  │  └─ next-auth.d.ts
-│  │  └─ utils
-│  │     ├─ encryptUtils.tsx
-│  │     ├─ mapIdToCustomKeys.ts
-│  │     └─ mapStrapiUserToUserModel.ts
-│  ├─ tailwind.config.ts
-│  └─ tsconfig.json
 ├─ docker-compose.yml
-├─ entrypoint.sh
-├─ init.sql
+├─ Front
+│  ├─ Angular
+│  │  ├─ .dockerignore
+│  │  ├─ angular.json
+│  │  ├─ Dockerfile.dev
+│  │  ├─ Dockerfile.nginx
+│  │  ├─ generate-env.js
+│  │  ├─ nginx.conf
+│  │  ├─ package-lock.json
+│  │  ├─ package.json
+│  │  ├─ README.md
+│  │  ├─ src
+│  │  │  ├─ .editorconfig
+│  │  │  ├─ app
+│  │  │  │  ├─ app-routing.module.ts
+│  │  │  │  ├─ app.component.css
+│  │  │  │  ├─ app.component.html
+│  │  │  │  ├─ app.component.ts
+│  │  │  │  ├─ app.module.ts
+│  │  │  │  ├─ auth
+│  │  │  │  │  ├─ auth.guard.ts
+│  │  │  │  │  ├─ authService.service.ts
+│  │  │  │  │  ├─ inscription
+│  │  │  │  │  │  ├─ inscription.component.css
+│  │  │  │  │  │  ├─ inscription.component.html
+│  │  │  │  │  │  └─ inscription.component.ts
+│  │  │  │  │  └─ login
+│  │  │  │  │     ├─ login.component.css
+│  │  │  │  │     ├─ login.component.html
+│  │  │  │  │     └─ login.component.ts
+│  │  │  │  ├─ author
+│  │  │  │  │  ├─ addAuthor
+│  │  │  │  │  │  ├─ addAuthor.component.css
+│  │  │  │  │  │  ├─ addAuthor.component.html
+│  │  │  │  │  │  └─ addAuthor.component.ts
+│  │  │  │  │  ├─ author.module.ts
+│  │  │  │  │  ├─ author.service.ts
+│  │  │  │  │  ├─ author.ts
+│  │  │  │  │  ├─ authorDetails
+│  │  │  │  │  │  ├─ authorDetails.component.css
+│  │  │  │  │  │  ├─ authorDetails.component.html
+│  │  │  │  │  │  └─ authorDetails.component.ts
+│  │  │  │  │  ├─ authorForm
+│  │  │  │  │  │  ├─ authorForm.component.css
+│  │  │  │  │  │  ├─ authorForm.component.html
+│  │  │  │  │  │  └─ authorForm.component.ts
+│  │  │  │  │  ├─ authorsList
+│  │  │  │  │  │  ├─ authorsList.component.css
+│  │  │  │  │  │  ├─ authorsList.component.html
+│  │  │  │  │  │  └─ authorsList.component.ts
+│  │  │  │  │  └─ editAuthor
+│  │  │  │  │     ├─ editAuthor.component.css
+│  │  │  │  │     ├─ editAuthor.component.html
+│  │  │  │  │     └─ editAuthor.component.ts
+│  │  │  │  ├─ book
+│  │  │  │  │  ├─ addBook
+│  │  │  │  │  │  ├─ addBook.component.css
+│  │  │  │  │  │  ├─ addBook.component.html
+│  │  │  │  │  │  └─ addBook.component.ts
+│  │  │  │  │  ├─ book-filter-service.service.ts
+│  │  │  │  │  ├─ book.module.ts
+│  │  │  │  │  ├─ book.service.ts
+│  │  │  │  │  ├─ book.ts
+│  │  │  │  │  ├─ bookDetail
+│  │  │  │  │  │  ├─ bookDetail.component.css
+│  │  │  │  │  │  ├─ bookDetail.component.html
+│  │  │  │  │  │  └─ bookDetail.component.ts
+│  │  │  │  │  ├─ bookForm
+│  │  │  │  │  │  ├─ bookForm.component.css
+│  │  │  │  │  │  ├─ bookForm.component.html
+│  │  │  │  │  │  └─ bookForm.component.ts
+│  │  │  │  │  ├─ booksList
+│  │  │  │  │  │  ├─ booksList.component.css
+│  │  │  │  │  │  ├─ booksList.component.html
+│  │  │  │  │  │  └─ booksList.component.ts
+│  │  │  │  │  └─ editBook
+│  │  │  │  │     ├─ editBook.component.css
+│  │  │  │  │     ├─ editBook.component.html
+│  │  │  │  │     └─ editBook.component.ts
+│  │  │  │  ├─ book-category
+│  │  │  │  │  ├─ addbookcategory
+│  │  │  │  │  │  ├─ addbookcategory.component.css
+│  │  │  │  │  │  ├─ addbookcategory.component.html
+│  │  │  │  │  │  └─ addbookcategory.component.ts
+│  │  │  │  │  ├─ book-category.module.ts
+│  │  │  │  │  ├─ bookCategory.service.ts
+│  │  │  │  │  ├─ bookCategory.ts
+│  │  │  │  │  ├─ bookCategoryDetails
+│  │  │  │  │  │  ├─ bookCategoryDetails.component.css
+│  │  │  │  │  │  ├─ bookCategoryDetails.component.html
+│  │  │  │  │  │  └─ bookCategoryDetails.component.ts
+│  │  │  │  │  ├─ bookCategoryEdit
+│  │  │  │  │  │  ├─ bookCategoryEdit.component.css
+│  │  │  │  │  │  ├─ bookCategoryEdit.component.html
+│  │  │  │  │  │  └─ bookCategoryEdit.component.ts
+│  │  │  │  │  ├─ bookCategoryForm
+│  │  │  │  │  │  ├─ bookCategoryForm.component.css
+│  │  │  │  │  │  ├─ bookCategoryForm.component.html
+│  │  │  │  │  │  └─ bookCategoryForm.component.ts
+│  │  │  │  │  └─ bookCategoryList
+│  │  │  │  │     ├─ bookCategoryList.component.css
+│  │  │  │  │     ├─ bookCategoryList.component.html
+│  │  │  │  │     └─ bookCategoryList.component.ts
+│  │  │  │  ├─ dialog
+│  │  │  │  │  ├─ dialog.component.css
+│  │  │  │  │  ├─ dialog.component.html
+│  │  │  │  │  └─ dialog.component.ts
+│  │  │  │  ├─ navabar
+│  │  │  │  │  ├─ navabar.component.css
+│  │  │  │  │  ├─ navabar.component.html
+│  │  │  │  │  └─ navabar.component.ts
+│  │  │  │  ├─ publisher
+│  │  │  │  │  ├─ addPublisher
+│  │  │  │  │  │  ├─ addPublisher.component.css
+│  │  │  │  │  │  ├─ addPublisher.component.html
+│  │  │  │  │  │  └─ addPublisher.component.ts
+│  │  │  │  │  ├─ editPublisher
+│  │  │  │  │  │  ├─ editPublisher.component.css
+│  │  │  │  │  │  ├─ editPublisher.component.html
+│  │  │  │  │  │  └─ editPublisher.component.ts
+│  │  │  │  │  ├─ publisher.module.ts
+│  │  │  │  │  ├─ publisher.service.ts
+│  │  │  │  │  ├─ publisher.ts
+│  │  │  │  │  ├─ publisherDetails
+│  │  │  │  │  │  ├─ publisherDetails.component.css
+│  │  │  │  │  │  ├─ publisherDetails.component.html
+│  │  │  │  │  │  └─ publisherDetails.component.ts
+│  │  │  │  │  ├─ publisherForm
+│  │  │  │  │  │  ├─ publisherForm.component.css
+│  │  │  │  │  │  ├─ publisherForm.component.html
+│  │  │  │  │  │  └─ publisherForm.component.ts
+│  │  │  │  │  └─ publisherList
+│  │  │  │  │     ├─ publisherList.component.css
+│  │  │  │  │     ├─ publisherList.component.html
+│  │  │  │  │     └─ publisherList.component.ts
+│  │  │  │  ├─ rating
+│  │  │  │  │  ├─ rating.component.css
+│  │  │  │  │  ├─ rating.component.html
+│  │  │  │  │  └─ rating.component.ts
+│  │  │  │  ├─ search
+│  │  │  │  │  ├─ quickResultsList
+│  │  │  │  │  │  ├─ quickResultsList.component.css
+│  │  │  │  │  │  ├─ quickResultsList.component.html
+│  │  │  │  │  │  └─ quickResultsList.component.ts
+│  │  │  │  │  ├─ search.component.css
+│  │  │  │  │  ├─ search.component.html
+│  │  │  │  │  ├─ search.component.ts
+│  │  │  │  │  ├─ search.service.ts
+│  │  │  │  │  ├─ searchOverlay
+│  │  │  │  │  │  ├─ searchOverlay.component.css
+│  │  │  │  │  │  ├─ searchOverlay.component.html
+│  │  │  │  │  │  └─ searchOverlay.component.ts
+│  │  │  │  │  ├─ searchResults
+│  │  │  │  │  │  ├─ searchResults.component.css
+│  │  │  │  │  │  ├─ searchResults.component.html
+│  │  │  │  │  │  └─ searchResults.component.ts
+│  │  │  │  │  ├─ searchResults.service.ts
+│  │  │  │  │  └─ SharedSearchResults.service.ts
+│  │  │  │  ├─ shared-data.service.ts
+│  │  │  │  ├─ truncate.pipe.ts
+│  │  │  │  └─ user
+│  │  │  │     ├─ user.module.ts
+│  │  │  │     ├─ user.service.ts
+│  │  │  │     ├─ user.ts
+│  │  │  │     ├─ userEdit
+│  │  │  │     │  ├─ userEdit.component.css
+│  │  │  │     │  ├─ userEdit.component.html
+│  │  │  │     │  └─ userEdit.component.ts
+│  │  │  │     ├─ userForm
+│  │  │  │     │  ├─ userForm.component.css
+│  │  │  │     │  ├─ userForm.component.html
+│  │  │  │     │  └─ userForm.component.ts
+│  │  │  │     └─ userList
+│  │  │  │        ├─ userList.component.css
+│  │  │  │        ├─ userList.component.html
+│  │  │  │        └─ userList.component.ts
+│  │  │  ├─ assets
+│  │  │  ├─ custom-theme.scss
+│  │  │  ├─ environments
+│  │  │  ├─ favicon.ico
+│  │  │  ├─ index.html
+│  │  │  ├─ main.ts
+│  │  │  └─ styles.css
+│  │  ├─ tsconfig.app.json
+│  │  └─ tsconfig.json
+│  └─ ReactJS
+│     ├─ .babelrc
+│     ├─ .dockerignore
+│     ├─ .eslintrc.json
+│     ├─ .prettierrc
+│     ├─ Dockerfile
+│     ├─ next-env.d.ts
+│     ├─ next.config.mjs
+│     ├─ package-lock.json
+│     ├─ package.json
+│     ├─ postcss.config.mjs
+│     ├─ public
+│     │  ├─ favicon.ico
+│     │  ├─ next.svg
+│     │  └─ vercel.svg
+│     ├─ README.md
+│     ├─ src
+│     │  ├─ api
+│     │  │  ├─ auth
+│     │  │  │  └─ session.ts
+│     │  │  ├─ authApi.ts
+│     │  │  ├─ authorApi.ts
+│     │  │  ├─ bookApi.ts
+│     │  │  ├─ bookImagesApi.ts
+│     │  │  ├─ categoryApi.ts
+│     │  │  ├─ colorApi.ts
+│     │  │  ├─ emailApi.ts
+│     │  │  ├─ languageApi.ts
+│     │  │  ├─ passwordApi.ts
+│     │  │  ├─ preferenceApi.ts
+│     │  │  ├─ publisherApi.ts
+│     │  │  ├─ themeApi.ts
+│     │  │  ├─ userApi.ts
+│     │  │  └─ userRightApi.ts
+│     │  ├─ components
+│     │  │  ├─ common
+│     │  │  │  ├─ Button.tsx
+│     │  │  │  ├─ ClientOnly.tsx
+│     │  │  │  ├─ dialog
+│     │  │  │  │  ├─ Dialog.tsx
+│     │  │  │  │  └─ index.ts
+│     │  │  │  ├─ Header
+│     │  │  │  │  ├─ Header.tsx
+│     │  │  │  │  └─ index.ts
+│     │  │  │  ├─ Input.tsx
+│     │  │  │  ├─ Loading.tsx
+│     │  │  │  ├─ ProtectedRoute.tsx
+│     │  │  │  └─ withNoSSR.tsx
+│     │  │  ├─ context
+│     │  │  │  ├─ ColorContext.tsx
+│     │  │  │  └─ ThemeContext.tsx
+│     │  │  ├─ layout
+│     │  │  │  ├─ index.ts
+│     │  │  │  └─ Navbar.tsx
+│     │  │  └─ SearchBar
+│     │  │     ├─ index.ts
+│     │  │     ├─ SearchBar.tsx
+│     │  │     ├─ SearchItem.tsx
+│     │  │     └─ StyledComponents.ts
+│     │  ├─ features
+│     │  │  ├─ authors
+│     │  │  │  ├─ AuthorDetails.tsx
+│     │  │  │  ├─ AuthorForm.tsx
+│     │  │  │  ├─ AuthorList.tsx
+│     │  │  │  ├─ authorSelector.ts
+│     │  │  │  └─ AuthorSlice.ts
+│     │  │  ├─ books
+│     │  │  │  ├─ BookDetails
+│     │  │  │  │  ├─ BookDetails.tsx
+│     │  │  │  │  └─ components
+│     │  │  │  │     ├─ BookImage.tsx
+│     │  │  │  │     └─ BookInfo.tsx
+│     │  │  │  ├─ BookForm.tsx
+│     │  │  │  ├─ BookList.tsx
+│     │  │  │  ├─ bookSelectors.ts
+│     │  │  │  └─ bookSlice.ts
+│     │  │  ├─ bookViews
+│     │  │  │  ├─ bookViewSelectors.ts
+│     │  │  │  └─ bookViewSlice.ts
+│     │  │  ├─ categories
+│     │  │  │  ├─ CategoriesList.tsx
+│     │  │  │  ├─ categoriesSelector.ts
+│     │  │  │  ├─ CategoryDetails.tsx
+│     │  │  │  ├─ CategoryForm.tsx
+│     │  │  │  └─ categorySlice.ts
+│     │  │  ├─ colors
+│     │  │  │  ├─ colorSelector.ts
+│     │  │  │  └─ ColorSlice.ts
+│     │  │  ├─ images
+│     │  │  │  ├─ imageSelectors.ts
+│     │  │  │  └─ imageSlice.ts
+│     │  │  ├─ languages
+│     │  │  │  ├─ languageSelector.ts
+│     │  │  │  └─ LanguageSlice.ts
+│     │  │  ├─ preferences
+│     │  │  │  ├─ preferenceSelector.ts
+│     │  │  │  ├─ PreferenceSlice.ts
+│     │  │  │  └─ PreferencesPage.tsx
+│     │  │  ├─ publishers
+│     │  │  │  ├─ PublisherDetails.tsx
+│     │  │  │  ├─ PublisherForm.tsx
+│     │  │  │  ├─ PublisherList.tsx
+│     │  │  │  ├─ publisherSelector.ts
+│     │  │  │  ├─ PublisherSlice.ts
+│     │  │  │  ├─ userSelector.ts
+│     │  │  │  └─ UserSlice.ts
+│     │  │  ├─ themes
+│     │  │  │  ├─ themeSelector.ts
+│     │  │  │  └─ ThemeSlice.ts
+│     │  │  ├─ userRights
+│     │  │  │  ├─ userRightSelector.ts
+│     │  │  │  └─ UserRightSlice.ts
+│     │  │  ├─ users
+│     │  │  │  ├─ emailSlice.ts
+│     │  │  │  ├─ passwordSlice.ts
+│     │  │  │  ├─ UserForm.tsx
+│     │  │  │  ├─ UserList.tsx
+│     │  │  │  ├─ userProfileForm
+│     │  │  │  │  ├─ AccountDeletionForm.tsx
+│     │  │  │  │  ├─ index.ts
+│     │  │  │  │  ├─ PasswordChangeForm.tsx
+│     │  │  │  │  ├─ PersonalInfoForm.tsx
+│     │  │  │  │  └─ UserProfileForm.tsx
+│     │  │  │  ├─ userSelector.ts
+│     │  │  │  └─ UserSlice.ts
+│     │  │  └─ userViews
+│     │  │     ├─ userViewSelectors.ts
+│     │  │     └─ userViewSlice.ts
+│     │  ├─ hooks
+│     │  │  ├─ imgValidator.ts
+│     │  │  ├─ useConfirmPasswordValidator.ts
+│     │  │  ├─ useEmailValidator.ts
+│     │  │  ├─ useLoginValidator.ts
+│     │  │  └─ usePasswordValidator.ts
+│     │  ├─ middleware.ts
+│     │  ├─ models
+│     │  │  ├─ author
+│     │  │  │  ├─ author.ts
+│     │  │  │  └─ AuthorState.ts
+│     │  │  ├─ book
+│     │  │  │  ├─ Book.ts
+│     │  │  │  └─ BookState.ts
+│     │  │  ├─ bookViews
+│     │  │  │  ├─ BookModelView.ts
+│     │  │  │  └─ BookModelViewState.ts
+│     │  │  ├─ category
+│     │  │  │  ├─ Category.ts
+│     │  │  │  └─ CategoryState.ts
+│     │  │  ├─ color
+│     │  │  │  ├─ color.ts
+│     │  │  │  └─ ColorState.ts
+│     │  │  ├─ images
+│     │  │  │  ├─ images.ts
+│     │  │  │  └─ imagesState.ts
+│     │  │  ├─ language
+│     │  │  │  ├─ language.ts
+│     │  │  │  └─ languageState.ts
+│     │  │  ├─ preference
+│     │  │  │  ├─ preference.ts
+│     │  │  │  └─ PreferenceState.ts
+│     │  │  ├─ publisher
+│     │  │  │  ├─ publisher.ts
+│     │  │  │  └─ PublisherState.ts
+│     │  │  ├─ theme
+│     │  │  │  ├─ theme.ts
+│     │  │  │  └─ ThemeState.ts
+│     │  │  ├─ user
+│     │  │  │  ├─ user.ts
+│     │  │  │  └─ UserState.ts
+│     │  │  ├─ userRight
+│     │  │  │  ├─ userRight.ts
+│     │  │  │  └─ UserRightState.ts
+│     │  │  └─ userViews
+│     │  │     ├─ UserModelView.ts
+│     │  │     └─ UserModelViewState.ts
+│     │  ├─ pages
+│     │  │  ├─ api
+│     │  │  │  └─ auth
+│     │  │  ├─ auth
+│     │  │  │  ├─ login.tsx
+│     │  │  │  └─ signin.tsx
+│     │  │  ├─ author
+│     │  │  │  ├─ add.tsx
+│     │  │  │  ├─ authors.tsx
+│     │  │  │  └─ [id]
+│     │  │  │     ├─ edit.tsx
+│     │  │  │     └─ index.tsx
+│     │  │  ├─ book
+│     │  │  │  ├─ add.tsx
+│     │  │  │  └─ [id]
+│     │  │  │     ├─ edit.tsx
+│     │  │  │     └─ index.tsx
+│     │  │  ├─ category
+│     │  │  │  ├─ add.tsx
+│     │  │  │  ├─ categories.tsx
+│     │  │  │  └─ [id]
+│     │  │  │     ├─ edit.tsx
+│     │  │  │     └─ index.tsx
+│     │  │  ├─ forgot-password.tsx
+│     │  │  ├─ index.tsx
+│     │  │  ├─ publisher
+│     │  │  │  ├─ add.tsx
+│     │  │  │  ├─ publishers.tsx
+│     │  │  │  └─ [id]
+│     │  │  │     ├─ edit.tsx
+│     │  │  │     └─ index.tsx
+│     │  │  ├─ reset-password.tsx
+│     │  │  ├─ rootLayout.tsx
+│     │  │  ├─ user
+│     │  │  │  ├─ account.tsx
+│     │  │  │  ├─ preferences
+│     │  │  │  │  └─ index.tsx
+│     │  │  │  ├─ users.tsx
+│     │  │  │  └─ [id].tsx
+│     │  │  └─ _app.tsx
+│     │  ├─ redux
+│     │  │  ├─ reducers.ts
+│     │  │  └─ store.ts
+│     │  ├─ styles
+│     │  │  └─ globals.css
+│     │  ├─ types
+│     │  │  └─ next-auth.d.ts
+│     │  └─ utils
+│     │     ├─ colorUtils.ts
+│     │     ├─ encryptUtils.tsx
+│     │     ├─ flagUtils.ts
+│     │     ├─ mapIdToCustomKeys.ts
+│     │     └─ mapStrapiUserToUserModel.ts
+│     ├─ tailwind.config.ts
+│     └─ tsconfig.json
 ├─ package-lock.json
 ├─ package.json
 ├─ project-structure.txt
 └─ scripts
    ├─ generate-env.mjs
+   ├─ postgres
+   │  ├─ backup.sh
+   │  └─ entrypoint.sh
    └─ sync-react-env.js
 
 ```

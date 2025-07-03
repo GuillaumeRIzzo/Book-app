@@ -1,6 +1,7 @@
 import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useTranslation } from 'react-i18next';
 
 import {
   Disclosure,
@@ -22,6 +23,8 @@ const classNames = (...classes: string[]) => classes.filter(Boolean).join(' ');
 const Navbar: React.FC = () => {
   const { data: session, status } = useSession();
   const pathname = usePathname();
+
+  const { t } = useTranslation();
 
   let token = '';
   let right = '';
@@ -49,12 +52,12 @@ const Navbar: React.FC = () => {
     }
   }
 
-  const navigation = [
-    { name: 'Accueil', href: '/' },
-    { name: 'Catégories', href: '/categories' },
-    { name: 'Auteurs', href: '/authors' },
-    { name: 'Éditeurs', href: '/publishers' },
-  ];
+const navigation = [
+  { name: t('navbar.home'), href: '/' },
+  { name: t('navbar.categories'), href: '/categories' },
+  { name: t('navbar.authors'), href: '/authors' },
+  { name: t('navbar.publishers'), href: '/publishers' },
+];
 
   return (
     <Disclosure id="app-header" as='nav' className='bg-navBar border-b-[1px] border-b-border'>
@@ -95,7 +98,7 @@ const Navbar: React.FC = () => {
                         href='/users'
                         className='text-primary hover:bg-gray-300 hover:text-primary-light rounded-md px-3 py-2 text-base font-medium'
                       >
-                        UTILISATEURS
+                        {t('navbar.users').toUpperCase()}
                       </Link>
                     )}
                   </div>
@@ -126,7 +129,7 @@ const Navbar: React.FC = () => {
                                 'block px-4 py-2 text-sm text-primary-dark hover:text-primary-light',
                               )}
                             >
-                              Votre compte
+                              {t('navbar.yourAccount')}
                             </Link>
                           )}
                         </MenuItem>
@@ -143,7 +146,7 @@ const Navbar: React.FC = () => {
                                 localStorage.clear();
                               }}
                             >
-                              Se déconnecter
+                              {t('navbar.logout')}
                             </Link>
                           )}
                         </MenuItem>
@@ -157,13 +160,13 @@ const Navbar: React.FC = () => {
                         href='/signin'
                         className='text-primary hover:bg-gray-300 hover:text-primary-light rounded-md px-3 py-2 text-base font-medium'
                       >
-                        INSCRIPTION
+                        {t('navbar.signup').toUpperCase()}
                       </Link>
                       <Link
                         href='/login'
                         className='text-primary hover:bg-gray-300 hover:text-primary-light rounded-md px-3 py-2 text-base font-medium'
                       >
-                        CONNEXION
+                        {t('navbar.login').toUpperCase()}
                       </Link>
                     </div>
                   </div>
@@ -196,14 +199,14 @@ const Navbar: React.FC = () => {
                     href='/signin'
                     className='text-primary hover:bg-gray-300 hover:text-primary-light block rounded-md px-3 py-2 text-base font-medium'
                   >
-                    INSCRIPTION
+                    {t('navbar.signup').toUpperCase()}
                   </DisclosureButton>
                   <DisclosureButton
                     as='a'
                     href='/login'
                     className='text-primary hover:bg-gray-300 hover:text-primary-light block rounded-md px-3 py-2 text-base font-medium'
                   >
-                    CONNEXION
+                    {t('navbar.login').toUpperCase()}
                   </DisclosureButton>
                 </>
               )}

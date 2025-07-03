@@ -19,58 +19,68 @@ namespace API.Controllers
             _context = context;
         }
 
-        // GET: api/Publishers
+        // GET: api/Publishers?languageUuid=...
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<EncryptedPayload>>> GetPublishers()
+        public async Task<ActionResult<IEnumerable<EncryptedPayload>>> GetPublishers([FromQuery] Guid? languageUuid = null)
         {
-            var publishers = await _context.Publishers.ToListAsync();
+            var publishers = await _context.Publishers
+                .Include(p => p.PublisherTranslations) // inclure les traductions
+                .ToListAsync();
 
-            if (publishers.Count >= 1)
+            if (publishers.Count < 1)
+                return NoContent();
+
+            var model = publishers.Select(p =>
             {
-                var model = publishers.Select(x => new PublisherDto()
-                {
-                    PublisherId = x.PublisherId,
-                    PublisherUuid = x.PublisherUuid,
-                    PublisherName = x.PublisherName,
-                    ImageUrl = x.ImageUrl,
-                    CreatedAt = x.CreatedAt,
-                    UpdatedAt = x.UpdatedAt,
-                }).ToList();
-                // Encrypt the list of publishers
-                var encryptedData = EncryptionHelper.EncryptData(JsonSerializer.Serialize(model));
+                var translation = languageUuid.HasValue
+                    ? p.PublisherTranslations.FirstOrDefault(t => t.LanguageUuid == languageUuid.Value)
+                    : null;
 
-                return Ok(new EncryptedPayload
+                return new PublisherDto()
                 {
-                    EncryptedData = encryptedData.EncryptedData,
-                    Iv = encryptedData.Iv
-                });
-            }
+                    PublisherId = p.PublisherId,
+                    PublisherUuid = p.PublisherUuid,
+                    PublisherName = translation?.TranslatedName ?? p.PublisherName,
+                    ImageUrl = p.ImageUrl,
+                    CreatedAt = p.CreatedAt,
+                    UpdatedAt = p.UpdatedAt,
+                };
+            }).ToList();
 
-            return NoContent();
+            var encryptedData = EncryptionHelper.EncryptData(JsonSerializer.Serialize(model));
+
+            return Ok(new EncryptedPayload
+            {
+                EncryptedData = encryptedData.EncryptedData,
+                Iv = encryptedData.Iv
+            });
         }
 
-        // GET: api/Publishers/5
+        // GET: api/Publishers/{uuid}?languageUuid=...
         [HttpGet("{uuid}")]
-        public async Task<ActionResult<EncryptedPayload>> GetPublisher(Guid uuid)
+        public async Task<ActionResult<EncryptedPayload>> GetPublisher(Guid uuid, [FromQuery] Guid? languageUuid = null)
         {
-            var publisher = await _context.Publishers.FirstOrDefaultAsync(p => p.PublisherUuid == uuid);
+            var publisher = await _context.Publishers
+                .Include(p => p.PublisherTranslations)
+                .FirstOrDefaultAsync(p => p.PublisherUuid == uuid);
 
             if (publisher == null)
-            {
                 return NotFound();
-            }
+
+            var translation = languageUuid.HasValue
+                ? publisher.PublisherTranslations.FirstOrDefault(t => t.LanguageUuid == languageUuid.Value)
+                : null;
 
             var model = new PublisherDto()
             {
                 PublisherId = publisher.PublisherId,
                 PublisherUuid = publisher.PublisherUuid,
-                PublisherName = publisher.PublisherName,
-                ImageUrl= publisher.ImageUrl,
+                PublisherName = translation?.TranslatedName ?? publisher.PublisherName,
+                ImageUrl = publisher.ImageUrl,
                 CreatedAt = publisher.CreatedAt,
                 UpdatedAt = publisher.UpdatedAt,
             };
 
-            // Encrypt the list of publishers
             var encryptedData = EncryptionHelper.EncryptData(JsonSerializer.Serialize(model));
 
             return Ok(new EncryptedPayload

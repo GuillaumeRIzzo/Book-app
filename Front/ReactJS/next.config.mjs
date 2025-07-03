@@ -16,7 +16,9 @@ const nextConfig = {
       'images-na.ssl-images-amazon.com',
       'm.media-amazon.com',
       'upload.wikimedia.org',
-      'images.epagine.fr'], // ✅ Ici tu ajoutes tous les domaines autorisés
+      'images.epagine.fr',
+      'flagcdn.com',
+      'img.freepik.com'], // ✅ Ici tu ajoutes tous les domaines autorisés
   },
   webpack: (config, { isServer }) => {
     if (!isServer) {
@@ -28,6 +30,18 @@ const nextConfig = {
         perf_hooks: false,
       };
     }
+    config.module.rules.push({
+      test: /\.svg$/,
+      issuer: /\.[jt]sx?$/,
+      use: [
+        {
+          loader: '@svgr/webpack',
+          options: {
+            svgo: true,
+          },
+        },
+      ],
+    });
     config.infrastructureLogging = { level: 'warn' };
     return config;
   },

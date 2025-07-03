@@ -21,8 +21,7 @@
         public List<Guid> PublisherUuids { get; set; } = new();
         public List<Guid> TagUuids { get; set; } = new();
 
-        public List<Guid>? ImageUuids { get; set; } = new();
+        public List<BookImageDto>? Images { get; set; } = new();
         public List<Guid>? LanguageUuids { get; set; } = new();
-        public List<Guid>? BookTranslationUuids { get; set; } = new();
     }
 }

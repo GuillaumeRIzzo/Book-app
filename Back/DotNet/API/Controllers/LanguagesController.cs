@@ -23,7 +23,9 @@ namespace API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<EncryptedPayload>>> GetLanguages()
         {
-            var languages = await _context.Languages.ToListAsync();
+            var languages = await _context.Languages
+                .OrderBy(x => x.LanguageName) // ✅ Trie par ordre alphabétique
+                .ToListAsync();
 
             if (languages.Count >= 1)
             {

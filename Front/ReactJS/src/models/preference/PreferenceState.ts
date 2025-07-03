@@ -1,7 +1,7 @@
 import { Preference } from './preference';
 
 export interface PreferenceState {
-  preferences: Preference[];
+  preference: Preference | null;
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;
 }

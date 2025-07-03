@@ -58,4 +58,7 @@ public partial class Author
     [ForeignKey("AuthorUuid")]
     [InverseProperty("AuthorUus")]
     public virtual ICollection<Book> BookUus { get; set; } = new List<Book>();
+
+    [InverseProperty("AuthorUu")]
+    public virtual ICollection<AuthorTranslation> AuthorTranslations { get; set; } = new List<AuthorTranslation>();
 }

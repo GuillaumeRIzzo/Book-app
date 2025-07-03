@@ -4,6 +4,7 @@ using API.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using System.Text.Json;
 
 namespace API.Controllers
@@ -20,50 +21,20 @@ namespace API.Controllers
         }
 
         // GET: api/Preferences
+        // Retourne la préférence de l'utilisateur connecté uniquement
+        [Authorize]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<EncryptedPayload>>> GetPreferences()
+        public async Task<ActionResult<EncryptedPayload>> GetPreferenceForCurrentUser()
         {
-            var preferences = await _context.Preferences.ToListAsync();
+            var userUuidClaim = User.FindFirst("UserUuid");
+            if (userUuidClaim == null || !Guid.TryParse(userUuidClaim.Value, out Guid userUuid))
+                return Unauthorized(new { message = "User UUID not found in token." });
 
-            if (preferences.Count >= 1)
-            {
-                var model = preferences.Select(x => new PreferenceDto()
-                {
-                    PreferenceId = x.PreferenceId,
-                    PreferenceUuid = x.PreferenceUuid,
-                    UserUuid = x.UserUuid,
-                    LanguageUuid = x.LanguageUuid,
-                    ThemeUuid = x.ThemeUuid,
-                    PrimaryColorUuid = x.PrimaryColorUuid,
-                    SecondaryColorUuid = x.SecondaryColorUuid,
-                    CreatedAt = x.CreatedAt,
-                    UpdatedAt = x.UpdatedAt,
-                }).ToList();
-                // Encrypt the list of preferences
-                var encryptedData = EncryptionHelper.EncryptData(JsonSerializer.Serialize(model));
-
-                return Ok(new EncryptedPayload
-                {
-                    EncryptedData = encryptedData.EncryptedData,
-                    Iv = encryptedData.Iv
-                });
-            }
-
-            return NoContent();
-        }
-
-        // GET: api/Preferences/5
-        [HttpGet("{uuid}")]
-        public async Task<ActionResult<EncryptedPayload>> GetPreference(Guid uuid)
-        {
-            var preference = await _context.Preferences.FirstOrDefaultAsync(p => p.PreferenceUuid == uuid);
-
+            var preference = await _context.Preferences.FirstOrDefaultAsync(p => p.UserUuid == userUuid);
             if (preference == null)
-            {
-                return NotFound();
-            }
+                return NoContent();
 
-            var model = new PreferenceDto()
+            var model = new PreferenceDto
             {
                 PreferenceId = preference.PreferenceId,
                 PreferenceUuid = preference.PreferenceUuid,
@@ -76,9 +47,7 @@ namespace API.Controllers
                 UpdatedAt = preference.UpdatedAt,
             };
 
-            // Encrypt the list of preferences
             var encryptedData = EncryptionHelper.EncryptData(JsonSerializer.Serialize(model));
-
             return Ok(new EncryptedPayload
             {
                 EncryptedData = encryptedData.EncryptedData,

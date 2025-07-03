@@ -1,0 +1,69 @@
+{
+  "languages": {
+    "en-GB": "Angielski (Wielka Brytania)",
+    "fr-FR": "Francuski (Francja)",
+    "es-ES": "Hiszpański (Hiszpania)",
+    "pl-PL": "Polski (Polska)"
+  },
+  "theme": {
+    "Light": "Claro",
+    "Dark": "Oscuro",
+    "System": "Sistema"
+  },
+  "navbar": {
+    "home": "Inicio",
+    "categories": "Categorías",
+    "authors": "Autores",
+    "publishers": "Editoriales",
+    "users": "Usuarios",
+    "yourAccount": "Tu cuenta",
+    "logout": "Cerrar sesión",
+    "signup": "Registrarse",
+    "login": "Iniciar sesión"
+  },
+  "search": {
+    "placeholder": "Buscar: libros / autores / categorías / editoriales",
+    "types": {
+      "book": "Libro",
+      "author": "Autor",
+      "publisher": "Editorial",
+      "category": "Categoría",
+      "history": "Historial"
+    },
+    "noResults": "No se encontraron resultados",
+    "seeAll": "Todos los resultados para \"{{term}}\"",
+    "seeAllHint": "Haz clic aquí o pulsa ENTER para ver más detalles."
+  },
+  "account": {
+    "title": "Tu cuenta",
+    "profile": {
+      "title": "Tu perfil",
+      "description": "Modifica tu información personal"
+    },
+    "preferences": {
+      "title": "Tus preferencias",
+      "description": "Modifica tus preferencias"
+    },
+    "order": {
+      "title": "Tus pedidos",
+      "description": "Historial de tus pedidos"
+    },
+    "address": {
+      "title": "Tus direcciones",
+      "description": "Modifica las direcciones y las preferencias de entrega de pedidos"
+    }
+  },
+  "preferences": {
+    "title": "Tus preferencias",
+    "language": "Elige un idioma",
+    "theme": "Tema",
+    "color": {
+      "text": "Color del texto",
+      "button": "Color de los botones"
+    },
+    "buttons": {
+      "save": "Guardar",
+      "reset": "Restablecer"
+    }
+  }
+}

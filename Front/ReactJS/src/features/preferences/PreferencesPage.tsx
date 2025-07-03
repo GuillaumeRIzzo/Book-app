@@ -22,7 +22,7 @@ import {
   encryptPayload,
 } from '@/utils/encryptUtils';
 import { createPreference, updatePreferenceAsync } from './PreferenceSlice';
-import { selectAllPreferences } from './preferenceSelector';
+import { selectPreference } from './preferenceSelector';
 import CustomButton from '@/components/common/Button';
 import generateColorVariants from '@/utils/colorUtils';
 import { selectAllColors } from '../colors/colorSelector';
@@ -30,11 +30,13 @@ import getCountryCode from '@/utils/flagUtils';
 import { useTheme } from '@/components/context/ThemeContext';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
+import { useTranslation } from 'react-i18next';
 
 const PreferencesPage: React.FC = () => {
   const { data: session } = useSession();
   const dispatch = useDispatch<AppDispatch>();
   const themeContext = useTheme();
+  const { t } = useTranslation();
 
   if (!themeContext) {
     throw new Error('useTheme must be used within a ThemeProvider');
@@ -44,7 +46,6 @@ const PreferencesPage: React.FC = () => {
 
   const router = useRouter();
 
-  
   const { uuid } = useMemo(() => {
     if (session?.user?.encryptedSession) {
       const { encryptedData, iv } = session.user.encryptedSession;
@@ -65,14 +66,14 @@ const PreferencesPage: React.FC = () => {
   useEffect(() => {
     if (!uuid) {
       if (typeof window !== 'undefined') {
-          router.replace('/');
-        }
+        router.replace('/');
+      }
     }
   }, [uuid, router]);
 
-  const preference = useSelector(selectAllPreferences);
+  const preference = useSelector(selectPreference);
 
-  const userPreference = preference.find(p => p.userUuid === uuid);
+  const userPreference = preference;
 
   const languages = useSelector(selectAllLanguages);
   const colors = useSelector(selectAllColors);
@@ -148,7 +149,9 @@ const PreferencesPage: React.FC = () => {
     const selectedTheme = themes.find(t => t.themeUuid === formData.themeUuid);
 
     if (selectedTheme?.themeName === 'System') {
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const prefersDark = window.matchMedia(
+        '(prefers-color-scheme: dark)',
+      ).matches;
       applyTheme(prefersDark ? 'dark' : 'light');
     } else {
       const name = selectedTheme?.themeName?.toLowerCase();
@@ -158,7 +161,6 @@ const PreferencesPage: React.FC = () => {
         applyTheme('light'); // fallback par défaut
       }
     }
-
   }, [formData.themeUuid, themes, applyTheme]);
 
   const resetToDefault = () => {
@@ -202,13 +204,17 @@ const PreferencesPage: React.FC = () => {
         className='text-2xl font-bold text-primary'
         marginBottom={2}
       >
-        Vos préférences
+        {t('preferences.title')}
       </Typography>
 
       <Box className=' */space-y-6'>
         <Autocomplete
           options={languages}
-          getOptionLabel={option => option.languageName}
+          getOptionLabel={option =>
+            t(`languages.${option.isoCode}`, {
+              defaultValue: option.languageName,
+            })
+          }
           isOptionEqualToValue={(option, value) =>
             option.languageUuid === value.languageUuid
           }
@@ -225,13 +231,16 @@ const PreferencesPage: React.FC = () => {
           renderInput={params => (
             <Input
               {...params}
-              label='Choisissez une langue'
+              label={t('preferences.language')}
               name='languageUuid'
             />
           )}
           renderOption={(props, option) => {
             const countryCode = getCountryCode(option.isoCode);
             const flagUrl = `https://flagcdn.com/w40/${countryCode}.png`;
+            const label = t(`languages.${option.isoCode}`, {
+              defaultValue: option.languageName,
+            });
 
             return (
               <li
@@ -243,12 +252,13 @@ const PreferencesPage: React.FC = () => {
                   <Image
                     loading='lazy'
                     width='24'
+                    height='20'
                     src={flagUrl}
                     alt=''
                     style={{ marginRight: 10 }}
                   />
                 )}
-                {option.languageName}
+                {label}
               </li>
             );
           }}
@@ -256,7 +266,7 @@ const PreferencesPage: React.FC = () => {
 
         <Box>
           <label className='block text-sm font-medium mb-1 text-primary'>
-            Thème
+            {t('preferences.theme')}
           </label>
           <ToggleButtonGroup
             value={formData.themeUuid}
@@ -276,7 +286,7 @@ const PreferencesPage: React.FC = () => {
                 value={opt.themeUuid}
                 className='text-primary-light'
               >
-                {opt.themeName}
+                {t(`theme.${opt.themeName}`)}
               </ToggleButton>
             ))}
           </ToggleButtonGroup>
@@ -291,7 +301,7 @@ const PreferencesPage: React.FC = () => {
                 color: `${primaryColor.main}`,
               }}
             >
-              Couleur du texte
+              {t('preferences.color.text')}
             </label>
             {colors.map(color => (
               <Tooltip key={color.colorName} title={color.colorName} arrow>
@@ -334,7 +344,7 @@ const PreferencesPage: React.FC = () => {
                 color: `${secondaryColor.main}`,
               }}
             >
-              Couleur des boutons
+              {t('preferences.color.button')}
             </label>
             {colors.map(color => (
               <Tooltip key={color.colorName} title={color.colorName} arrow>
@@ -374,15 +384,31 @@ const PreferencesPage: React.FC = () => {
         <Box className='flex gap-4 mt-4'>
           <CustomButton
             onClick={savePreferences}
-            className='bg-secondary text-primary-dark px-4 py-2 rounded hover:bg-secondary-dark'
-            text='Sauvegarder'
+            className='px-4 py-2 rounded'
+            text={t('preferences.buttons.save')}
+            sx={{
+              color: "var(--color-primary-dark)",
+              backgroundColor: "var(--color-secondary-main)",
+              borderColor: "var(--color-secondary-main)",
+              "&:hover": {
+                borderColor: "var(--color-secondary-dark)",
+                backgroundColor: "var(--color-secondary-dark)"
+              }
+            }}
           />
 
           <CustomButton
             onClick={resetToDefault}
-            className='text-primary-dark px-4 py-2 rounded border-secondary hover:border-secondary-dark'
-            text='Réinitialiser'
+            className='px-4 py-2 rounded'
+            text={t('preferences.buttons.reset')}
             variant='outlined'
+            sx={{
+              color: "var(--color-primary-main)",
+              borderColor: "var(--color-secondary-main)",
+              "&:hover": {
+                borderColor: "var(--color-secondary-dark)"
+              }
+            }}
           />
         </Box>
       </Box>

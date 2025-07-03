@@ -43,4 +43,7 @@ public partial class Category
     [ForeignKey("CategoryUuid")]
     [InverseProperty("CategoryUus")]
     public virtual ICollection<Book> BookUus { get; set; } = new List<Book>();
+
+    [InverseProperty("CategoryUu")]
+    public virtual ICollection<CategoryTranslation> CategoryTranslations { get; set; } = new List<CategoryTranslation>();
 }

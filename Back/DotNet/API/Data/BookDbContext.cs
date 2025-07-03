@@ -24,6 +24,8 @@ public partial class BookDbContext : DbContext
 
     public virtual DbSet<AuthorLanguage> AuthorLanguages { get; set; }
 
+    public DbSet<AuthorTranslation> AuthorTranslations { get; set; }
+
     public virtual DbSet<BannedWord> BannedWords { get; set; }
 
     public virtual DbSet<Book> Books { get; set; }
@@ -44,6 +46,8 @@ public partial class BookDbContext : DbContext
 
     public virtual DbSet<Category> Categories { get; set; }
 
+    public DbSet<CategoryTranslation> CategoryTranslations { get; set; }
+
     public virtual DbSet<Color> Colors { get; set; }
 
     public virtual DbSet<Gender> Genders { get; set; }
@@ -61,6 +65,8 @@ public partial class BookDbContext : DbContext
     public virtual DbSet<Preference> Preferences { get; set; }
 
     public virtual DbSet<Publisher> Publishers { get; set; }
+
+    public DbSet<PublisherTranslation> PublisherTranslations { get; set; }
 
     public virtual DbSet<ReadList> ReadLists { get; set; }
 
@@ -148,6 +154,25 @@ public partial class BookDbContext : DbContext
                 .HasForeignKey(d => d.LanguageUuid)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_AUTHOR_LANGUAGES_LANGUAGE");
+        });
+
+        modelBuilder.Entity<AuthorTranslation>(entity =>
+        {
+            entity.HasKey(e => e.AuthorTranslationId);
+
+            entity.HasOne(at => at.AuthorUu)
+                .WithMany(a => a.AuthorTranslations)
+                .HasForeignKey(at => at.AuthorUuid)
+                .HasPrincipalKey(a => a.AuthorUuid)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_AUTHOR_TRANSLATIONS_AUTHOR");
+
+            entity.HasOne(at => at.LanguageUu)
+                .WithMany(l => l.AuthorTranslations)
+                .HasForeignKey(at => at.LanguageUuid)
+                .HasPrincipalKey(l => l.LanguageUuid)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_AUTHOR_TRANSLATIONS_LANGUAGE");
         });
 
         modelBuilder.Entity<BannedWord>(entity =>
@@ -363,6 +388,25 @@ public partial class BookDbContext : DbContext
             entity.HasKey(e => e.CategoryId).HasName("PK__CATEGORI__D54EE9B4665AAD6D");
         });
 
+        modelBuilder.Entity<CategoryTranslation>(entity =>
+        {
+            entity.HasKey(e => e.CategoryTranslationId);
+
+            entity.HasOne(ct => ct.CategoryUu)
+                .WithMany(c => c.CategoryTranslations)
+                .HasForeignKey(ct => ct.CategoryUuid)
+                .HasPrincipalKey(c => c.CategoryUuid)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_CATEGORY_TRANSLATIONS_CATEGORY");
+
+            entity.HasOne(ct => ct.LanguageUu)
+                .WithMany(l => l.CategoryTranslations)
+                .HasForeignKey(ct => ct.LanguageUuid)
+                .HasPrincipalKey(l => l.LanguageUuid)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_CATEGORY_TRANSLATIONS_LANGUAGE");
+        });
+
         modelBuilder.Entity<Color>(entity =>
         {
             entity.HasKey(e => e.ColorId).HasName("PK__COLORS__1143CECBE55764CB");
@@ -459,6 +503,25 @@ public partial class BookDbContext : DbContext
         modelBuilder.Entity<Publisher>(entity =>
         {
             entity.HasKey(e => e.PublisherId).HasName("PK__PUBLISHE__3263F29D1F52FDE9");
+        });
+
+        modelBuilder.Entity<PublisherTranslation>(entity =>
+        {
+            entity.HasKey(e => e.PublisherTranslationId);
+
+            entity.HasOne(pt => pt.PublisherUu)
+                .WithMany(p => p.PublisherTranslations)
+                .HasForeignKey(pt => pt.PublisherUuid)
+                .HasPrincipalKey(p => p.PublisherUuid)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_PUBLISHER_TRANSLATIONS_PUBLISHER");
+
+            entity.HasOne(pt => pt.LanguageUu)
+                .WithMany(l => l.PublisherTranslations)
+                .HasForeignKey(pt => pt.LanguageUuid)
+                .HasPrincipalKey(l => l.LanguageUuid)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_PUBLISHER_TRANSLATIONS_LANGUAGE");
         });
 
         modelBuilder.Entity<ReadList>(entity =>

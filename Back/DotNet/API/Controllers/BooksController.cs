@@ -20,7 +20,7 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<EncryptedPayload>>> GetBooks()
+        public async Task<ActionResult<EncryptedPayload>> GetBooks([FromQuery] Guid? languageUuid)
         {
             var books = await _context.Books
                 .Include(b => b.AuthorUus)
@@ -32,15 +32,22 @@ namespace API.Controllers
                 .Include(b => b.BookTranslations)
                 .ToListAsync();
 
-            if (books.Count >= 1)
+            if (!books.Any())
+                return NoContent();
+
+            var model = books.Select(x =>
             {
-                var model = books.Select(x => new BookDto()
+                var translation = languageUuid.HasValue
+                    ? x.BookTranslations.FirstOrDefault(t => t.LanguageUuid == languageUuid.Value)
+                    : null;
+
+                return new BookDto
                 {
                     BookId = x.BookId,
                     BookUuid = x.BookUuid,
-                    BookTitle = x.BookTitle,
-                    BookSubtitle = x.BookSubtitle,
-                    BookDescription = x.BookDescription,
+                    BookTitle = translation?.BookTitle ?? x.BookTitle,
+                    BookSubtitle = translation?.BookSubtitle ?? x.BookSubtitle,
+                    BookDescription = translation?.BookDescription ?? x.BookDescription,
                     BookPageCount = x.BookPageCount,
                     BookPublishDate = x.BookPublishDate,
                     BookIsbn = x.BookIsbn,
@@ -52,30 +59,40 @@ namespace API.Controllers
                     AuthorUuids = x.AuthorUus.Select(a => a.AuthorUuid).ToList(),
                     CategoryUuids = x.CategoryUus.Select(c => c.CategoryUuid).ToList(),
                     PublisherUuids = x.PublisherUus.Select(p => p.PublisherUuid).ToList(),
-                    TagUuids = x.TagUus.Select(t =>  t.TagUuid).ToList(),
-                    ImageUuids = x.BookImages.Select(i => i.ImageUuid).ToList(),
+                    TagUuids = x.TagUus.Select(t => t.TagUuid).ToList(),
                     LanguageUuids = x.BookLanguages.Select(l => l.LanguageUuid).ToList(),
-                    BookTranslationUuids = x.BookTranslations.Select(t => t.BookTranslationUuid).ToList(),
-                }).ToList();
 
-                // Encrypt the list of books
-                var encryptedData = EncryptionHelper.EncryptData(JsonSerializer.Serialize(model));
+                    Images = x.BookImages.Select(i => new BookImageDto
+                    {
+                        ImageId = i.ImageId,
+                        ImageUuid = i.ImageUuid,
+                        BookUuid = i.BookUuid,
+                        ImageUrl = i.ImageUrl,
+                        ImageAlt = i.ImageAlt,
+                        IsCover = i.IsCover,
+                        ImageOrder = i.ImageOrder,
+                        CreatedAt = i.CreatedAt,
+                        UpdatedAt = i.UpdatedAt,
+                        ImageTypeUuid = i.ImageTypeUuid
+                    }).ToList()
+                };
+            }).ToList();
 
-                return Ok(new EncryptedPayload
-                {
-                    EncryptedData = encryptedData.EncryptedData,
-                    Iv = encryptedData.Iv
-                });
-            }
+            var encryptedData = EncryptionHelper.EncryptData(JsonSerializer.Serialize(model));
 
-            return NoContent();
+            return Ok(new EncryptedPayload
+            {
+                EncryptedData = encryptedData.EncryptedData,
+                Iv = encryptedData.Iv
+            });
         }
 
         // GET: api/Books/5
         [HttpGet("{uuid}")]
-        public async Task<ActionResult<EncryptedPayload>> GetBook(Guid uuid)
+        public async Task<ActionResult<EncryptedPayload>> GetBook(Guid uuid, [FromQuery] Guid? languageUuid)
         {
-            var book = await _context.Books.Include(b => b.AuthorUus)
+            var book = await _context.Books
+                .Include(b => b.AuthorUus)
                 .Include(b => b.CategoryUus)
                 .Include(b => b.PublisherUus)
                 .Include(b => b.TagUus)
@@ -85,17 +102,19 @@ namespace API.Controllers
                 .FirstOrDefaultAsync(b => b.BookUuid == uuid);
 
             if (book == null)
-            {
                 return NotFound();
-            }
 
-            var model = new BookDto()
+            var translation = languageUuid.HasValue
+                ? book.BookTranslations.FirstOrDefault(t => t.LanguageUuid == languageUuid.Value)
+                : null;
+
+            var model = new BookDto
             {
                 BookId = book.BookId,
                 BookUuid = book.BookUuid,
-                BookTitle = book.BookTitle,
-                BookSubtitle = book.BookSubtitle,
-                BookDescription = book.BookDescription,
+                BookTitle = translation?.BookTitle ?? book.BookTitle,
+                BookSubtitle = translation?.BookSubtitle ?? book.BookSubtitle,
+                BookDescription = translation?.BookDescription ?? book.BookDescription,
                 BookPageCount = book.BookPageCount,
                 BookPublishDate = book.BookPublishDate,
                 BookIsbn = book.BookIsbn,
@@ -108,12 +127,23 @@ namespace API.Controllers
                 CategoryUuids = book.CategoryUus.Select(c => c.CategoryUuid).ToList(),
                 PublisherUuids = book.PublisherUus.Select(p => p.PublisherUuid).ToList(),
                 TagUuids = book.TagUus.Select(t => t.TagUuid).ToList(),
-                ImageUuids = book.BookImages.Select(i => i.ImageUuid).ToList(),
                 LanguageUuids = book.BookLanguages.Select(l => l.LanguageUuid).ToList(),
-                BookTranslationUuids = book.BookTranslations.Select(t => t.BookTranslationUuid).ToList(),
+
+                Images = book.BookImages.Select(i => new BookImageDto
+                {
+                    ImageId = i.ImageId,
+                    ImageUuid = i.ImageUuid,
+                    BookUuid = i.BookUuid,
+                    ImageUrl = i.ImageUrl,
+                    ImageAlt = i.ImageAlt,
+                    IsCover = i.IsCover,
+                    ImageOrder = i.ImageOrder,
+                    CreatedAt = i.CreatedAt,
+                    UpdatedAt = i.UpdatedAt,
+                    ImageTypeUuid = i.ImageTypeUuid
+                }).ToList()
             };
 
-            // Encrypt the book data
             var encryptedData = EncryptionHelper.EncryptData(JsonSerializer.Serialize(model));
 
             return Ok(new EncryptedPayload

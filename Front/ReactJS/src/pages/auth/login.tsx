@@ -64,7 +64,6 @@ const Login: React.FC = () => {
           router.push('/');
         }
       }
-      console.log(result);
       
       if (result?.error === 'Invalid credentials') {
         setAlertMessage('Login incorrect.');

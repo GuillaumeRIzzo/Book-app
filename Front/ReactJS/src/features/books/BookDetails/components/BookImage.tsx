@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import tw from 'twin.macro';
 import Image from 'next/image';
 
-import { Image as ImageModel } from '@/models/images/images';
+import { BookImage as ImageModel } from '@/models/bookImages/bookImages';
 import { useState } from 'react';
 import { Box, IconButton } from '@mui/material';
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';

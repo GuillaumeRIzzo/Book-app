@@ -1,0 +1,69 @@
+{
+  "languages": {
+    "en-GB": "English (United Kingdom)",
+    "fr-FR": "French (France)",
+    "es-ES": "Spanish (Spain)",
+    "pl-PL": "Polish (Poland)"
+  },
+  "theme": {
+    "Light": "Light",
+    "Dark": "Dark",
+    "System": "System"
+  },
+  "navbar": {
+    "home": "Home",
+    "categories": "Categories",
+    "authors": "Authors",
+    "publishers": "Publishers",
+    "users": "Users",
+    "yourAccount": "Your Account",
+    "logout": "Log out",
+    "signup": "Sign up",
+    "login": "Log in"
+  },
+  "search": {
+    "placeholder": "Search: books / authors / categories / publishers",
+    "types": {
+      "book": "Book",
+      "author": "Author",
+      "publisher": "Publisher",
+      "category": "Category",
+      "history": "History"
+    },
+    "noResults": "No results found",
+    "seeAll": "All results for \"{{term}}\"",
+    "seeAllHint": "Click here or press ENTER to see more details."
+  },
+  "account": {
+    "title": "Your account",
+    "profile": {
+      "title": "Your profile",
+      "description": "Edit your personal information"
+    },
+    "preferences": {
+      "title": "Your preferences",
+      "description": "Edit your preferences"
+    },
+    "order": {
+      "title": "Your orders",
+      "description": "Order history"
+    },
+    "address": {
+      "title": "Your addresses",
+      "description": "Edit addresses and order delivery preferences"
+    }
+  },
+  "preferences": {
+    "title": "Your preferences",
+    "language": "Choose a language",
+    "theme": "Theme",
+    "color": {
+      "text": "Text color",
+      "button": "Button color"
+    },
+    "buttons": {
+      "save": "Save",
+      "reset": "Reset"
+    }
+  }
+}

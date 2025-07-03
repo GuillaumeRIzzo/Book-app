@@ -14,7 +14,7 @@ import { fetchAuthorsAsync } from '../authors/AuthorSlice';
 import { fetchPublishersAsync } from '../publishers/PublisherSlice';
 import { fetchCategoriesAsync } from '../categories/categorySlice';
 import { fetchUsersAsync } from '../users/UserSlice';
-import { fetchImagesAsync } from '../images/imageSlice';
+import { fetchImagesAsync } from '../bookImages/bookImageSlice';
 import { decryptPayload } from '@/utils/encryptUtils';
 import {
   selectAllBooks,
@@ -25,7 +25,7 @@ import { selectBookModelViews } from '../bookViews/bookViewSelectors';
 import { selectAuthorStatus } from '../authors/authorSelector';
 import { selectCategoriesStatus } from '../categories/categoriesSelector';
 import { selectPublisherStatus } from '../publishers/publisherSelector';
-import { selectImageStatus } from '../images/imageSelectors';
+import { selectImageStatus } from '../bookImages/bookImageSelectors';
 import { setBookViews } from '../bookViews/bookViewSlice';
 import { fetchLanguagesAsync } from '../languages/LanguageSlice';
 import { fetchThemesAsync } from '../themes/ThemeSlice';
@@ -35,10 +35,10 @@ import { selectUserStatus } from '../users/userSelector';
 import { selectUserRightStatus } from '../userRights/userRightSelector';
 import { selectColorStatus } from '../colors/colorSelector';
 import { selectThemeStatus } from '../themes/themeSelector';
-import { selectLanguageStatus } from '../languages/languageSelector';
-import { selectPreferenceStatus } from '../preferences/preferenceSelector';
-import { fetchPreferencesAsync } from '../preferences/PreferenceSlice';
+import { selectAllLanguages, selectLanguageStatus } from '../languages/languageSelector';
+import { selectPreference, selectPreferenceStatus } from '../preferences/preferenceSelector';
 import Image from 'next/image';
+import { fetchPreferenceAsync } from '../preferences/PreferenceSlice';
 
 const BookList: React.FC = () => {
   const books = useSelector(selectAllBooks);
@@ -54,6 +54,10 @@ const BookList: React.FC = () => {
   const themesStatus = useSelector(selectThemeStatus);
   const colorStatus = useSelector(selectColorStatus);
   const preprefrenceStatus = useSelector(selectPreferenceStatus);
+  
+  const preference = useSelector(selectPreference);
+  const languages = useSelector(selectAllLanguages);
+  const language = languages.find(l => l.isDefault)?.languageUuid
 
   const { data: session } = useSession();
   const router = useRouter();
@@ -77,14 +81,18 @@ const BookList: React.FC = () => {
   }, [session]);
 
   useEffect(() => {
-    if (bookStatus === 'idle') {
+    if (languageStatus === 'idle') {
+        dispatch(fetchLanguagesAsync());
+    }
+
+    if (bookStatus === 'idle' && languageStatus === 'succeeded') {
       dispatch(fetchBooksAsync());
       dispatch(fetchImagesAsync());
-      dispatch(fetchAuthorsAsync());
-      dispatch(fetchPublishersAsync());
-      dispatch(fetchCategoriesAsync());
+      dispatch(fetchAuthorsAsync(preference?.languageUuid ?? language));
+      dispatch(fetchPublishersAsync(preference?.languageUuid ?? language));
+      dispatch(fetchCategoriesAsync(preference?.languageUuid ?? language));
     }
-  }, [bookStatus, dispatch]);
+  }, [bookStatus, dispatch, preference, language, languageStatus]);
 
   const modelViews = useSelector(selectBookModelViews);
 
@@ -115,7 +123,6 @@ const BookList: React.FC = () => {
       const allSucceeded = [
         userStatus,
         userRightStatus,
-        languageStatus,
         themesStatus,
         colorStatus,
         preprefrenceStatus,
@@ -124,10 +131,9 @@ const BookList: React.FC = () => {
       if (allSucceeded) {
         dispatch(fetchUsersAsync());
         dispatch(fetchUserRightsAsync());
-        dispatch(fetchLanguagesAsync());
         dispatch(fetchThemesAsync());
         dispatch(fetchColorsAsync());
-        dispatch(fetchPreferencesAsync());
+        dispatch(fetchPreferenceAsync());
       }
     }
   }, [
@@ -175,7 +181,7 @@ const BookList: React.FC = () => {
             >
               <Image
                 loading='lazy'
-                src={book.images[0]?.imageUrl}
+                src={book.book.images[0]?.imageUrl}
                 alt={book.book.bookTitle}
                 fill
                 className='hover:transition-transform duration-200 hover:scale-125 cursor-pointer object-cover'

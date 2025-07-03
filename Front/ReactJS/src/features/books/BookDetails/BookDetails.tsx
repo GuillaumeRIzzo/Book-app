@@ -34,22 +34,24 @@ const BookDetails: React.FC = () => {
   const [dialogTitle, setDialogTitle] = useState('');
   const [dialogContent, setDialogContent] = useState('');
   const [dialogAction, setDialogAction] = useState<() => void>(() => {});
-  
+
   const router = useRouter();
   const { id } = router.query;
   const dispatch = useDispatch<AppDispatch>();
 
   const bookModelView = useSelector((state: RootState) =>
-    state.bookView.bookViews.find((mv) => mv.book.bookUuid === id)
+    state.bookView.bookViews.find(mv => mv.book.bookUuid === id),
   );
 
   const author = useSelector((state: RootState) =>
-    state.authors.authors.find((a: Author) => bookModelView?.book?.authorUuids.includes(a.authorUuid)),
+    state.authors.authors.find((a: Author) =>
+      bookModelView?.book?.authorUuids.includes(a.authorUuid),
+    ),
   );
 
   const publisher = useSelector((state: RootState) =>
-    state.publishers.publishers.find(
-      (p: Publisher) => bookModelView?.book?.publisherUuids.includes(p.publisherUuid),
+    state.publishers.publishers.find((p: Publisher) =>
+      bookModelView?.book?.publisherUuids.includes(p.publisherUuid),
     ),
   );
 
@@ -60,7 +62,10 @@ const BookDetails: React.FC = () => {
       const { encryptedData, iv } = session.user.encryptedSession;
       try {
         // Explicitly cast the decrypted data to the expected type
-        const decryptedData = decryptPayload<{ right: string }>(encryptedData, iv);
+        const decryptedData = decryptPayload<{ right: string }>(
+          encryptedData,
+          iv,
+        );
         return { right: decryptedData.right };
       } catch (error) {
         console.error('Failed to decrypt session data:', error);
@@ -75,26 +80,28 @@ const BookDetails: React.FC = () => {
     }
   }, [id, bookModelView, dispatch]);
 
-  
   useEffect(() => {
     if (bookModelView && !author) {
-      dispatch(fetchAuthorById(bookModelView.book.authorUuids));
+      dispatch(fetchAuthorById({ authorUuid: bookModelView.book.authorUuids }));
     }
   }, [bookModelView, author, dispatch]);
-  
+
   useEffect(() => {
     if (bookModelView && !publisher) {
-      dispatch(fetchPublisherById(bookModelView.book.publisherUuids));
+      dispatch(
+        fetchPublisherById({
+          publisherUuid: bookModelView.book.publisherUuids,
+        }),
+      );
     }
   }, [bookModelView, publisher, dispatch]);
-  
 
   if (!bookModelView || !author || !publisher) {
     return <Loading />;
   }
 
- const handleEdit = (book: Book) => {
-  setSelectedBook(book);
+  const handleEdit = (book: Book) => {
+    setSelectedBook(book);
     setDialogTitle('Edit Book');
     setDialogContent(`Edit book: ${book.bookId}`);
     setDialogAction(() => () => {
@@ -153,7 +160,7 @@ const BookDetails: React.FC = () => {
           </Fab>
         </Box>
       )}
-      
+
       {selectedBook && (
         <Dialog
           open={openDialog}
@@ -164,7 +171,7 @@ const BookDetails: React.FC = () => {
         />
       )}
       <BookDetailsWrapper>
-        <BookImage images={bookModelView.images} />
+        <BookImage images={bookModelView.book.images} />
 
         <BookInfo
           book={bookModelView.book}

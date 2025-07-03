@@ -19,54 +19,67 @@ namespace API.Controllers
             _context = context;
         }
 
-        // GET: api/Authors
+        // GET: api/Authors?languageUuid=...
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<EncryptedPayload>>> GetAuthors()
+        public async Task<ActionResult<IEnumerable<EncryptedPayload>>> GetAuthors([FromQuery] Guid? languageUuid = null)
         {
-            var authors = await _context.Authors.ToListAsync();
+            // Inclure les traductions pour éviter les requêtes multiples
+            var authors = await _context.Authors
+                .Include(a => a.AuthorTranslations)
+                .ToListAsync();
 
-            if (authors.Count >= 1)
+            if (authors.Count < 1)
+                return NoContent();
+
+            var model = authors.Select(a =>
             {
-                var model = authors.Select(x => new AuthorDto()
+                // Trouver la traduction selon languageUuid s’il est donné
+                var translation = languageUuid.HasValue
+                    ? a.AuthorTranslations.FirstOrDefault(t => t.LanguageUuid == languageUuid.Value)
+                    : null;
+
+                return new AuthorDto
                 {
-                    AuthorId = x.AuthorId,
-                    AuthorUuid = x.AuthorUuid,
-                    AuthorFullName = x.AuthorFullName,
-                    AuthorBirthDate = x.AuthorBirthDate,
-                    AuthorBirthPlace = x.AuthorBirthPlace,
-                    AuthorDeathDate = x.AuthorDeathDate,
-                    AuthorDeathPlace = x.AuthorDeathPlace,
-                    AuthorBio = x.AuthorBio,
-                    IsDeleted = x.IsDeleted,
-                    CreatedAt = x.CreatedAt,
-                    UpdatedAt = x.UpdatedAt,
+                    AuthorId = a.AuthorId,
+                    AuthorUuid = a.AuthorUuid,
+                    AuthorFullName = a.AuthorFullName,
+                    AuthorBirthDate = a.AuthorBirthDate,
+                    AuthorBirthPlace = a.AuthorBirthPlace,
+                    AuthorDeathDate = a.AuthorDeathDate,
+                    AuthorDeathPlace = a.AuthorDeathPlace,
+                    // Utiliser la bio traduite si disponible, sinon la bio originale
+                    AuthorBio = translation?.AuthorBio ?? a.AuthorBio,
+                    IsDeleted = a.IsDeleted,
+                    CreatedAt = a.CreatedAt,
+                    UpdatedAt = a.UpdatedAt,
+                };
+            }).ToList();
 
-                }).ToList();
+            var encryptedData = EncryptionHelper.EncryptData(JsonSerializer.Serialize(model));
 
-                // Encrypt the list of authors
-                var encryptedData = EncryptionHelper.EncryptData(JsonSerializer.Serialize(model));
-
-                return Ok(new EncryptedPayload
-                {
-                    EncryptedData = encryptedData.EncryptedData,
-                    Iv = encryptedData.Iv
-                });
-            }
-            return NoContent();
+            return Ok(new EncryptedPayload
+            {
+                EncryptedData = encryptedData.EncryptedData,
+                Iv = encryptedData.Iv
+            });
         }
 
-        // GET: api/Authors/5
+        // GET: api/Authors/{uuid}?languageUuid=...
         [HttpGet("{uuid}")]
-        public async Task<ActionResult<EncryptedPayload>> GetAuthor(Guid uuid)
+        public async Task<ActionResult<EncryptedPayload>> GetAuthor(Guid uuid, [FromQuery] Guid? languageUuid = null)
         {
-            var author = await _context.Authors.FirstOrDefaultAsync(a => a.AuthorUuid == uuid);
+            var author = await _context.Authors
+                .Include(a => a.AuthorTranslations)
+                .FirstOrDefaultAsync(a => a.AuthorUuid == uuid);
 
             if (author == null)
-            {
                 return NotFound();
-            }
 
-            var model = new AuthorDto()
+            var translation = languageUuid.HasValue
+                ? author.AuthorTranslations.FirstOrDefault(t => t.LanguageUuid == languageUuid.Value)
+                : null;
+
+            var model = new AuthorDto
             {
                 AuthorId = author.AuthorId,
                 AuthorUuid = author.AuthorUuid,
@@ -75,13 +88,12 @@ namespace API.Controllers
                 AuthorBirthPlace = author.AuthorBirthPlace,
                 AuthorDeathDate = author.AuthorDeathDate,
                 AuthorDeathPlace = author.AuthorDeathPlace,
-                AuthorBio = author.AuthorBio,
+                AuthorBio = translation?.AuthorBio ?? author.AuthorBio,
                 IsDeleted = author.IsDeleted,
                 CreatedAt = author.CreatedAt,
                 UpdatedAt = author.UpdatedAt,
             };
 
-            // Encrypt the author data
             var encryptedData = EncryptionHelper.EncryptData(JsonSerializer.Serialize(model));
 
             return Ok(new EncryptedPayload

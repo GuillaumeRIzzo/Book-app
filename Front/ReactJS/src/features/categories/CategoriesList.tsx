@@ -21,10 +21,12 @@ import {
   selectCategoriesError,
   selectCategoriesStatus,
 } from './categoriesSelector';
+import { selectPreference } from '../preferences/preferenceSelector';
 
 const CategoryList: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const Categories = useSelector(selectAllCategories);
+  const languageUuid = useSelector(selectPreference);
   const status = useSelector(selectCategoriesStatus);
   const error = useSelector(selectCategoriesError);
   const router = useRouter();
@@ -87,9 +89,9 @@ const CategoryList: React.FC = () => {
 
   useEffect(() => {
     if (status === 'idle') {
-      dispatch(fetchCategoriesAsync());
+      dispatch(fetchCategoriesAsync(languageUuid[0]?.languageUuid));
     }
-  }, [dispatch, status]);
+  }, [dispatch, status, languageUuid]);
 
   if (status === 'loading') {
     return <Loading />;

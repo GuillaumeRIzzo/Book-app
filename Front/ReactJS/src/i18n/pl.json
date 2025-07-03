@@ -1,0 +1,69 @@
+{
+  "languages": {
+    "en-GB": "Angielski (Wielka Brytania)",
+    "fr-FR": "Francuski (Francja)",
+    "es-ES": "Hiszpański (Hiszpania)",
+    "pl-PL": "Polski (Polska)"
+  },
+  "theme": {
+    "Light": "Jasny",
+    "Dark": "Ciemny",
+    "System": "Systemowy"
+  },
+  "navbar": {
+    "home": "Strona główna",
+    "categories": "Kategorie",
+    "authors": "Autorzy",
+    "publishers": "Wydawcy",
+    "users": "Użytkownicy",
+    "yourAccount": "Twoje konto",
+    "logout": "Wyloguj się",
+    "signup": "Rejestracja",
+    "login": "Zaloguj się"
+  },
+  "search": {
+    "placeholder": "Szukaj: książki / autorzy / kategorie / wydawcy",
+    "types": {
+      "book": "Książka",
+      "author": "Autor",
+      "publisher": "Wydawca",
+      "category": "Kategoria",
+      "history": "Historia"
+    },
+    "noResults": "Brak wyników",
+    "seeAll": "Wszystkie wyniki dla \"{{term}}\"",
+    "seeAllHint": "Kliknij tutaj lub naciśnij ENTER, aby zobaczyć więcej szczegółów."
+  },
+  "account": {
+    "title": "Twoje konto",
+    "profile": {
+      "title": "Twój profil",
+      "description": "Edytuj swoje dane osobowe"
+    },
+    "preferences": {
+      "title": "Twoje preferencje",
+      "description": "Edytuj swoje preferencje"
+    },
+    "order": {
+      "title": "Twoje zamówienia",
+      "description": "Historia Twoich zamówień"
+    },
+    "address": {
+      "title": "Twoje adresy",
+      "description": "Edytuj adresy i preferencje dostawy zamówień"
+    }
+  },
+  "preferences": {
+    "title": "Twoje preferencje",
+    "language": "Wybierz język",
+    "theme": "Motyw",
+    "color": {
+      "text": "Kolor tekstu",
+      "button": "Kolor przycisków"
+    },
+    "buttons": {
+      "save": "Zapisz",
+      "reset": "Zresetuj"
+    }
+  }
+}

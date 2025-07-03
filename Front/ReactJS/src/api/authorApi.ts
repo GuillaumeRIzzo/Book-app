@@ -3,9 +3,9 @@ import { AxiosPromise } from 'axios';
 import { apiClient } from './authApi';
 import { EncryptedPayload } from '@/utils/encryptUtils';
 
-export const getAuthors = (): AxiosPromise<EncryptedPayload> => apiClient.get<EncryptedPayload>('Authors');
+export const getAuthors = (languageUuid?: string): AxiosPromise<EncryptedPayload> => apiClient.get<EncryptedPayload>(`Authors?languageUuid=${languageUuid}`);
 
-export const getAuthor = (authorUuid: string): AxiosPromise<EncryptedPayload> => apiClient.get<EncryptedPayload>(`Authors/${authorUuid}`);
+export const getAuthor = (authorUuid: string, languageUuid?: string): AxiosPromise<EncryptedPayload> => apiClient.get<EncryptedPayload>(`Authors/${authorUuid}?languageUuid=${languageUuid}`);
 
 export const addAuthor = (payload: EncryptedPayload): AxiosPromise => apiClient.post('Authors', payload);
 

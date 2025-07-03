@@ -34,4 +34,7 @@ public partial class Publisher
     [ForeignKey("PublisherUuid")]
     [InverseProperty("PublisherUus")]
     public virtual ICollection<Book> BookUus { get; set; } = new List<Book>();
+
+    [InverseProperty("PublisherUu")]
+    public virtual ICollection<PublisherTranslation> PublisherTranslations { get; set; } = new List<PublisherTranslation>();
 }

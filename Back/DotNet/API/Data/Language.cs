@@ -43,4 +43,13 @@ public partial class Language
 
     [InverseProperty("LanguageUu")]
     public virtual ICollection<Preference> Preferences { get; set; } = new List<Preference>();
+
+    [InverseProperty("LanguageUu")]
+    public virtual ICollection<AuthorTranslation> AuthorTranslations { get; set; } = new List<AuthorTranslation>();
+
+    [InverseProperty("LanguageUu")]
+    public virtual ICollection<CategoryTranslation> CategoryTranslations { get; set; } = new List<CategoryTranslation>();
+
+    [InverseProperty("LanguageUu")]
+    public virtual ICollection<PublisherTranslation> PublisherTranslations { get; set; } = new List<PublisherTranslation>();
 }

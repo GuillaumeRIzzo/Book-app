@@ -3,13 +3,14 @@ import React, { useState, useRef, useEffect } from 'react';
 
 import store from '@/redux/store';
 import SearchItem from './SearchItem';
+import { BookImage } from '@/models/bookImages/bookImages';
 
 export type SearchResult =
   | { type: 'History'; item: string }
-  | { type: 'Livre'; item: { bookTitle: string; bookId: number; } }
-  | { type: 'Auteur'; item: { authorFullName: string; authorId: number } }
-  | { type: 'Éditeur'; item: { publisherName: string; publisherId: number } }
-  | { type: 'Catégorie'; item: { categoryName: string; categoryId: number } };
+  | { type: 'Livre'; item: { bookTitle: string; bookUuid: string; images: BookImage[]; } }
+  | { type: 'Auteur'; item: { authorFullName: string; authorUuid: string } }
+  | { type: 'Éditeur'; item: { publisherName: string; publisherUuid: string } }
+  | { type: 'Catégorie'; item: { categoryName: string; categoryUuid: string } };
 
 
 const SearchBar: React.FC = () => {
@@ -104,7 +105,7 @@ const SearchBar: React.FC = () => {
         }
       } else if (results.length > 0) {
         // If no item is selected but there are results, redirect to the first result
-        goToSearch(0);
+        // goToSearch(0);
       } else {
         console.log('No results to navigate to.');
       }
@@ -136,16 +137,16 @@ const SearchBar: React.FC = () => {
 
     switch (selected.type) {
       case 'Livre':
-        router.push(`/book/${selected.item.bookId}`);
+        router.push(`/book/${selected.item.bookUuid}`);
         break;
       case 'Auteur':
-        router.push(`/author/${selected.item.authorId}`);
+        router.push(`/author/${selected.item.authorUuid}`);
         break;
       case 'Éditeur':
-        router.push(`/publisher/${selected.item.publisherId}`);
+        router.push(`/publisher/${selected.item.publisherUuid}`);
         break;
       case 'Catégorie':
-        router.push(`/category/${selected.item.categoryId}`);
+        router.push(`/category/${selected.item.categoryUuid}`);
         break;
       default:
         console.warn('Unknown type, cannot navigate');
@@ -174,13 +175,13 @@ const SearchBar: React.FC = () => {
 const resultImage = (result: SearchResult) => {
   switch (result.type) {
     case 'Livre':
-      return '/default-book-image.png'; // image générique ou selon un autre mécanisme
+      return result.item.images.find(i => i.bookUuid == result.item.bookUuid)?.imageUrl ?? 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png?20200912122019'; // image générique ou selon un autre mécanisme
     case 'Auteur':
     case 'Éditeur':
     case 'Catégorie':
-      return 'https://img.freepik.com/premium-vector/user-profile-icon-flat-style-member-avatar-vector-illustration-isolated-background-human-permission-sign-business-concept_157943-15752.jpg';
+    return 'https://img.freepik.com/premium-vector/user-profile-icon-flat-style-member-avatar-vector-illustration-isolated-background-human-permission-sign-business-concept_157943-15752.jpg';
     default:
-      return '';
+      return 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png?20200912122019';
   }
 };
 

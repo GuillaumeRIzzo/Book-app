@@ -31,8 +31,9 @@ namespace API.Controllers
                 {
                     BookTranslationId = x.BookTranslationId,
                     BookTranslationUuid = x.BookTranslationUuid,
-                    Title = x.Title,
-                    Summary = x.Summary,
+                    BookTitle = x.BookTitle,
+                    BookSubtitle = x.BookSubtitle,
+                    BookDescription = x.BookDescription,
                     CreatedAt = x.CreatedAt,
                     UpdatedAt = x.UpdatedAt,
                     BookUuid = x.BookUuid,
@@ -66,8 +67,9 @@ namespace API.Controllers
             {
                 BookTranslationId = translation.BookTranslationId,
                 BookTranslationUuid = translation.BookTranslationUuid,
-                Title = translation.Title,
-                Summary = translation.Summary,
+                BookTitle = translation.BookTitle,
+                BookSubtitle = translation.BookSubtitle,
+                BookDescription = translation.BookDescription,
                 CreatedAt = translation.CreatedAt,
                 UpdatedAt = translation.UpdatedAt,
                 BookUuid = translation.BookUuid,
@@ -112,8 +114,9 @@ namespace API.Controllers
                 {
                     translation.BookTranslationId = model.BookTranslationId;
                     translation.BookTranslationUuid = model.BookTranslationUuid;
-                    translation.Title = model.Title;
-                    translation.Summary = model.Summary;
+                    translation.BookTitle = model.BookTitle;
+                    translation.BookSubtitle = model.BookSubtitle;
+                    translation.BookDescription = model.BookDescription;
                     translation.CreatedAt = model.CreatedAt;
                     translation.UpdatedAt = DateTimeOffset.UtcNow;
                     translation.BookUuid = model.BookUuid;
@@ -168,8 +171,9 @@ namespace API.Controllers
 
                 var translation = new BookTranslation()
                 {
-                    Title = model.Title,
-                    Summary = model.Summary,
+                    BookTitle = model.BookTitle,
+                    BookSubtitle = model.BookSubtitle,
+                    BookDescription = model.BookDescription,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow,
                     BookUuid = model.BookUuid,

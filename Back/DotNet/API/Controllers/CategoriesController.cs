@@ -19,64 +19,74 @@ namespace API.Controllers
             _context = context;
         }
 
-        // GET: api/Categories
+        // GET: api/Categories?languageUuid=...
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<EncryptedPayload>>> GetCategories()
+        public async Task<ActionResult<IEnumerable<EncryptedPayload>>> GetCategories([FromQuery] Guid? languageUuid = null)
         {
-            var categories = await _context.Categories.ToListAsync();
+            var categories = await _context.Categories
+                .Include(c => c.CategoryTranslations) // inclure les traductions
+                .ToListAsync();
 
-            if (categories.Count >= 1)
+            if (categories.Count < 1)
+                return NoContent();
+
+            var model = categories.Select(c =>
             {
-                var model = categories.Select(x => new CategoryDto()
+                // Chercher la traduction correspondant à languageUuid s’il est fourni
+                var translation = languageUuid.HasValue
+                    ? c.CategoryTranslations.FirstOrDefault(t => t.LanguageUuid == languageUuid.Value)
+                    : null;
+
+                return new CategoryDto()
                 {
-                    CategoryId = x.CategoryId,
-                    CategoryUuid = x.CategoryUuid,
-                    CategoryName = x.CategoryName,
-                    CategoryDescription = x.CategoryDescription,
-                    ImageUrl = x.ImageUrl,
-                    ImageAlt = x.ImageAlt,
-                    CreatedAt = x.CreatedAt,
-                    UpdatedAt = x.UpdatedAt
-                }).ToList();
+                    CategoryId = c.CategoryId,
+                    CategoryUuid = c.CategoryUuid,
+                    // Si traduction dispo et non nulle, utiliser la traduction sinon la valeur par défaut
+                    CategoryName = translation?.TranslatedName ?? c.CategoryName,
+                    CategoryDescription = translation?.TranslatedDescription ?? c.CategoryDescription,
+                    ImageUrl = c.ImageUrl,
+                    ImageAlt = c.ImageAlt,
+                    CreatedAt = c.CreatedAt,
+                    UpdatedAt = c.UpdatedAt
+                };
+            }).ToList();
 
-                // Encrypt the list of categories
-                var encryptedData = EncryptionHelper.EncryptData(JsonSerializer.Serialize(model));
+            var encryptedData = EncryptionHelper.EncryptData(JsonSerializer.Serialize(model));
 
-                return Ok(new EncryptedPayload
-                {
-                    EncryptedData = encryptedData.EncryptedData,
-                    Iv = encryptedData.Iv
-                });
-            }
-
-            return NoContent();
+            return Ok(new EncryptedPayload
+            {
+                EncryptedData = encryptedData.EncryptedData,
+                Iv = encryptedData.Iv
+            });
         }
 
-        // GET: api/Categories/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<EncryptedPayload>> GetCategory(Guid id)
+        // GET: api/Categories/{uuid}?languageUuid=...
+        [HttpGet("{uuid}")]
+        public async Task<ActionResult<EncryptedPayload>> GetCategory(Guid uuid, [FromQuery] Guid? languageUuid = null)
         {
-            var category = await _context.Categories.FindAsync(id);
+            var category = await _context.Categories
+                .Include(c => c.CategoryTranslations)
+                .FirstOrDefaultAsync(c => c.CategoryUuid == uuid);
 
             if (category == null)
-            {
                 return NotFound();
-            }
+
+            var translation = languageUuid.HasValue
+                ? category.CategoryTranslations.FirstOrDefault(t => t.LanguageUuid == languageUuid.Value)
+                : null;
 
             var model = new CategoryDto()
             {
                 CategoryId = category.CategoryId,
                 CategoryUuid = category.CategoryUuid,
-                CategoryName= category.CategoryName,
-                CategoryDescription = category.CategoryDescription,
+                CategoryName = translation?.TranslatedName ?? category.CategoryName,
+                CategoryDescription = translation?.TranslatedDescription ?? category.CategoryDescription,
                 ImageUrl = category.ImageUrl,
                 ImageAlt = category.ImageAlt,
                 CreatedAt = category.CreatedAt,
                 UpdatedAt = category.UpdatedAt
             };
 
-
-            // Encrypt the list of publishers
             var encryptedData = EncryptionHelper.EncryptData(JsonSerializer.Serialize(model));
 
             return Ok(new EncryptedPayload

@@ -9,9 +9,10 @@ import { decryptPayload, EncryptedPayload } from '@/utils/encryptUtils';
 import { mapIdToCustomKeys, ModelType } from '@/utils/mapIdToCustomKeys';
 import { AxiosError } from 'axios';
 
-export const fetchCategoriesAsync = createAsyncThunk('categories/getCategories', async () => {
+export const fetchCategoriesAsync = createAsyncThunk('categories/getCategories', 
+  async (languageUuid?: string) => {
   try {
-    const response = await getCategories();
+    const response = await getCategories(languageUuid);
 
     const encryptedData = response.data.encryptedData;
     const iv = response.data.iv;
@@ -52,10 +53,10 @@ interface DecryptedCategoryData {
 
 export const fetchCategoryById = createAsyncThunk(
   'category/fetchById',
-  async (categoryUuid: string) => {
+  async ({ categoryUuid, languageUuid }: { categoryUuid: string; languageUuid?: string }) => {
     try {
       // Call API to fetch encrypted author data
-      const response = await getCategory(categoryUuid);
+      const response = await getCategory(categoryUuid, languageUuid);
 
       // Ensure data types for encrypted payload
       const encryptedData = response.data.encryptedData as string;

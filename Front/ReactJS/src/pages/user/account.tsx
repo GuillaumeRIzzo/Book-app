@@ -5,18 +5,26 @@ import {
   Card,
   CardActionArea,
   CardContent,
-  CardMedia,
+  // CardMedia,
   Typography,
 } from '@mui/material';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+
+import ProfileSvg from '@/assets/account/profile.svg';
+import PreferencesSvg from '@/assets/account/preferences.svg';
+import OrderSvg from '@/assets/account/order.svg';
+import AddressSvg from '@/assets/account/address.svg';
 
 const Account: React.FC = () => {
   const { data: session } = useSession();
   const [headerHeight, setHeaderHeight] = useState(0);
   const router = useRouter();
+  
+  const { t } = useTranslation();
 
   useEffect(() => {
     const header = document.getElementById('app-header');
@@ -59,29 +67,32 @@ const Account: React.FC = () => {
     }, [uuid, router]);
     
   const cards = [
-    {
-      title: 'Votre profile',
-      description:
-        "Modifier l'adresse e-mail, le nom et le numéro de téléphone mobile",
-      link: `/user/${uuid}`,
-    },
-    {
-      title: 'Préférences',
-      description: 'Modifier vos préférences',
-      link: `/user/preferences`,
-    },
-    {
-      title: 'Vos commandes',
-      description: 'Historique de vos commandes',
-      link: `/user/orders`,
-    },
-    {
-      title: 'Adresses',
-      description:
-        'Modifier les adresses et les préférences de livraison des commandes',
-      link: `/user/address`,
-    },
-  ];
+  {
+    title: t('account.profile.title'),
+    description: t('account.profile.description'),
+    link: `/user/${uuid}`,
+    image: ProfileSvg
+  },
+  {
+    title: t('account.preferences.title'),
+    description: t('account.preferences.description'),
+    link: `/user/preferences`,
+    image: PreferencesSvg
+  },
+  {
+    title: t('account.order.title'),
+    description: t('account.order.description'),
+    link: `/user/orders`,
+    image: OrderSvg
+  },
+  {
+    title: t('account.address.title'),
+    description: t('account.address.description'),
+    link: `/user/address`,
+    image: AddressSvg
+  },
+];
+
   return (
     <Box
       sx={{
@@ -92,40 +103,40 @@ const Account: React.FC = () => {
       }}
       height={`calc(100vh - ${headerHeight}px - 24px)`}
     >
-      <Typography variant='h1' fontSize={24} component='h1' className='text-primary-dark'>
-        Votre compte
+      <Typography variant='h1' fontSize={24} component='h1' className='text-primary-dark self-center'>
+        {t('account.title')}
       </Typography>
       <Box
         sx={{
           paddingY: '2rem',
           display: 'flex',
-          gap: 4,
-          alignSelf: 'center',
+          gap: 10,
+          flexWrap: 'wrap',
+          justifyContent: 'center',
         }}
       >
-        {cards.map((card, index) => (
+        {cards.map((card, index) => {
+        const SvgIcon = card.image;
+        return (
           <Card
             key={index}
             sx={{
-              width: '33%',
+              width: {
+                xs: '100%',
+                sm: '48%',
+                md: '30%',
+              },
+              minWidth: '280px',
               backgroundColor: 'var(--background)',
               borderColor: 'var(--border)',
-              borderWidth: '1px'
+              borderWidth: '1px',
             }}
           >
             <CardActionArea sx={{ height: '100%' }}>
               <Link 
                 href={card.link}>
-                <CardContent sx={{ display: 'flex', height: '140px' }}>
-                  <CardMedia
-                    component='img'
-                    image='https://m.media-amazon.com/images/G/08/x-locale/cs/help/images/gateway/self-service/order._CB659956101_.png'
-                    alt='test order'
-                    sx={{
-                      height: '50px',
-                      width: '50px',
-                    }}
-                  ></CardMedia>
+                <CardContent sx={{ display: 'flex', height: '200px' }}>
+                  <SvgIcon style={{ height: 150, width: 150, fill: 'var(-color-primary-main)' }} aria-label={card.title} />
                   <Box
                     sx={{
                       display: 'flex',
@@ -137,7 +148,7 @@ const Account: React.FC = () => {
                       {card.title}
                     </Typography>
                     <Typography
-                      variant='body2'
+                      variant='body1'
                       sx={{
                         lineBreak: 'auto',
                       }}
@@ -150,7 +161,8 @@ const Account: React.FC = () => {
               </Link>
             </CardActionArea>
           </Card>
-        ))}
+          )
+        })}
       </Box>
     </Box>
   );

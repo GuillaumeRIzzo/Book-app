@@ -9,9 +9,10 @@ import { decryptPayload, EncryptedPayload } from '@/utils/encryptUtils';
 import { mapIdToCustomKeys, ModelType } from '@/utils/mapIdToCustomKeys';
 import { AxiosError } from 'axios';
 
-export const fetchAuthorsAsync = createAsyncThunk('authors/getAuthors', async () => {
+export const fetchAuthorsAsync = createAsyncThunk('authors/getAuthors', 
+  async (languageUuid?: string) => {
   try {
-    const response = await getAuthors();
+    const response = await getAuthors(languageUuid);
 
     const encryptedData = response.data.encryptedData;
     const iv = response.data.iv;
@@ -51,10 +52,10 @@ interface DecryptedAuthorData {
 
 export const fetchAuthorById = createAsyncThunk(
   'authors/getAuthor',
-  async (authorUuid: string) => {
+  async ({ authorUuid, languageUuid }: { authorUuid: string; languageUuid?: string }) => {
     try {
       // Call API to fetch encrypted author data
-      const response = await getAuthor(authorUuid);
+      const response = await getAuthor(authorUuid, languageUuid);
 
       // Ensure data types for encrypted payload
       const encryptedData = response.data.encryptedData as string;

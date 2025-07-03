@@ -9,6 +9,8 @@ import { ColorProvider } from '@/components/context/ColorContext';
 import '@styles/globals.css';
 import { Navbar } from '@/components/layout';
 import ClientOnly from '@/components/common/ClientOnly'; // 👈 Ajoute ce wrapper
+import '@/i18n/i18n';
+import LanguageProvider from '@/providers/LanguageProvider';
 
 const MyApp = ({ Component, pageProps: { session, ...pageProps } }: AppProps) => {
   return (
@@ -18,6 +20,7 @@ const MyApp = ({ Component, pageProps: { session, ...pageProps } }: AppProps) =>
           <ColorProvider>
             <Navbar />
             <ClientOnly> {/* ✅ Ici tu forces le rendu client uniquement */}
+              <LanguageProvider />
               <Component {...pageProps} />
             </ClientOnly>
           </ColorProvider>

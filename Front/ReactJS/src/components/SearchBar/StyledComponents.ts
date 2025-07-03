@@ -57,8 +57,9 @@ export const SearchIconButton = styled.button`
 
 export const Overlay = styled.div`
   position: absolute;
-  top: 95%;
-  width: 44.3%;
+  top: 100%;
+  left: 0;
+  width: 100%; // s'adapte à SearchContainer
   background: var(--background);
   border-radius: 0 0 16px 16px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);

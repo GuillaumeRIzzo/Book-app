@@ -2,8 +2,8 @@ import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
 import camelCaseKeys from 'camelcase-keys';
 
-import { Image } from '@/models/images/images';
-import { ImagesState } from '@/models/images/imagesState';
+import { BookImage } from '@/models/bookImages/bookImages';
+import { BookImagesState } from '@/models/bookImages/bookImagesState';
 import { getImages, getImage, addImage, updateImage, delImage } from '@/api/bookImagesApi';
 import { decryptPayload, EncryptedPayload } from '@/utils/encryptUtils';
 import { mapIdToCustomKeys, ModelType } from '@/utils/mapIdToCustomKeys';
@@ -18,12 +18,12 @@ export const fetchImagesAsync = createAsyncThunk('images/getImages', async () =>
     
     const decryptedData = decryptPayload<typeof response.data>(encryptedData, iv);
 
-    let images: Image[];
+    let images: BookImage[];
 
     try {
       if (Array.isArray(decryptedData)) {
         images = mapIdToCustomKeys(
-          camelCaseKeys(decryptedData, { deep: true }) as unknown as Image[],
+          camelCaseKeys(decryptedData, { deep: true }) as unknown as BookImage[],
           ModelType.Book
         );
       } else {
@@ -65,7 +65,7 @@ export const fetchImageByUuid = createAsyncThunk(
       const book = {
         ...camelCaseKeys(decryptedData, { deep: true }),
         imageId: decryptedData.id, // manually set the imageUuid
-      } as Image;
+      } as BookImage;
 
       return book;
     } catch (error) {
@@ -128,23 +128,23 @@ export const deleteImageAsync = createAsyncThunk(
   }
 );
 
-const initialState: ImagesState = {
+const initialState: BookImagesState = {
   images: [],
   status: 'idle',
   error: null,
 };
 
-const imagesSlice = createSlice({
-  name: 'images',
+const bookImagesSlice = createSlice({
+  name: 'bImages',
   initialState,
   reducers: {
-    addBookImageLocal: (state, action: PayloadAction<Image>) => {
+    addBookImageLocal: (state, action: PayloadAction<BookImage>) => {
       state.images.push(action.payload);
     },
-    setBookImages: (state, action: PayloadAction<Image[]>) => {
+    setBookImages: (state, action: PayloadAction<BookImage[]>) => {
       state.images = action.payload;
     },
-    setStatus: (state, action: PayloadAction<ImagesState['status']>) => {
+    setStatus: (state, action: PayloadAction<BookImagesState['status']>) => {
       state.status = action.payload;
     },
     setError: (state, action: PayloadAction<string | null>) => {
@@ -227,6 +227,6 @@ const imagesSlice = createSlice({
   },
 });
 
-export const { addBookImageLocal, setBookImages, setStatus, setError } = imagesSlice.actions;
+export const { addBookImageLocal, setBookImages, setStatus, setError } = bookImagesSlice.actions;
 
-export default imagesSlice.reducer;
+export default bookImagesSlice.reducer;

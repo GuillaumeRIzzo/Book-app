@@ -3,7 +3,6 @@ import { Book } from "../book/Book";
 import { Category } from "../category/Category";
 import { Publisher } from "../publisher/publisher";
 // import { Tag } from "../tag/tag";
-import { Image } from "../images/images";
 // import { Language } from "../language/language";
 // import { BookTranslation } from "../bookTranslation/bookTranslation";
 
@@ -14,7 +13,6 @@ export class BookModelView {
     public categories: Category[],
     public publishers: Publisher[],
     // tags: Tag[],
-    public images: Image[],
     // languages: Language[],
     // translations: BookTranslation[]
   ) {
@@ -33,7 +31,6 @@ export class BookModelView {
       authors: this.authors,
       categories: this.categories,
       publishers: this.publishers,
-      images: this.images
     };
   }
 }
