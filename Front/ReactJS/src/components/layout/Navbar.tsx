@@ -24,7 +24,7 @@ const Navbar: React.FC = () => {
   const { data: session, status } = useSession();
   const pathname = usePathname();
 
-  const { t } = useTranslation();
+  const { t } = useTranslation("navbar");
 
   let token = '';
   let right = '';
@@ -53,10 +53,10 @@ const Navbar: React.FC = () => {
   }
 
 const navigation = [
-  { name: t('navbar.home'), href: '/' },
-  { name: t('navbar.categories'), href: '/categories' },
-  { name: t('navbar.authors'), href: '/authors' },
-  { name: t('navbar.publishers'), href: '/publishers' },
+  { name: t('home'), href: '/' },
+  { name: t('categories'), href: '/categories' },
+  { name: t('authors'), href: '/authors' },
+  { name: t('publishers'), href: '/publishers' },
 ];
 
   return (
@@ -98,7 +98,7 @@ const navigation = [
                         href='/users'
                         className='text-primary hover:bg-gray-300 hover:text-primary-light rounded-md px-3 py-2 text-base font-medium'
                       >
-                        {t('navbar.users').toUpperCase()}
+                        {t('users').toUpperCase()}
                       </Link>
                     )}
                   </div>
@@ -129,7 +129,7 @@ const navigation = [
                                 'block px-4 py-2 text-sm text-primary-dark hover:text-primary-light',
                               )}
                             >
-                              {t('navbar.yourAccount')}
+                              {t('yourAccount')}
                             </Link>
                           )}
                         </MenuItem>
@@ -146,7 +146,7 @@ const navigation = [
                                 localStorage.clear();
                               }}
                             >
-                              {t('navbar.logout')}
+                              {t('logout')}
                             </Link>
                           )}
                         </MenuItem>
@@ -160,13 +160,13 @@ const navigation = [
                         href='/signin'
                         className='text-primary hover:bg-gray-300 hover:text-primary-light rounded-md px-3 py-2 text-base font-medium'
                       >
-                        {t('navbar.signup').toUpperCase()}
+                        {t('signup').toUpperCase()}
                       </Link>
                       <Link
                         href='/login'
                         className='text-primary hover:bg-gray-300 hover:text-primary-light rounded-md px-3 py-2 text-base font-medium'
                       >
-                        {t('navbar.login').toUpperCase()}
+                        {t('login').toUpperCase()}
                       </Link>
                     </div>
                   </div>
@@ -199,14 +199,14 @@ const navigation = [
                     href='/signin'
                     className='text-primary hover:bg-gray-300 hover:text-primary-light block rounded-md px-3 py-2 text-base font-medium'
                   >
-                    {t('navbar.signup').toUpperCase()}
+                    {t('signup').toUpperCase()}
                   </DisclosureButton>
                   <DisclosureButton
                     as='a'
                     href='/login'
                     className='text-primary hover:bg-gray-300 hover:text-primary-light block rounded-md px-3 py-2 text-base font-medium'
                   >
-                    {t('navbar.login').toUpperCase()}
+                    {t('login').toUpperCase()}
                   </DisclosureButton>
                 </>
               )}

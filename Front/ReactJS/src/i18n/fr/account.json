@@ -1,0 +1,19 @@
+{
+  "title": "Votre compte",
+  "profile": {
+    "title": "Votre profile",
+    "description": "Modifier vos informations personnel"
+  },
+  "preferences": {
+    "title": "Vos préférences",
+    "description": "Modifier vos préférences"
+  },
+  "order": {
+    "title": "Vos commandes",
+    "description": "Historique de vos commandes"
+  },
+  "address": {
+    "title": "Vos adresses",
+    "description": "Modifier les adresses et les préférences de livraison des commandes"
+  }
+}

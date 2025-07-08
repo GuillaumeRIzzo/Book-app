@@ -15,14 +15,16 @@ namespace API.Controllers
     public class UsersController : ControllerBase
     {
         private readonly BookDbContext _context;
+        private readonly IEmailService _emailService;
         private readonly Regex hasUpperCase = new Regex(@"[A-Z]");
         private readonly Regex hasLowerCase = new Regex(@"[a-z]");
         private readonly Regex hasNumber = new Regex(@"\d");
         private readonly Regex hasSpecialChar = new Regex(@"[@$!%*?&\-_]");
 
-        public UsersController(BookDbContext context)
+        public UsersController(BookDbContext context, IEmailService emailService)
         {
             _context = context;
+            _emailService = emailService;
         }
 
         // GET: api/Users
@@ -262,6 +264,8 @@ namespace API.Controllers
                 _context.UserPasswords.Add(userPassword);
 
                 // Now create UserEmail record (assuming model.UserEmail is provided)
+                var token = Guid.NewGuid().ToString();
+
                 var userEmail = new UserEmail
                 {
                     UserUuid = user.UserUuid,
@@ -269,8 +273,14 @@ namespace API.Controllers
                     IsPrimary = true,
                     IsValidated = false,
                     CreatedAt = DateTimeOffset.UtcNow,
+                    ValidationToken = token,
+                    LastValidationEmailSentAt = DateTimeOffset.UtcNow,
                 };
                 _context.UserEmails.Add(userEmail);
+
+                // 🔔 Envoi email de validation
+                var confirmationLink = $"https://yourfrontend.com/validate-email?token={token}";
+                await _emailService.SendEmailAsync(model.UserEmail, "Validation de votre email", $"Cliquez ici pour valider : {confirmationLink}");
 
                 await _context.SaveChangesAsync();
 

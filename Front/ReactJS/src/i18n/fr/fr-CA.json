@@ -1,0 +1,15 @@
+{
+  "navbar": {
+    "yourAccount": "Compte",
+    "logout": "Déconnexion",
+    "signup": "Créer un compte"
+  },
+  "book": {
+    "price": "Prix (CAD)"
+  },
+  "preferences": {
+    "buttons": {
+      "save": "Enregistrer"
+    }
+  }
+}

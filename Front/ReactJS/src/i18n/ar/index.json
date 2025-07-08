@@ -1,0 +1,84 @@
+{
+  "languages": {
+    "ar": "العربية",
+    "ar-EG": "العربية (مصر)",
+    "ar-MA": "العربية (المغرب)",
+    "ar-SA": "العربية (السعودية)",
+    "ar-TN": "العربية (تونس)"
+  },
+  "theme": {
+    "Light": "فاتح",
+    "Dark": "داكن",
+    "System": "النظام"
+  },
+  "navbar": {
+    "home": "الرئيسية",
+    "categories": "الفئات",
+    "authors": "المؤلفون",
+    "publishers": "الناشرون",
+    "users": "المستخدمون",
+    "yourAccount": "حسابك",
+    "logout": "تسجيل الخروج",
+    "signup": "إنشاء حساب",
+    "login": "تسجيل الدخول"
+  },
+  "search": {
+    "placeholder": "بحث: كتب / مؤلفون / فئات / ناشرون",
+    "types": {
+      "book": "كتاب",
+      "author": "مؤلف",
+      "publisher": "ناشر",
+      "category": "فئة",
+      "history": "سجل"
+    },
+    "noResults": "لم يتم العثور على نتائج",
+    "seeAll": "عرض كل النتائج لـ \"{{term}}\"",
+    "seeAllHint": "انقر هنا أو اضغط ENTER لرؤية المزيد من التفاصيل."
+  },
+  "book": {
+    "title": "العنوان",
+    "subtitle": "العنوان الفرعي",
+    "authors": "المؤلفون",
+    "publishers": "الناشرون",
+    "series": "السلسلة",
+    "description": "الوصف",
+    "categories": "الفئات",
+    "isbn": "رقم ISBN",
+    "price": "السعر",
+    "pages": "{{count}} صفحة",
+    "publishedOn": "تاريخ النشر",
+    "tags": "الوسوم"
+  },
+  "account": {
+    "title": "حسابك",
+    "profile": {
+      "title": "ملفك الشخصي",
+      "description": "تعديل المعلومات الشخصية"
+    },
+    "preferences": {
+      "title": "تفضيلاتك",
+      "description": "تعديل التفضيلات"
+    },
+    "order": {
+      "title": "طلباتك",
+      "description": "تاريخ الطلبات"
+    },
+    "address": {
+      "title": "العناوين",
+      "description": "تعديل العناوين وتفضيلات التوصيل"
+    }
+  },
+  "preferences": {
+    "title": "تفضيلاتك",
+    "language": "اختر اللغة",
+    "theme": "المظهر",
+    "color": {
+      "text": "لون النص",
+      "button": "لون الأزرار"
+    },
+    "buttons": {
+      "save": "حفظ",
+      "reset": "إعادة تعيين"
+    }
+  }
+}

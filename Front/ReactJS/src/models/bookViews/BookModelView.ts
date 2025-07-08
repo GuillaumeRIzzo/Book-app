@@ -2,7 +2,7 @@ import { Author } from "../author/author";
 import { Book } from "../book/Book";
 import { Category } from "../category/Category";
 import { Publisher } from "../publisher/publisher";
-// import { Tag } from "../tag/tag";
+import { Tag } from "../tag/tag";
 // import { Language } from "../language/language";
 // import { BookTranslation } from "../bookTranslation/bookTranslation";
 
@@ -12,7 +12,7 @@ export class BookModelView {
     public authors: Author[],
     public categories: Category[],
     public publishers: Publisher[],
-    // tags: Tag[],
+    public tags: Tag[],
     // languages: Language[],
     // translations: BookTranslation[]
   ) {
@@ -31,6 +31,7 @@ export class BookModelView {
       authors: this.authors,
       categories: this.categories,
       publishers: this.publishers,
+      tags: this.tags
     };
   }
 }

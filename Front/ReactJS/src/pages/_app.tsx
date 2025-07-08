@@ -18,9 +18,9 @@ const MyApp = ({ Component, pageProps: { session, ...pageProps } }: AppProps) =>
       <Provider store={store}>
         <ThemeProvider>
           <ColorProvider>
-            <Navbar />
             <ClientOnly> {/* ✅ Ici tu forces le rendu client uniquement */}
               <LanguageProvider />
+              <Navbar />
               <Component {...pageProps} />
             </ClientOnly>
           </ColorProvider>

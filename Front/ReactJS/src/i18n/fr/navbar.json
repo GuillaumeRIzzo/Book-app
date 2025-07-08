@@ -1,0 +1,11 @@
+{
+  "home": "Accueil",
+  "categories": "Catégories",
+  "authors": "Auteurs",
+  "publishers": "Éditeurs",
+  "users": "Utilisateurs",
+  "yourAccount": "Votre compte",
+  "logout": "Se déconnecter",
+  "signup": "Inscription",
+  "login": "Connexion"
+}

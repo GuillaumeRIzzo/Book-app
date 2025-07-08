@@ -7,28 +7,34 @@ import useEmailValidator from '@/hooks/useEmailValidator';
 import useLoginValidator from '@/hooks/useLoginValidator';
 import usePasswordValidator from '@/hooks/usePasswordValidator';
 import useConfirmPasswordValidator from '@/hooks/useConfirmPasswordValidator';
-import { EncryptedPayload, encryptPayload } from '@/utils/encryptUtils';
+import { encryptPayload } from '@/utils/encryptUtils';
 import axios from 'axios';
+import { useTranslation } from 'react-i18next';
+import { useSelector } from 'react-redux';
+import { selectAllGenders } from '../genders/genderSelector';
+import { useRouter } from 'next/router';
 
 const FormWrapper = styled.div`
-  w-2/4
-  p-6 
+  w-full md:w-2/4 p-6 
 `;
 
-interface FormProps {
-  title: string;
-}
+const UserForm: React.FC = () => {
+  const { t } = useTranslation(['auth', 'form', 'errors']);
+  
+  const router = useRouter();
 
-const UserForm: React.FC<FormProps> = ({ title }) => {
+  const genders = useSelector(selectAllGenders); // Assure-toi que cette donnée est bien présente dans le store
+
   const [formData, setFormData] = useState({
-    userId: 0,
     userFirstname: '',
     userLastname: '',
     userPassword: '',
     userLogin: '',
     userEmail: '',
-    userRight: 'User',
+    userBirthDate: '',
     confirmPassword: '',
+    genderUuid: '',
+    userRightUuid: '',
   });
 
   const [touched, setTouched] = useState({
@@ -58,15 +64,20 @@ const UserForm: React.FC<FormProps> = ({ title }) => {
     setApiErrors({ Email: '', Login: '', Password: '' });
   }, [formData.userLogin, formData.userEmail, formData.userPassword]);
 
-  const formValidator: boolean =
-    !emailError && !loginError && Object.values(passwordErrors).length < 1 && !confirmPasswordError;
+  const formValidator =
+    !emailError &&
+    !loginError &&
+    Object.values(passwordErrors).length < 1 &&
+    !confirmPasswordError;
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeInput = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prevData => ({
-      ...prevData,
-      [name]: value,
-    }));
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleChangeSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
@@ -80,173 +91,154 @@ const UserForm: React.FC<FormProps> = ({ title }) => {
   const handleSubmit = async () => {
     try {
       if (formValidator) {
-        const encryptedPayload: EncryptedPayload = encryptPayload({
+        const encryptedPayload = encryptPayload({
           UserFirstname: formData.userFirstname,
           UserLastname: formData.userLastname,
           UserPassword: formData.userPassword,
           UserLogin: formData.userLogin,
           UserEmail: formData.userEmail,
-          UserRight: formData.userRight,
+          UserBirthDate: formData.userBirthDate || null,
+          GenderUuid: formData.genderUuid || null,
+          UserRightUuid: formData.userRightUuid,
         });
 
         await addUser(encryptedPayload);
-      } else {
-        console.error('Validation failed');
+        router.push('/validate-email-sent');
       }
     } catch (error: unknown) {
-    if (axios.isAxiosError(error) && error.response && error.response.data) {
-      const { name, message } = error.response.data as { name: string; message: string };
-      setApiErrors(prevErrors => ({
-        ...prevErrors,
-        [name]: message,
-      }));
-    } else {
-      console.error('Unexpected error', error);
+      if (axios.isAxiosError(error) && error.response?.data) {
+        const { name, message } = error.response.data as { name: string; message: string };
+        setApiErrors(prevErrors => ({
+          ...prevErrors,
+          [name]: message,
+        }));
+      } else {
+        console.error('Unexpected error', error);
+      }
     }
-  }
   };
 
   return (
     <FormWrapper>
-      <h2 className='text-2xl mb-6 text-center font-semibold'>{title}</h2>
+      <h2 className='text-2xl mb-6 text-center font-semibold'>{t('auth:signupTitle')}</h2>
+
       <Input
-        label='Prénom :'
+        label={t('form:firstname')}
         type='text'
         name='userFirstname'
         value={formData.userFirstname}
-        onChange={handleChange}
+        onChange={handleChangeInput}
         onBlur={handleBlur}
         error={touched.userFirstname && !formData.userFirstname}
-        infoText={
-          touched.userFirstname && !formData.userFirstname
-            ? 'Prénom requis'
-            : ''
-        }
-        autoFocus={true}
+        infoText={touched.userFirstname && !formData.userFirstname ? t('errors:firstnameRequired') : ''}
+        autoFocus
         required
       />
+
       <Input
-        label='Nom :'
-        type='text'
+        label={t('form:lastname')}
         name='userLastname'
         value={formData.userLastname}
-        onChange={handleChange}
+        onChange={handleChangeInput}
         onBlur={handleBlur}
         error={touched.userLastname && !formData.userLastname}
-        infoText={
-          touched.userLastname && !formData.userLastname ? 'Nom requis' : ''
-        }
+        infoText={touched.userLastname && !formData.userLastname ? t('errors:lastnameRequired') : ''}
         required
       />
+
       <Input
-        label='Login :'
-        type='text'
+        label={t('form:login')}
         name='userLogin'
         value={formData.userLogin}
-        onChange={handleChange}
+        onChange={handleChangeInput}
         onBlur={handleBlur}
-        error={
-          touched.userLogin && (loginError || apiErrors.Login)
-            ? true
-            : undefined
-        }
-        required
+        error={touched.userLogin && (loginError || apiErrors.Login) ? true : undefined}
         helperText={touched.userLogin ? loginError || apiErrors.Login : ''}
+        required
       />
+
       <Input
-        label='E-mail :'
+        label={t('form:email')}
         type='email'
         name='userEmail'
         value={formData.userEmail}
-        onChange={handleChange}
+        onChange={handleChangeInput}
         onBlur={handleBlur}
-        error={
-          touched.userEmail && (emailError || apiErrors.Email)
-            ? true
-            : undefined
-        }
-        required
+        error={touched.userEmail && (emailError || apiErrors.Email) ? true : undefined}
         helperText={touched.userEmail ? emailError || apiErrors.Email : ''}
+        required
       />
+
       <Input
-        label='Mot de passe :'
+        label={t('form:password')}
         type='password'
         name='userPassword'
         value={formData.userPassword}
-        onChange={handleChange}
+        onChange={handleChangeInput}
         onBlur={handleBlur}
         required
       />
+
       <div className='text-base space-y-1'>
-        <p
-          className={
-            passwordErrors['missingUppercase']
-              ? 'text-red-500'
-              : 'text-green-500'
-          }
-        >
-          Majuscule requise
+        <p className={passwordErrors.missingUppercase ? 'text-red-500' : 'text-green-500'}>
+          {t('errors:uppercaseMissing')}
         </p>
-        <p
-          className={
-            passwordErrors['missingLowercase']
-              ? 'text-red-500'
-              : 'text-green-500'
-          }
-        >
-          Minuscule requise
+        <p className={passwordErrors.missingLowercase ? 'text-red-500' : 'text-green-500'}>
+          {t('errors:lowercaseMissing')}
         </p>
-        <p
-          className={
-            passwordErrors['missingNumber']
-              ? 'text-red-500'
-              : 'text-green-500'
-          }
-        >
-          Nombre requis
+        <p className={passwordErrors.missingNumber ? 'text-red-500' : 'text-green-500'}>
+          {t('errors:numberMissing')}
         </p>
-        <p
-          className={
-            passwordErrors['missingSpecialChar']
-              ? 'text-red-500'
-              : 'text-green-500'
-          }
-        >
-          Caractère spécial requis
+        <p className={passwordErrors.missingSpecialChar ? 'text-red-500' : 'text-green-500'}>
+          {t('errors:specialCharMissing')}
         </p>
-        <p
-          className={
-            passwordErrors['minLength'] ? 'text-red-500' : 'text-green-500'
-          }
-        >
-          Au moins 8 caractères
+        <p className={passwordErrors.minLength ? 'text-red-500' : 'text-green-500'}>
+          {t('errors:minLength')}
         </p>
       </div>
+
       <Input
-        label='Confirmation mot de passe :'
+        label={t('form:confirmPassword')}
         type='password'
         name='confirmPassword'
         value={formData.confirmPassword}
-        onChange={handleChange}
+        onChange={handleChangeInput}
         onBlur={handleBlur}
-        error={
-          touched.confirmPassword &&
-          confirmPasswordError &&
-          formData.confirmPassword.length > 0
-            ? true
-            : undefined
-        }
-        infoText={
-          touched.confirmPassword &&
-          confirmPasswordError &&
-          formData.confirmPassword.length > 0
-            ? confirmPasswordError
-            : ''
-        }
+        error={touched.confirmPassword && confirmPasswordError && formData.confirmPassword.length > 0 ? true : undefined}
+        infoText={touched.confirmPassword && confirmPasswordError ? t('errors:passwordsNotMatching') : ''}
         required
       />
+
+      <div className='my-3'>
+        <label className='block text-sm font-medium'>{t('form:birthdate', 'Date de naissance')}</label>
+        <input
+          type='date'
+          name='userBirthDate'
+          value={formData.userBirthDate}
+          onChange={handleChangeInput}
+          className='mt-1 block w-full border rounded p-2'
+        />
+      </div>
+
+      <div className='my-3'>
+        <label className='block text-sm font-medium'>{t('form:gender', 'Genre')}</label>
+        <select
+          name='genderUuid'
+          value={formData.genderUuid}
+          onChange={handleChangeSelect}
+          className='mt-1 block w-full border rounded p-2'
+        >
+          <option value=''>{t('form:selectGender', 'Sélectionner un genre')}</option>
+          {genders?.map(g => (
+            <option key={g.genderUuid} value={g.genderUuid}>
+              {g.genderLabel}
+            </option>
+          ))}
+        </select>
+      </div>
+
       <CustomButton
-        text='Submit'
+        text={t('form:submit')}
         onClick={handleSubmit}
         disable={!formValidator}
       />

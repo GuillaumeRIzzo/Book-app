@@ -1,0 +1,80 @@
+{
+  "languages": {
+    "ja-JP": "日本語 (日本)"
+  },
+  "theme": {
+    "Light": "ライト",
+    "Dark": "ダーク",
+    "System": "システム"
+  },
+  "navbar": {
+    "home": "ホーム",
+    "categories": "カテゴリ",
+    "authors": "著者",
+    "publishers": "出版社",
+    "users": "ユーザー",
+    "yourAccount": "マイアカウント",
+    "logout": "ログアウト",
+    "signup": "登録",
+    "login": "ログイン"
+  },
+  "search": {
+    "placeholder": "検索: 本 / 著者 / カテゴリ / 出版社",
+    "types": {
+      "book": "本",
+      "author": "著者",
+      "publisher": "出版社",
+      "category": "カテゴリ",
+      "history": "履歴"
+    },
+    "noResults": "結果が見つかりませんでした",
+    "seeAll": "\"{{term}}\" のすべての結果を見る",
+    "seeAllHint": "ここをクリックするかENTERを押して詳細を表示します。"
+  },
+  "book": {
+    "title": "タイトル",
+    "subtitle": "サブタイトル",
+    "authors": "著者",
+    "publishers": "出版社",
+    "series": "シリーズ",
+    "description": "説明",
+    "categories": "カテゴリ",
+    "isbn": "ISBN",
+    "price": "価格",
+    "pages": "{{count}} ページ",
+    "publishedOn": "出版日",
+    "tags": "タグ"
+  },
+  "account": {
+    "title": "マイアカウント",
+    "profile": {
+      "title": "プロフィール",
+      "description": "個人情報を編集する"
+    },
+    "preferences": {
+      "title": "設定",
+      "description": "設定を編集する"
+    },
+    "order": {
+      "title": "注文履歴",
+      "description": "過去の注文"
+    },
+    "address": {
+      "title": "住所",
+      "description": "住所と配送設定を変更する"
+    }
+  },
+  "preferences": {
+    "title": "設定",
+    "language": "言語を選択",
+    "theme": "テーマ",
+    "color": {
+      "text": "テキストの色",
+      "button": "ボタンの色"
+    },
+    "buttons": {
+      "save": "保存",
+      "reset": "リセット"
+    }
+  }
+}

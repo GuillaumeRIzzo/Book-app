@@ -14,6 +14,8 @@ import ThemeReducer  from '@/features/themes/ThemeSlice';
 import ColorReducer from '@/features/colors/ColorSlice';
 import EmailReducer from '@/features/users/emailSlice';
 import PasswordReducer from '@/features/users/passwordSlice';
+import TagReducer from '@/features/tags/TagSlice';
+import GenderReducer from '@/features/genders/GenderSlice';
 
 const rootReducer = combineReducers({
   books: bookReducer,
@@ -31,6 +33,8 @@ const rootReducer = combineReducers({
   colors: ColorReducer,
   emails: EmailReducer,
   passwords: PasswordReducer,
+  tags: TagReducer,
+  genders: GenderReducer,
 });
 
 export default rootReducer;

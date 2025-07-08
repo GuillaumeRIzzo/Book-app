@@ -1,0 +1,13 @@
+{
+  "title": "Vos préférences",
+  "language": "Choisissez une langue",
+  "theme": "Thème",
+  "color": {
+    "text": "Couleur du texte",
+    "button": "Couleur des boutons"
+  },
+  "buttons": {
+    "save": "Sauvegarder",
+    "reset": "Réinitialiser"
+  }
+}

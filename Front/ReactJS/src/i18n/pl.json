@@ -34,6 +34,23 @@
     "seeAll": "Wszystkie wyniki dla \"{{term}}\"",
     "seeAllHint": "Kliknij tutaj lub naciśnij ENTER, aby zobaczyć więcej szczegółów."
   },
+  "book": {
+    "title": "Tytuł",
+    "subtitle": "Podtytuł",
+    "authors": "Autor(zy)",
+    "publishers": "Wydawnictwo(a)",
+    "series": "Seria",
+    "description": "Opis",
+    "categories": "Kategorie",
+    "isbn": "ISBN",
+    "price": "Cena",
+    "pages_one": "{{count}} strona",
+    "pages_few": "{{count}} strony",
+    "pages_many": "{{count}} stron",
+    "pages_other": "{{count}} stron",
+    "publishedOn": "Opublikowano",
+    "tags": "Tagi"
+  },
   "account": {
     "title": "Twoje konto",
     "profile": {

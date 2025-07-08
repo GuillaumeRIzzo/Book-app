@@ -1,0 +1,9 @@
+{
+  "firstname": "Prénom",
+  "lastname": "Nom",
+  "login": "Login",
+  "email": "E-mail",
+  "password": "Mot de passe",
+  "confirmPassword": "Confirmation mot de passe",
+  "submit": "Valider"
+}

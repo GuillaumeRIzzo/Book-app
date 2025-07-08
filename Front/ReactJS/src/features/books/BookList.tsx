@@ -14,7 +14,6 @@ import { fetchAuthorsAsync } from '../authors/AuthorSlice';
 import { fetchPublishersAsync } from '../publishers/PublisherSlice';
 import { fetchCategoriesAsync } from '../categories/categorySlice';
 import { fetchUsersAsync } from '../users/UserSlice';
-import { fetchImagesAsync } from '../bookImages/bookImageSlice';
 import { decryptPayload } from '@/utils/encryptUtils';
 import {
   selectAllBooks,
@@ -25,7 +24,6 @@ import { selectBookModelViews } from '../bookViews/bookViewSelectors';
 import { selectAuthorStatus } from '../authors/authorSelector';
 import { selectCategoriesStatus } from '../categories/categoriesSelector';
 import { selectPublisherStatus } from '../publishers/publisherSelector';
-import { selectImageStatus } from '../bookImages/bookImageSelectors';
 import { setBookViews } from '../bookViews/bookViewSlice';
 import { fetchLanguagesAsync } from '../languages/LanguageSlice';
 import { fetchThemesAsync } from '../themes/ThemeSlice';
@@ -35,10 +33,14 @@ import { selectUserStatus } from '../users/userSelector';
 import { selectUserRightStatus } from '../userRights/userRightSelector';
 import { selectColorStatus } from '../colors/colorSelector';
 import { selectThemeStatus } from '../themes/themeSelector';
+import { selectTagStatus } from '../tags/tagSelector';
 import { selectAllLanguages, selectLanguageStatus } from '../languages/languageSelector';
 import { selectPreference, selectPreferenceStatus } from '../preferences/preferenceSelector';
 import Image from 'next/image';
 import { fetchPreferenceAsync } from '../preferences/PreferenceSlice';
+import { fetchTagsAsync } from '../tags/TagSlice';
+import { fetchGendersAsync } from '../genders/GenderSlice';
+import { selectGenderStatus } from '../genders/genderSelector';
 
 const BookList: React.FC = () => {
   const books = useSelector(selectAllBooks);
@@ -47,8 +49,9 @@ const BookList: React.FC = () => {
   const authorStatus = useSelector(selectAuthorStatus);
   const categoryStatus = useSelector(selectCategoriesStatus);
   const publisherStatus = useSelector(selectPublisherStatus);
-  const imageStatus = useSelector(selectImageStatus);
+  const tagStatus = useSelector(selectTagStatus);
   const userStatus = useSelector(selectUserStatus);
+  const gendersStatus = useSelector(selectGenderStatus);
   const userRightStatus = useSelector(selectUserRightStatus);
   const languageStatus = useSelector(selectLanguageStatus);
   const themesStatus = useSelector(selectThemeStatus);
@@ -87,12 +90,13 @@ const BookList: React.FC = () => {
 
     if (bookStatus === 'idle' && languageStatus === 'succeeded') {
       dispatch(fetchBooksAsync());
-      dispatch(fetchImagesAsync());
       dispatch(fetchAuthorsAsync(preference?.languageUuid ?? language));
       dispatch(fetchPublishersAsync(preference?.languageUuid ?? language));
       dispatch(fetchCategoriesAsync(preference?.languageUuid ?? language));
+      dispatch(fetchTagsAsync());
+      dispatch(fetchGendersAsync());
     }
-  }, [bookStatus, dispatch, preference, language, languageStatus]);
+  }, [bookStatus, dispatch, preference, language, languageStatus, tagStatus, gendersStatus]);
 
   const modelViews = useSelector(selectBookModelViews);
 
@@ -102,7 +106,6 @@ const BookList: React.FC = () => {
       authorStatus,
       categoryStatus,
       publisherStatus,
-      imageStatus,
     ].every(status => status === 'succeeded');
 
     if (allSucceeded && modelViews.length > 0) {
@@ -113,7 +116,6 @@ const BookList: React.FC = () => {
     authorStatus,
     categoryStatus,
     publisherStatus,
-    imageStatus,
     modelViews,
     dispatch,
   ]);

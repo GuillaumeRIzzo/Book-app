@@ -1,0 +1,21 @@
+{
+  "languages": {
+    "en-GB": "Anglais (Royaume-Uni)",
+    "fr-FR": "Français (France)",
+    "es-ES": "Espagnol (Espagne)",
+    "pl-PL": "Polonais (Pologne)",
+    "fr-CA": "Français (Canada)",
+    "pt-PT": "Portugais (Portugal)",
+    "pt-BR": "Portugais (Brésil)",
+    "ar-EG": "Arabe (Égypte)",
+    "ar-MA": "Arabe (Maroc)",
+    "ar-DZ": "Arabe (Algérie)",
+    "ar-AE": "Arabic (U.A.E.)",
+    "ja": "Japonais"
+  },
+  "theme": {
+    "Light": "Claire",
+    "Dark": "Sombre",
+    "System": "Système"
+  }
+}

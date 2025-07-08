@@ -1,0 +1,10 @@
+{
+  "firstnameRequired": "Prénom requis",
+  "lastnameRequired": "Nom requis",
+  "uppercaseMissing": "Majuscule requise",
+  "lowercaseMissing": "Minuscule requise",
+  "numberMissing": "Nombre requis",
+  "specialCharMissing": "Caractère spécial requis",
+  "minLength": "Au moins 8 caractères",
+  "passwordsNotMatching": "Les mots de passe ne correspondent pas"
+}

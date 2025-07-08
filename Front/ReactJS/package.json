@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build && next export",
     "build:safe": "cross-env NODE_OPTIONS='--max-old-space-size=4096' next build",
+    "generate:i18n": "ts-node scripts/generateResources.js",
     "start": "next start",
     "lint": "next lint",
     "test": "jest",
@@ -58,7 +59,8 @@
     "postcss": "^8.5.6",
     "prettier": "^3.3.1",
     "tailwindcss": "^3.4.17",
+    "ts-node": "^10.9.2",
     "twin.macro": "^3.1.0",
-    "typescript": "^5"
+    "typescript": "^5.8.3"
   }
 }

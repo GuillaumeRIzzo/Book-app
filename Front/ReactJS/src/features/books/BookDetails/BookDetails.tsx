@@ -175,9 +175,10 @@ const BookDetails: React.FC = () => {
 
         <BookInfo
           book={bookModelView.book}
-          authors={bookModelView.authors[0]}
-          publishers={bookModelView.publishers[0]}
+          authors={bookModelView.authors}
+          publishers={bookModelView.publishers}
           categories={bookModelView.categories}
+          tags={bookModelView.tags}
         />
       </BookDetailsWrapper>
     </Container>

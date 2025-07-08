@@ -34,6 +34,21 @@
     "seeAll": "Todos los resultados para \"{{term}}\"",
     "seeAllHint": "Haz clic aquí o pulsa ENTER para ver más detalles."
   },
+  "book": {
+    "title": "Título",
+    "subtitle": "Subtítulo",
+    "authors": "Autor(es)",
+    "publishers": "Editorial(es)",
+    "series": "Serie",
+    "description": "Descripción",
+    "categories": "Categorías",
+    "isbn": "ISBN",
+    "price": "Precio",
+    "pages_one": "{{count}} página",
+    "pages_other": "{{count}} páginas",
+    "publishedOn": "Publicado el",
+    "tags": "Etiquetas"
+  },
   "account": {
     "title": "Tu cuenta",
     "profile": {
