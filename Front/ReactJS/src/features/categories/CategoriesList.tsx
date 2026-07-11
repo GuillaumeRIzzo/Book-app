@@ -4,19 +4,23 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useSession } from 'next-auth/react';
 
 import { Box, Fab, IconButton } from '@mui/material';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-import { AppDispatch, RootState } from '@/redux/store';
+import { AppDispatch } from '@/redux/store';
 import { Category } from '@/models/category/Category';
 import Loading from '@/components/common/Loading';
 import { Dialog } from '@/components/common/dialog';
 import { fetchCategoriesAsync } from './categorySlice';
 import { decryptPayload } from '@/utils/encryptUtils';
 import Link from 'next/link';
-import { selectAllCategories, selectCategoriesError, selectCategoriesStatus } from './categoriesSelector';
+import {
+  selectAllCategories,
+  selectCategoriesError,
+  selectCategoriesStatus,
+} from './categoriesSelector';
 
 const CategoryList: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -27,25 +31,30 @@ const CategoryList: React.FC = () => {
   const { data: session } = useSession();
 
   const [openDialog, setOpenDialog] = useState(false);
-  const [selectedCategory, setSelectedCategory] =
-    useState<Category | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+    null,
+  );
   const [dialogTitle, setDialogTitle] = useState('');
   const [dialogContent, setDialogContent] = useState('');
   const [dialogAction, setDialogAction] = useState<() => void>(() => {});
 
   // Check if the session is available and contains the encrypted session
-  // const { right, token } = useMemo(() => {
-  //     if (session?.user?.encryptedSession) {
-  //       const { encryptedData, iv } = session.user.encryptedSession;
-  //       try {
-  //         const { right: decryptedRight, token: decryptToken } = decryptPayload(encryptedData, iv);
-  //         return { right: decryptedRight as string, token: decryptToken as string };
-  //       } catch (error) {
-  //         console.error('Failed to decrypt session data:', error);
-  //       }
-  //     }
-  //     return { right: '', sessionId: '' };
-  //   }, [session]);
+  const { right } = useMemo(() => {
+    if (session?.user?.encryptedSession) {
+      const { encryptedData, iv } = session.user.encryptedSession;
+      try {
+        // Explicitly cast the decrypted data to the expected type
+        const decryptedData = decryptPayload<{ right: string }>(
+          encryptedData,
+          iv,
+        );
+        return { right: decryptedData.right };
+      } catch (error) {
+        console.error('Failed to decrypt session data:', error);
+      }
+    }
+    return { right: '' };
+  }, [session]);
 
   const handleEdit = (categorie: Category) => {
     setSelectedCategory(categorie);
@@ -96,61 +105,64 @@ const CategoryList: React.FC = () => {
   }));
 
   const columns: GridColDef[] = [
-    // ...(right !== null && (right === 'Admin' || right === 'Super Admin')
-    //   ? [{ field: 'categoryId', headerName: 'ID' }]
-    //   : []),
-    { field: 'categoryName', headerName: 'Nom',
-          renderCell: (params: any) => (
-            <Link
-              href={`/category/${params.row.categoryId}`}
-              style={{
-                color: '#1976d2',
-                textDecoration: 'underline',
-                cursor: 'pointer',
-              }}
-            >
-              {params.value}
-            </Link>
-          ), },
+    ...(right !== null && (right === 'Admin' || right === 'Super Admin')
+      ? [{ field: 'categoryId', headerName: 'ID' }]
+      : []),
+    {
+      field: 'categoryName',
+      headerName: 'Nom',
+      renderCell: (params: GridRenderCellParams<Category>) => (
+        <Link
+          href={`/category/${params.row.categoryId}`}
+          style={{
+            color: '#1976d2',
+            textDecoration: 'underline',
+            cursor: 'pointer',
+          }}
+        >
+          {params.value}
+        </Link>
+      ),
+    },
     {
       field: 'categoryDescription',
-      headerName: 'Decription',
+      headerName: 'Description',
       minWidth: 800,
       maxWidth: 1000,
     },
-    // ...(right !== null && (right === 'Admin' || right === 'Super Admin')
-    //   ? [
-    //       {
-    //         field: 'actions',
-    //         headerName: 'Actions',
-    //         width: 150,
-    //         sortable: false,
-    //         renderCell: (params: any) => (
-    //           <>
-    //             <IconButton
-    //               color='primary'
-    //               aria-label='edit category'
-    //               onClick={() => handleEdit(params.row)}
-    //             >
-    //               <EditIcon />
-    //             </IconButton>
-    //             <IconButton
-    //               color='secondary'
-    //               aria-label='delete category'
-    //               onClick={() => handleDelete(params.row)}
-    //             >
-    //               <DeleteIcon />
-    //             </IconButton>
-    //           </>
-    //         ),
-    //       },
-    //     ]
-    //   : []),
+    ...(right !== null && (right === 'Admin' || right === 'Super Admin')
+      ? [
+          {
+            field: 'actions',
+            headerName: 'Actions',
+            width: 150,
+            sortable: false,
+            renderCell: (params: GridRenderCellParams<Category>) => (
+              <>
+                <IconButton
+                  color='primary'
+                  aria-label='edit category'
+                  onClick={() => handleEdit(params.row)}
+                >
+                  <EditIcon />
+                </IconButton>
+                <IconButton
+                  color='secondary'
+                  aria-label='delete category'
+                  onClick={() => handleDelete(params.row)}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </>
+            ),
+          },
+        ]
+      : []),
   ];
 
   return (
     <Box>
-      {/* right && (right === 'Admin' || right === 'Super Admin') &&  */(
+      {right && (right === 'Admin' || right === 'Super Admin') && (
         <Box
           sx={{
             display: 'flex',
