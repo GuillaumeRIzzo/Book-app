@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useSession } from 'next-auth/react';
 
 import { Box, Fab, IconButton } from '@mui/material';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -25,7 +25,6 @@ const PublisherList: React.FC = () => {
   const router = useRouter();
 
   const { data: session } = useSession();
-  let token: string = '';
   let right: string = '';
 
   const [openDialog, setOpenDialog] = useState(false);
@@ -47,14 +46,11 @@ const PublisherList: React.FC = () => {
 
       // Cast the decrypted session data to the expected structure
       const {
-        token: decryptedToken,
         right: decryptedRight,
       } = decryptedSessionData as {
-        token: string;
         right: string;
       };
 
-      token = decryptedToken;
       right = decryptedRight;
     } catch (error) {
       console.error('Failed to decrypt session data:', error);
@@ -112,7 +108,7 @@ const PublisherList: React.FC = () => {
     ? [{ field: 'publisherId', headerName: 'ID' }]
     : []),
     { field: 'publisherName', headerName: 'Nom', width: 150,
-      renderCell: (params: any) => (
+      renderCell: (params: GridRenderCellParams<Publisher>) => (
         <Link
           href={`/publisher/${params.row.publisherId}`}
           style={{
@@ -130,7 +126,7 @@ const PublisherList: React.FC = () => {
       headerName: 'Actions',
       width: 150,
       sortable: false,
-      renderCell: (params: any) => (
+      renderCell: (params: GridRenderCellParams<Publisher>) => (
         <>
           <IconButton
             color="primary"

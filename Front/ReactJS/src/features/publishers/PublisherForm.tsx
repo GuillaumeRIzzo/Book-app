@@ -63,7 +63,7 @@ const PublisherForm: React.FC<PublisherProps> = ({ title }) => {
         })).unwrap();
         router.push(`/publisher/${formData.PublisherId}`)
       }
-    } catch (error: any) {}
+    } catch (error) {}
   };
 
   return (
