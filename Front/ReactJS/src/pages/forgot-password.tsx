@@ -19,12 +19,12 @@ const ForgotPasswordPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const status = useSelector((state: RootState) => state.passwords.confirmationStatus);
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!email) return;
 
     try {
-      await dispatch(sendResetPasswordEmail({ email })).unwrap();
+      dispatch(sendResetPasswordEmail({ Email: email })).unwrap();
       setAlertMessage('Check your email for the reset link.');
       setAlertSeverity('success');
     } catch (err) {

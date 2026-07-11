@@ -23,7 +23,7 @@ const Account: React.FC = () => {
   const [headerHeight, setHeaderHeight] = useState(0);
   const router = useRouter();
   
-  const { t } = useTranslation();
+  const { t } = useTranslation('account');
 
   useEffect(() => {
     const header = document.getElementById('app-header');
@@ -67,26 +67,26 @@ const Account: React.FC = () => {
     
   const cards = [
   {
-    title: t('account.profile.title'),
-    description: t('account.profile.description'),
+    title: t('profile.title'),
+    description: t('profile.description'),
     link: `/user/${uuid}`,
     image: ProfileSvg
   },
   {
-    title: t('account.preferences.title'),
-    description: t('account.preferences.description'),
+    title: t('preferences.title'),
+    description: t('preferences.description'),
     link: `/user/preferences`,
     image: PreferencesSvg
   },
   {
-    title: t('account.order.title'),
-    description: t('account.order.description'),
+    title: t('order.title'),
+    description: t('order.description'),
     link: `/user/orders`,
     image: OrderSvg
   },
   {
-    title: t('account.address.title'),
-    description: t('account.address.description'),
+    title: t('address.title'),
+    description: t('address.description'),
     link: `/user/address`,
     image: AddressSvg
   },
@@ -103,7 +103,7 @@ const Account: React.FC = () => {
       height={`calc(100vh - ${headerHeight}px - 24px)`}
     >
       <Typography variant='h1' fontSize={24} component='h1' className='text-primary-dark self-center'>
-        {t('account.title')}
+        {t('title')}
       </Typography>
       <Box
         sx={{
@@ -132,10 +132,24 @@ const Account: React.FC = () => {
             }}
           >
             <CardActionArea sx={{ height: '100%' }}>
-              <Link 
-                href={card.link}>
+              <Link href={card.link}>
                 <CardContent sx={{ display: 'flex', height: '200px' }}>
-                  <SvgIcon style={{ height: 150, width: 150, fill: 'var(-color-primary-main)' }} aria-label={card.title} />
+                <Box 
+                  width={150}
+                  height={150}
+                  display='flex'
+                  alignItems='center'
+                  justifyContent='center'
+                >
+                  <SvgIcon
+                    style={{
+                      height: 150,
+                      width: 150,
+                      color: 'var(--color-secondary-main)'
+                    }}
+                    aria-label={card.title}
+                    />
+                    </Box>
                   <Box
                     sx={{
                       display: 'flex',
@@ -143,11 +157,16 @@ const Account: React.FC = () => {
                       marginLeft: '2rem',
                     }}
                   >
-                    <Typography variant='h5' component='h2' className='text-primary'>
+                    <Typography
+                      variant='h5'
+                      component='h2'
+                      className='text-primary'
+                    >
                       {card.title}
                     </Typography>
                     <Typography
                       variant='body1'
+                      component='p'
                       sx={{
                         lineBreak: 'auto',
                       }}
@@ -160,7 +179,7 @@ const Account: React.FC = () => {
               </Link>
             </CardActionArea>
           </Card>
-          )
+        );
         })}
       </Box>
     </Box>

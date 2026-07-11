@@ -7,8 +7,14 @@ echo "⏳ Waiting for SQL Server to be ready..."
 sleep 30
 
 echo "📥 Running initialization script..."
-if [ -f /opt/mssql-tools/bin/sqlcmd ]; then
-    /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P YourStrong!Passw0rd -d master -i /init.sql
+if [ -f /opt/mssql-tools18/bin/sqlcmd ]; then
+    /opt/mssql-tools18/bin/sqlcmd \
+    -S localhost \
+    -U sa \
+    -P "YourStrong!Passw0rd" \
+    -d master\
+    -C \
+    -i /usr/local/bin/init.sql
 else
     echo "⚠️ sqlcmd not found — skipping DB init"
 fi

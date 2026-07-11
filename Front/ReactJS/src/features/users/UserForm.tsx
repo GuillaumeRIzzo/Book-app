@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import styled from 'twin.macro';
-import { addUser } from '@/api/userApi';
 import CustomButton from '@/components/common/Button';
 import Input from '@/components/common/Input';
 import useEmailValidator from '@/hooks/useEmailValidator';
@@ -8,22 +7,26 @@ import useLoginValidator from '@/hooks/useLoginValidator';
 import usePasswordValidator from '@/hooks/usePasswordValidator';
 import useConfirmPasswordValidator from '@/hooks/useConfirmPasswordValidator';
 import { encryptPayload } from '@/utils/encryptUtils';
-import axios from 'axios';
 import { useTranslation } from 'react-i18next';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { selectAllGenders } from '../genders/genderSelector';
 import { useRouter } from 'next/router';
+import { AppDispatch } from '@/redux/store';
+import { createUser } from './UserSlice';
+import axios from 'axios';
+import { BirthDatePicker } from '@/components/common/DatePicker';
 
 const FormWrapper = styled.div`
   w-full md:w-2/4 p-6 
 `;
 
 const UserForm: React.FC = () => {
-  const { t } = useTranslation(['auth', 'form', 'errors']);
+  const { t } = useTranslation(['auth', 'form', 'errors', 'validation']);
   
   const router = useRouter();
+  const dispatch = useDispatch<AppDispatch>();
 
-  const genders = useSelector(selectAllGenders); // Assure-toi que cette donnée est bien présente dans le store
+  const genders = useSelector(selectAllGenders);
 
   const [formData, setFormData] = useState({
     userFirstname: '',
@@ -31,10 +34,9 @@ const UserForm: React.FC = () => {
     userPassword: '',
     userLogin: '',
     userEmail: '',
-    userBirthDate: '',
+    userBirthDate: null as Date | null,
     confirmPassword: '',
     genderUuid: '',
-    userRightUuid: '',
   });
 
   const [touched, setTouched] = useState({
@@ -88,23 +90,25 @@ const UserForm: React.FC = () => {
     }));
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     try {
-      if (formValidator) {
-        const encryptedPayload = encryptPayload({
-          UserFirstname: formData.userFirstname,
-          UserLastname: formData.userLastname,
-          UserPassword: formData.userPassword,
-          UserLogin: formData.userLogin,
-          UserEmail: formData.userEmail,
-          UserBirthDate: formData.userBirthDate || null,
-          GenderUuid: formData.genderUuid || null,
-          UserRightUuid: formData.userRightUuid,
-        });
+      if (!formValidator) return;
 
-        await addUser(encryptedPayload);
-        router.push('/validate-email-sent');
-      }
+      const encryptedPayload = encryptPayload({
+        UserFirstname: formData.userFirstname,
+        UserLastname: formData.userLastname,
+        UserPassword: formData.userPassword,
+        UserLogin: formData.userLogin,
+        UserEmail: formData.userEmail,
+        UserBirthDate: formData.userBirthDate
+        ? formData.userBirthDate.toISOString().split('T')[0]
+        : null,
+        GenderUuid: formData.genderUuid || null,
+      });
+
+      dispatch(createUser(encryptedPayload)).unwrap();
+
+      router.push('/validate-email-sent');
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response?.data) {
         const { name, message } = error.response.data as { name: string; message: string };
@@ -130,7 +134,7 @@ const UserForm: React.FC = () => {
         onChange={handleChangeInput}
         onBlur={handleBlur}
         error={touched.userFirstname && !formData.userFirstname}
-        infoText={touched.userFirstname && !formData.userFirstname ? t('errors:firstnameRequired') : ''}
+        infoText={touched.userFirstname && !formData.userFirstname ? t('validation:firstnameRequired') : ''}
         autoFocus
         required
       />
@@ -142,7 +146,7 @@ const UserForm: React.FC = () => {
         onChange={handleChangeInput}
         onBlur={handleBlur}
         error={touched.userLastname && !formData.userLastname}
-        infoText={touched.userLastname && !formData.userLastname ? t('errors:lastnameRequired') : ''}
+        infoText={touched.userLastname && !formData.userLastname ? t('validation:lastnameRequired') : ''}
         required
       />
 
@@ -181,19 +185,19 @@ const UserForm: React.FC = () => {
 
       <div className='text-base space-y-1'>
         <p className={passwordErrors.missingUppercase ? 'text-red-500' : 'text-green-500'}>
-          {t('errors:uppercaseMissing')}
+          {t('validation:password.uppercaseMissing')}
         </p>
         <p className={passwordErrors.missingLowercase ? 'text-red-500' : 'text-green-500'}>
-          {t('errors:lowercaseMissing')}
+          {t('validation:password.lowercaseMissing')}
         </p>
         <p className={passwordErrors.missingNumber ? 'text-red-500' : 'text-green-500'}>
-          {t('errors:numberMissing')}
+          {t('validation:password.numberMissing')}
         </p>
         <p className={passwordErrors.missingSpecialChar ? 'text-red-500' : 'text-green-500'}>
-          {t('errors:specialCharMissing')}
+          {t('validation:password.specialCharMissing')}
         </p>
         <p className={passwordErrors.minLength ? 'text-red-500' : 'text-green-500'}>
-          {t('errors:minLength')}
+          {t('validation:password.minLength')}
         </p>
       </div>
 
@@ -205,30 +209,24 @@ const UserForm: React.FC = () => {
         onChange={handleChangeInput}
         onBlur={handleBlur}
         error={touched.confirmPassword && confirmPasswordError && formData.confirmPassword.length > 0 ? true : undefined}
-        infoText={touched.confirmPassword && confirmPasswordError ? t('errors:passwordsNotMatching') : ''}
+        infoText={touched.confirmPassword && confirmPasswordError ? t('validation:password.passwordsNotMatching') : ''}
         required
       />
 
-      <div className='my-3'>
-        <label className='block text-sm font-medium'>{t('form:birthdate', 'Date de naissance')}</label>
-        <input
-          type='date'
-          name='userBirthDate'
+      <BirthDatePicker
           value={formData.userBirthDate}
-          onChange={handleChangeInput}
-          className='mt-1 block w-full border rounded p-2'
+          onChange={date => setFormData(prev => ({ ...prev, userBirthDate: date }))}
         />
-      </div>
 
       <div className='my-3'>
-        <label className='block text-sm font-medium'>{t('form:gender', 'Genre')}</label>
+        <label className='block text-sm font-medium'>{t('form:gender')}</label>
         <select
           name='genderUuid'
           value={formData.genderUuid}
           onChange={handleChangeSelect}
           className='mt-1 block w-full border rounded p-2'
         >
-          <option value=''>{t('form:selectGender', 'Sélectionner un genre')}</option>
+          <option value=''>{t('form:selectGender')}</option>
           {genders?.map(g => (
             <option key={g.genderUuid} value={g.genderUuid}>
               {g.genderLabel}

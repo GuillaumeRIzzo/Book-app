@@ -1,0 +1,13 @@
+{
+  "placeholder": "Search: books / authors / categories / publishers",
+  "types": {
+    "book": "Book",
+    "author": "Author",
+    "publisher": "Publisher",
+    "category": "Category",
+    "history": "History"
+  },
+  "noResults": "No results found",
+  "seeAll": "All results for \"{{term}}\"",
+  "seeAllHint": "Click here or press ENTER to see more details."
+}

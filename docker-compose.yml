@@ -1,5 +1,6 @@
 services:
   sqlserver:
+    container_name: sqlserver
     image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
       - ACCEPT_EULA=Y
@@ -14,40 +15,40 @@ services:
     networks:
       - sqlnetwork
 
-  postgres:
-    image: postgres:15
-    container_name: postgres
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_DB: strapi
-      POSTGRES_USER: strapi
-      POSTGRES_PASSWORD: strapi
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-      - ./scripts/postgres/entrypoint.sh:/usr/local/bin/entrypoint.sh
-      - ./scripts/postgres/backup.sh:/usr/local/bin/backup.sh
-      - ./data/postgresql:/var/backups
-    entrypoint: ["/bin/bash", "/usr/local/bin/entrypoint.sh"]
-    networks:
-      - sqlnetwork
+  # postgres:
+  #   image: postgres:15
+  #   container_name: postgres
+  #   ports:
+  #     - "5432:5432"
+  #   environment:
+  #     POSTGRES_DB: strapi
+  #     POSTGRES_USER: strapi
+  #     POSTGRES_PASSWORD: strapi
+  #   volumes:
+  #     - pgdata:/var/lib/postgresql/data
+  #     - ./scripts/postgres/entrypoint.sh:/usr/local/bin/entrypoint.sh
+  #     - ./scripts/postgres/backup.sh:/usr/local/bin/backup.sh
+  #     - ./data/postgresql:/var/backups
+  #   entrypoint: ["/bin/bash", "/usr/local/bin/entrypoint.sh"]
+  #   networks:
+  #     - sqlnetwork
       
-  strapi:
-    build:
-      context: ./Back/Strapi
-      dockerfile: Dockerfile
-    container_name: strapi
-    ports:
-      - "1337:1337"
-    env_file:
-      - .env
-    depends_on:
-      - postgresql
-    volumes:
-      - ./Back/StrapiCMS:/opt/app
-      - /app/node_modules
-    networks:
-      - sqlnetwork
+  # strapi:
+  #   build:
+  #     context: ./Back/Strapi
+  #     dockerfile: Dockerfile
+  #   container_name: strapi
+  #   ports:
+  #     - "1337:1337"
+  #   env_file:
+  #     - .env
+  #   depends_on:
+  #     - postgresql
+  #   volumes:
+  #     - ./Back/StrapiCMS:/opt/app
+  #     - /app/node_modules
+  #   networks:
+  #     - sqlnetwork
 
   api:
     build:

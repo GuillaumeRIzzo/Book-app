@@ -1,17 +1,17 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 import { getSession, signIn } from 'next-auth/react';
+import { Alert, AlertColor, Box, Fade, Snackbar, Typography } from '@mui/material';
+import styled from 'twin.macro';
+import { useTranslation } from 'react-i18next';
 
 import { saveSessionLocally } from '@api/auth/session';
 
 import Input from '@/components/common/Input';
 import CustomButton from '@/components/common/Button';
-import { encryptPayload } from '@/utils/encryptUtils';
-
-import styled from 'twin.macro';
-import Link from 'next/link';
-import { Alert, AlertColor, Box, Fade, Snackbar, Typography } from '@mui/material';
 import { withNoSSR } from '@/components/common/withNoSSR';
+import { encryptPayload } from '@/utils/encryptUtils';
 
 const FormWrapper = styled.div`
   p-6 
@@ -28,6 +28,8 @@ const Login: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
   const [alertSeverity, setAlertSeverity] = useState<AlertColor>('success');
+
+  const { t } = useTranslation("auth, errors");
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -60,20 +62,20 @@ const Login: React.FC = () => {
         const session = await getSession();
         if (session) {
           saveSessionLocally(session);
-          setAlertMessage('Connexion réussi. Vous allez être redirigé.')
+          setAlertMessage(t('login.success'))
           router.push('/');
         }
       }
       
       if (result?.error === 'Invalid credentials') {
-        setAlertMessage('Login incorrect.');
+        setAlertMessage(t('errors.invalidCredentials'));
       } else if (result?.error === 'UserNotFound') {
-        setAlertMessage('Utilisateur non trouvé.');
+        setAlertMessage(t('errors.userNotFound'));
       }
       setAlertSeverity('error');
     } catch (error) {
       console.error('Error during login:', error);
-      setAlertMessage('An unexpected error occurred. Please try again later.');
+      setAlertMessage(t('errors.unexpectedError'));
       setAlertSeverity("error"); // ou "error"
     } finally {
       setLoading(false);
@@ -105,7 +107,7 @@ const Login: React.FC = () => {
             component='h1'
             className='mt-10 text-center font-bold leading-9 tracking-tight text-primary-dark'
           >
-            Connexion
+            {t('login.title')}
           </Typography>
         </Box>
 
@@ -114,7 +116,7 @@ const Login: React.FC = () => {
             <Box>
               <Box className='mt-2'>
                 <Input
-                  label='Login ou E-mail :'
+                  label={t('login.identifierLabel')}
                   type='text'
                   name='identifier'
                   value={formData.identifier}
@@ -128,7 +130,7 @@ const Login: React.FC = () => {
             <Box>
               <Box className='mt-2'>
                 <Input
-                  label='Mot de passe'
+                  label={t('login.passwordLabel')}
                   type='password'
                   name='password'
                   value={formData.password}
@@ -148,7 +150,7 @@ const Login: React.FC = () => {
                     href='/forgot-password'
                     className='font-semibold text-primary hover:text-primary-light'
                   >
-                    Mot de pass oublié ?
+                    {t('login.forgotPassword')}
                   </Link>
                 </Box>
               </Box>
@@ -156,7 +158,7 @@ const Login: React.FC = () => {
 
             <Box className='mt-4'>
               <CustomButton
-                text={loading ? 'Connexion...' : 'Login'}
+                text={loading ? t('login.loading') : t('login.submit')}
                 type='submit'                
                 disabled={loading}
                 className='bg-secondary hover:bg-secondary-light disabled:opacity-50 disabled:cursor-not-allowed'

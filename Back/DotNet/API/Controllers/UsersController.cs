@@ -235,6 +235,9 @@ namespace API.Controllers
                     return BadRequest(errorResponse);
                 }
 
+                var userRight = await _context.UserRights.FirstOrDefaultAsync(r => r.UserRightName == "User");
+                if (userRight == null) return NoContent();
+
                 var user = new User()
                 {
                     UserFirstname = model.UserFirstname,
@@ -243,7 +246,7 @@ namespace API.Controllers
                     IsDeleted = false,
                     CreatedAt = DateTimeOffset.UtcNow,
                     UpdatedAt = DateTimeOffset.UtcNow,
-                    UserRightUuid = model.UserRightUuid,
+                    UserRightUuid = userRight.UserRightUuid,
                     GenderUuid = model.GenderUuid,
                 };
                 _context.Users.Add(user);
@@ -279,8 +282,8 @@ namespace API.Controllers
                 _context.UserEmails.Add(userEmail);
 
                 // 🔔 Envoi email de validation
-                var confirmationLink = $"https://yourfrontend.com/validate-email?token={token}";
-                await _emailService.SendEmailAsync(model.UserEmail, "Validation de votre email", $"Cliquez ici pour valider : {confirmationLink}");
+                var confirmationLink = $"localhost:3000/validate-email?token={token}";
+                await _emailService.SendEmailAsync(model.UserEmail, "Validation de votre email", $"Cliquez ici pour valider : <a href='{confirmationLink}'>");
 
                 await _context.SaveChangesAsync();
 

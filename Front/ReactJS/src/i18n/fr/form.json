@@ -5,5 +5,8 @@
   "email": "E-mail",
   "password": "Mot de passe",
   "confirmPassword": "Confirmation mot de passe",
+  "birthDate": "Date de naissance",
+  "gender": "Genre",
+  "selectGender": "Sélectionner un genre",
   "submit": "Valider"
 }

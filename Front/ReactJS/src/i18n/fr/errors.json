@@ -1,10 +1,8 @@
 {
-  "firstnameRequired": "Prénom requis",
-  "lastnameRequired": "Nom requis",
-  "uppercaseMissing": "Majuscule requise",
-  "lowercaseMissing": "Minuscule requise",
-  "numberMissing": "Nombre requis",
-  "specialCharMissing": "Caractère spécial requis",
-  "minLength": "Au moins 8 caractères",
-  "passwordsNotMatching": "Les mots de passe ne correspondent pas"
+  "resend_failed": "Échec de l'envoi de l'e-mail de confirmation.",
+  "invalid_link": "Lien invalide ou expiré.",
+  "notReceived": "E-mail non reçus ? Vérifiez dans les spams ou messages indésirables.",
+  "invalidCredentials": "Login incorrect.",
+  "userNotFound": "Utilisateur non trouvé.",
+  "unexpectedError": "Une erreur inattendue est survenue. Veuillez réessayer plus tard."
 }

@@ -59,7 +59,7 @@ namespace API.Controllers
             userEmail.IsValidated = false;
             userEmail.UpdatedAt = DateTimeOffset.UtcNow;
 
-            var confirmationLink = $"https://yourfrontend.com/confirm-email?token={token}";
+            var confirmationLink = $"localhost:3000/confirm-email?token={token}";
             await _emailService.SendEmailAsync(newEmail, "Confirm your new email", $"Click to confirm: {confirmationLink}");
 
             await _context.SaveChangesAsync();
@@ -87,29 +87,29 @@ namespace API.Controllers
             return Ok("Email updated successfully.");
         }
 
-        [HttpPost("{emailUuid}/resend-validation")]
-        public async Task<IActionResult> ResendValidationEmail(Guid emailUuid)
+        [HttpPost("resend-validation")]
+        public async Task<IActionResult> ResendValidationEmail(string email)
         {
-            var email = await _context.UserEmails.FirstOrDefaultAsync(e => e.EmailUuid == emailUuid);
-            if (email == null)
+            var userEmail = await _context.UserEmails.FirstOrDefaultAsync(e => e.EmailAddress == email);
+            if (userEmail == null)
                 return NotFound("Email not found.");
 
-            if (email.IsValidated)
+            if (userEmail.IsValidated)
                 return BadRequest("Email is already validated.");
 
             var cooldownMinutes = 2;
-            if (email.LastValidationEmailSentAt.HasValue &&
-                DateTimeOffset.UtcNow < email.LastValidationEmailSentAt.Value.AddMinutes(cooldownMinutes))
+            if (userEmail.LastValidationEmailSentAt.HasValue &&
+                DateTimeOffset.UtcNow < userEmail.LastValidationEmailSentAt.Value.AddMinutes(cooldownMinutes))
             {
                 return BadRequest($"Please wait {cooldownMinutes} minutes before requesting again.");
             }
 
             // Generate new token and send email
-            email.ValidationToken = Guid.NewGuid().ToString();
-            email.LastValidationEmailSentAt = DateTimeOffset.UtcNow;
+            userEmail.ValidationToken = Guid.NewGuid().ToString();
+            userEmail.LastValidationEmailSentAt = DateTimeOffset.UtcNow;
 
-            var validationLink = $"https://yourfrontend.com/validate-email?token={email.ValidationToken}";
-            await _emailService.SendEmailAsync(email.EmailAddress, "Validate your email", $"Click here: {validationLink}");
+            var validationLink = $"localhost:3000/validate-email?token={userEmail.ValidationToken}";
+            await _emailService.SendEmailAsync(userEmail.EmailAddress, "Validate your email", $"Click here: {validationLink}");
 
             await _context.SaveChangesAsync();
             return Ok("Validation email resent.");

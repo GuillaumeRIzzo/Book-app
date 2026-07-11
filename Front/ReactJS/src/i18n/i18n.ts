@@ -15,7 +15,7 @@ i18n
       order: ['navigator', 'htmlTag', 'localStorage'],
       caches: ['localStorage'],
     },
-    ns: ['common', 'navbar', 'search', 'book', 'account', 'preferences', 'auth', 'form', 'errors'],
+    ns: ['common', 'navbar', 'search', 'book', 'account', 'preferences', 'auth', 'form', 'errors', 'validation'],
     defaultNS: 'common',
     interpolation: { escapeValue: false },
   });

@@ -8,7 +8,7 @@ import { ThemeProvider } from '@components/context/ThemeContext';
 import { ColorProvider } from '@/components/context/ColorContext';
 import '@styles/globals.css';
 import { Navbar } from '@/components/layout';
-import ClientOnly from '@/components/common/ClientOnly'; // 👈 Ajoute ce wrapper
+import ClientOnly from '@/components/common/ClientOnly';
 import '@/i18n/i18n';
 import LanguageProvider from '@/providers/LanguageProvider';
 
@@ -18,7 +18,7 @@ const MyApp = ({ Component, pageProps: { session, ...pageProps } }: AppProps) =>
       <Provider store={store}>
         <ThemeProvider>
           <ColorProvider>
-            <ClientOnly> {/* ✅ Ici tu forces le rendu client uniquement */}
+            <ClientOnly> {/*force le rendu client uniquement */}
               <LanguageProvider />
               <Navbar />
               <Component {...pageProps} />

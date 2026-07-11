@@ -71,20 +71,20 @@ const SearchItem: React.FC<SearchItemProps> = ({
     }
   };
 
-  const { t } = useTranslation();
+  const { t } = useTranslation(['search']);
 
   const getTypeLabelKey = (type: SearchResult['type']): string => {
     switch (type) {
       case 'Livre':
-        return 'search.types.book';
+        return 'types.book';
       case 'Auteur':
-        return 'search.types.author';
+        return 'types.author';
       case 'Éditeur':
-        return 'search.types.publisher';
+        return 'types.publisher';
       case 'Catégorie':
-        return 'search.types.category';
+        return 'types.category';
       case 'History':
-        return 'search.types.history';
+        return 'types.history';
       default:
         return type;
     }
@@ -110,7 +110,7 @@ const SearchItem: React.FC<SearchItemProps> = ({
               }}
               onKeyDown={handleKeyDown}
               autoFocus={true}
-              placeholder={t('search.placeholder')}
+              placeholder={t('placeholder')}
               className='text-primary-dark'
             />
             <CloseButton
@@ -197,14 +197,14 @@ const SearchItem: React.FC<SearchItemProps> = ({
                     <span role='img' aria-label='search'>
                       🔍
                     </span>
-                    <h3>{t('search.seeAll', { term: searchTerm })}</h3>
+                    <h3>{t('seeAll', { term: searchTerm })}</h3>
                     <span className='text-primary-dark'>
-                      {t('search.seeAllHint')}
+                      {t('seeAllHint')}
                     </span>
                   </ResultsFooter>
                 </>
               ) : (
-                <NoResults>{t('search.noResults')}</NoResults>
+                <NoResults>{t('noResults')}</NoResults>
               )}
             </Overlay>
           </>

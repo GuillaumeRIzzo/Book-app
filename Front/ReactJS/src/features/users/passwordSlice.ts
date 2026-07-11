@@ -2,15 +2,15 @@ import { forgotPassword, resetPasswordApi } from '@/api/passwordApi';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { AxiosError } from 'axios';
 
-interface SendResetPasswordPayload {
-  email: string;
+export interface SendResetPasswordPayload {
+  Email: string;
 }
 
 export const sendResetPasswordEmail = createAsyncThunk(
   'users/sendResetPasswordEmail',
   async (payload: SendResetPasswordPayload, { rejectWithValue }) => {
     try {
-      const response = await forgotPassword(payload.email);
+      const response = await forgotPassword(payload);
 
       return response.data;
     } catch (error) {

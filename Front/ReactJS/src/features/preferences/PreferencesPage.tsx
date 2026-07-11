@@ -36,7 +36,7 @@ const PreferencesPage: React.FC = () => {
   const { data: session } = useSession();
   const dispatch = useDispatch<AppDispatch>();
   const themeContext = useTheme();
-  const { t } = useTranslation();
+  const { t } = useTranslation(['preferences', 'common']);
 
   if (!themeContext) {
     throw new Error('useTheme must be used within a ThemeProvider');
@@ -179,8 +179,8 @@ const PreferencesPage: React.FC = () => {
       const encryptedPayload: EncryptedPayload = encryptPayload(
         formData as Record<string, unknown>,
       );
-
-      if (!userPreference) {
+      
+      if (userPreference == null) {
         dispatch(createPreference(encryptedPayload)).unwrap();
       } else {
         dispatch(
@@ -204,14 +204,14 @@ const PreferencesPage: React.FC = () => {
         className='text-2xl font-bold text-primary'
         marginBottom={2}
       >
-        {t('preferences.title')}
+        {t('preferences:title')}
       </Typography>
 
       <Box className=' */space-y-6'>
         <Autocomplete
           options={languages}
           getOptionLabel={option =>
-            t(`languages.${option.isoCode}`, {
+            t(`common:languages.${option.isoCode}`, {
               defaultValue: option.languageName,
             })
           }
@@ -231,14 +231,14 @@ const PreferencesPage: React.FC = () => {
           renderInput={params => (
             <Input
               {...params}
-              label={t('preferences.language')}
+              label={t('preferences:language')}
               name='languageUuid'
             />
           )}
           renderOption={(props, option) => {
             const countryCode = getCountryCode(option.isoCode);
             const flagUrl = `https://flagcdn.com/w40/${countryCode}.png`;
-            const label = t(`languages.${option.isoCode}`, {
+            const label = t(`common:languages.${option.isoCode}`, {
               defaultValue: option.languageName,
             });
 
@@ -266,7 +266,7 @@ const PreferencesPage: React.FC = () => {
 
         <Box>
           <label className='block text-sm font-medium mb-1 text-primary'>
-            {t('preferences.theme')}
+            {t('preferences:theme')}
           </label>
           <ToggleButtonGroup
             value={formData.themeUuid}
@@ -286,7 +286,7 @@ const PreferencesPage: React.FC = () => {
                 value={opt.themeUuid}
                 className='text-primary-light'
               >
-                {t(`theme.${opt.themeName}`)}
+                {t(`common:theme.${opt.themeName}`)}
               </ToggleButton>
             ))}
           </ToggleButtonGroup>
@@ -301,7 +301,7 @@ const PreferencesPage: React.FC = () => {
                 color: `${primaryColor.main}`,
               }}
             >
-              {t('preferences.color.text')}
+              {t('preferences:color.text')}
             </label>
             {colors.map(color => (
               <Tooltip key={color.colorName} title={color.colorName} arrow>
@@ -344,7 +344,7 @@ const PreferencesPage: React.FC = () => {
                 color: `${secondaryColor.main}`,
               }}
             >
-              {t('preferences.color.button')}
+              {t('preferences:color.button')}
             </label>
             {colors.map(color => (
               <Tooltip key={color.colorName} title={color.colorName} arrow>
@@ -385,7 +385,7 @@ const PreferencesPage: React.FC = () => {
           <CustomButton
             onClick={savePreferences}
             className='px-4 py-2 rounded'
-            text={t('preferences.buttons.save')}
+            text={t('preferences:buttons.save')}
             sx={{
               color: "var(--color-primary-dark)",
               backgroundColor: "var(--color-secondary-main)",
@@ -400,7 +400,7 @@ const PreferencesPage: React.FC = () => {
           <CustomButton
             onClick={resetToDefault}
             className='px-4 py-2 rounded'
-            text={t('preferences.buttons.reset')}
+            text={t('preferences:buttons.reset')}
             variant='outlined'
             sx={{
               color: "var(--color-primary-main)",

@@ -1,0 +1,14 @@
+{
+  "title": "Title",
+  "subtitle": "Subtitle",
+  "authors": "Author(s)",
+  "publishers": "Publisher(s)",
+  "series": "Series",
+  "description": "Description",
+  "categories": "Categories",
+  "isbn": "ISBN",
+  "price": "Price",
+  "pages": "{{count}} page",
+  "publishedOn": "Published on",
+  "tags": "Tags"
+}
