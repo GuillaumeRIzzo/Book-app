@@ -4,8 +4,9 @@ import camelCaseKeys from 'camelcase-keys';
 
 import { getTheme, getThemes, addTheme } from '@/api/themeApi';
 import { Theme } from '@/models/theme/theme';
-import { ThemeState } from '@/models/theme/themeState';
 import { decryptPayload, EncryptedPayload } from '@/utils/encryptUtils';
+import { ThemeState } from '@/models/theme/ThemeState';
+import { AxiosError } from 'axios';
 
 export const fetchThemesAsync = createAsyncThunk('themes/getThemes', async () => {
   try {
@@ -32,6 +33,12 @@ export const fetchThemesAsync = createAsyncThunk('themes/getThemes', async () =>
   }
 });
 
+interface DecryptedThemeData {
+  themeId: string;
+  themeUuid: string;
+  [key: string]: unknown;
+}
+
 export const fetchThemeById = createAsyncThunk(
   'themes/getTheme',
   async (themeUuid: string) => {
@@ -41,12 +48,12 @@ export const fetchThemeById = createAsyncThunk(
       const encryptedData = response.data.encryptedData as string;
       const iv = response.data.iv as string;
 
-      const decryptedData = decryptPayload(encryptedData, iv);
+      const decryptedData = decryptPayload<DecryptedThemeData>(encryptedData, iv);
 
       // Parse decrypted data as a Theme object
       const theme = {
         ...camelCaseKeys(decryptedData, { deep: true }),
-        themeId: (decryptedData as any).id, // manually set the bookUuid
+        themeId: decryptedData.id, // manually set the bookUuid
       } as Theme;
 
       return theme;
@@ -63,9 +70,13 @@ export const createTheme = createAsyncThunk(
     try {
       const response = await addTheme(payload);
       return response.data;
-    } catch (error: any) {
-      return rejectWithValue(error.response.data);
-    }
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        if (axiosError.response) {
+          return rejectWithValue(axiosError.response.data);
+        }
+        return rejectWithValue('Erreur inconnue');
+      }
   }
 );
 

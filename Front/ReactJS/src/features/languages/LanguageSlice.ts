@@ -6,6 +6,7 @@ import { getLanguage, getLanguages, addLanguage } from '@/api/languageApi';
 import { Language } from '@/models/language/language';
 import { LanguageState } from '@/models/language/languageState';
 import { decryptPayload, EncryptedPayload } from '@/utils/encryptUtils';
+import { AxiosError } from 'axios';
 
 export const fetchLanguagesAsync = createAsyncThunk('languages/getLanguages', async () => {
   try {
@@ -32,6 +33,12 @@ export const fetchLanguagesAsync = createAsyncThunk('languages/getLanguages', as
   }
 });
 
+interface DecryptedLanguageData {
+  languageId: string;
+  languageUuid: string;
+  [key: string]: unknown;
+}
+
 export const fetchLanguageById = createAsyncThunk(
   'languages/getLanguage',
   async (languageUuid: string) => {
@@ -41,12 +48,12 @@ export const fetchLanguageById = createAsyncThunk(
       const encryptedData = response.data.encryptedData as string;
       const iv = response.data.iv as string;
 
-      const decryptedData = decryptPayload(encryptedData, iv);
+      const decryptedData = decryptPayload<DecryptedLanguageData>(encryptedData, iv);
 
       // Parse decrypted data as a Language object
       const language = {
         ...camelCaseKeys(decryptedData, { deep: true }),
-        languageId: (decryptedData as any).id, // manually set the bookUuid
+        languageId: decryptedData.id, // manually set the bookUuid
       } as Language;
 
       return language;
@@ -63,8 +70,11 @@ export const createLanguage = createAsyncThunk(
     try {
       const response = await addLanguage(payload);
       return response.data;
-    } catch (error: any) {
-      return rejectWithValue(error.response.data);
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response) {
+        return rejectWithValue(axiosError.response.data);
+      }
     }
   }
 );
