@@ -1,22 +1,44 @@
 import { useEffect, useState } from 'react';
 import styled from 'twin.macro';
-import { addUser } from '@/api/userApi';
 import CustomButton from '@/components/common/Button';
 import Input from '@/components/common/Input';
 import useEmailValidator from '@/hooks/useEmailValidator';
 import useLoginValidator from '@/hooks/useLoginValidator';
 import usePasswordValidator from '@/hooks/usePasswordValidator';
 import useConfirmPasswordValidator from '@/hooks/useConfirmPasswordValidator';
+<<<<<<< HEAD
 import { EncryptedPayload, encryptPayload } from '@/utils/encryptUtils';
+import axios from 'axios';
+=======
+import { encryptPayload } from '@/utils/encryptUtils';
+import { useTranslation } from 'react-i18next';
+import { useDispatch, useSelector } from 'react-redux';
+import { selectAllGenders } from '../genders/genderSelector';
+import { useRouter } from 'next/router';
+import { AppDispatch } from '@/redux/store';
+import { createUser } from './UserSlice';
+import axios from 'axios';
+import { BirthDatePicker } from '@/components/common/DatePicker';
+>>>>>>> f571f8d (chore: save current work before project cleanup)
 
 const FormWrapper = styled.div`
   w-2/4
   p-6 
 `;
 
+<<<<<<< HEAD
 interface FormProps {
   title: string;
 }
+=======
+const UserForm: React.FC = () => {
+  const { t } = useTranslation(['auth', 'form', 'errors', 'validation']);
+  
+  const router = useRouter();
+  const dispatch = useDispatch<AppDispatch>();
+
+  const genders = useSelector(selectAllGenders);
+>>>>>>> f571f8d (chore: save current work before project cleanup)
 
 const UserForm: React.FC<FormProps> = ({ title }) => {
   const [formData, setFormData] = useState({
@@ -26,8 +48,14 @@ const UserForm: React.FC<FormProps> = ({ title }) => {
     userPassword: '',
     userLogin: '',
     userEmail: '',
+<<<<<<< HEAD
     userRight: 'User',
     confirmPassword: '',
+=======
+    userBirthDate: null as Date | null,
+    confirmPassword: '',
+    genderUuid: '',
+>>>>>>> f571f8d (chore: save current work before project cleanup)
   });
 
   const [touched, setTouched] = useState({
@@ -76,8 +104,9 @@ const UserForm: React.FC<FormProps> = ({ title }) => {
     }));
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     try {
+<<<<<<< HEAD
       if (formValidator) {
         const encryptedPayload: EncryptedPayload = encryptPayload({
           UserFirstname: formData.userFirstname,
@@ -88,19 +117,40 @@ const UserForm: React.FC<FormProps> = ({ title }) => {
           UserRight: formData.userRight,
         });
 
-        const result = await addUser(encryptedPayload);
+        await addUser(encryptedPayload);
       } else {
         console.error('Validation failed');
       }
-    } catch (error: any) {
-      if (error.response && error.response.data) {
-        const { name, message } = error.response.data;
-        setApiErrors(prevErrors => ({
-          ...prevErrors,
-          [name]: message,
-        }));
-      }
+=======
+      if (!formValidator) return;
+
+      const encryptedPayload = encryptPayload({
+        UserFirstname: formData.userFirstname,
+        UserLastname: formData.userLastname,
+        UserPassword: formData.userPassword,
+        UserLogin: formData.userLogin,
+        UserEmail: formData.userEmail,
+        UserBirthDate: formData.userBirthDate
+        ? formData.userBirthDate.toISOString().split('T')[0]
+        : null,
+        GenderUuid: formData.genderUuid || null,
+      });
+
+      dispatch(createUser(encryptedPayload)).unwrap();
+
+      router.push('/validate-email-sent');
+>>>>>>> f571f8d (chore: save current work before project cleanup)
+    } catch (error: unknown) {
+    if (axios.isAxiosError(error) && error.response && error.response.data) {
+      const { name, message } = error.response.data as { name: string; message: string };
+      setApiErrors(prevErrors => ({
+        ...prevErrors,
+        [name]: message,
+      }));
+    } else {
+      console.error('Unexpected error', error);
     }
+  }
   };
 
   return (
@@ -114,12 +164,17 @@ const UserForm: React.FC<FormProps> = ({ title }) => {
         onChange={handleChange}
         onBlur={handleBlur}
         error={touched.userFirstname && !formData.userFirstname}
+<<<<<<< HEAD
         infoText={
           touched.userFirstname && !formData.userFirstname
             ? 'Prénom requis'
             : ''
         }
         autoFocus={true}
+=======
+        infoText={touched.userFirstname && !formData.userFirstname ? t('validation:firstnameRequired') : ''}
+        autoFocus
+>>>>>>> f571f8d (chore: save current work before project cleanup)
         required
       />
       <Input
@@ -130,9 +185,13 @@ const UserForm: React.FC<FormProps> = ({ title }) => {
         onChange={handleChange}
         onBlur={handleBlur}
         error={touched.userLastname && !formData.userLastname}
+<<<<<<< HEAD
         infoText={
           touched.userLastname && !formData.userLastname ? 'Nom requis' : ''
         }
+=======
+        infoText={touched.userLastname && !formData.userLastname ? t('validation:lastnameRequired') : ''}
+>>>>>>> f571f8d (chore: save current work before project cleanup)
         required
       />
       <Input
@@ -175,6 +234,7 @@ const UserForm: React.FC<FormProps> = ({ title }) => {
         required
       />
       <div className='text-base space-y-1'>
+<<<<<<< HEAD
         <p
           className={
             passwordErrors['missingUppercase']
@@ -217,6 +277,22 @@ const UserForm: React.FC<FormProps> = ({ title }) => {
           }
         >
           Au moins 8 caractères
+=======
+        <p className={passwordErrors.missingUppercase ? 'text-red-500' : 'text-green-500'}>
+          {t('validation:password.uppercaseMissing')}
+        </p>
+        <p className={passwordErrors.missingLowercase ? 'text-red-500' : 'text-green-500'}>
+          {t('validation:password.lowercaseMissing')}
+        </p>
+        <p className={passwordErrors.missingNumber ? 'text-red-500' : 'text-green-500'}>
+          {t('validation:password.numberMissing')}
+        </p>
+        <p className={passwordErrors.missingSpecialChar ? 'text-red-500' : 'text-green-500'}>
+          {t('validation:password.specialCharMissing')}
+        </p>
+        <p className={passwordErrors.minLength ? 'text-red-500' : 'text-green-500'}>
+          {t('validation:password.minLength')}
+>>>>>>> f571f8d (chore: save current work before project cleanup)
         </p>
       </div>
       <Input
@@ -226,6 +302,7 @@ const UserForm: React.FC<FormProps> = ({ title }) => {
         value={formData.confirmPassword}
         onChange={handleChange}
         onBlur={handleBlur}
+<<<<<<< HEAD
         error={
           touched.confirmPassword &&
           confirmPasswordError &&
@@ -242,6 +319,35 @@ const UserForm: React.FC<FormProps> = ({ title }) => {
         }
         required
       />
+=======
+        error={touched.confirmPassword && confirmPasswordError && formData.confirmPassword.length > 0 ? true : undefined}
+        infoText={touched.confirmPassword && confirmPasswordError ? t('validation:password.passwordsNotMatching') : ''}
+        required
+      />
+
+      <BirthDatePicker
+          value={formData.userBirthDate}
+          onChange={date => setFormData(prev => ({ ...prev, userBirthDate: date }))}
+        />
+
+      <div className='my-3'>
+        <label className='block text-sm font-medium'>{t('form:gender')}</label>
+        <select
+          name='genderUuid'
+          value={formData.genderUuid}
+          onChange={handleChangeSelect}
+          className='mt-1 block w-full border rounded p-2'
+        >
+          <option value=''>{t('form:selectGender')}</option>
+          {genders?.map(g => (
+            <option key={g.genderUuid} value={g.genderUuid}>
+              {g.genderLabel}
+            </option>
+          ))}
+        </select>
+      </div>
+
+>>>>>>> f571f8d (chore: save current work before project cleanup)
       <CustomButton
         text='Submit'
         onClick={handleSubmit}

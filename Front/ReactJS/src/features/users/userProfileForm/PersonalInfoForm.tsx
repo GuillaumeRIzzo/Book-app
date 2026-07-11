@@ -7,12 +7,13 @@ import CustomButton from '@/components/common/Button';
 
 import useEmailValidator from '@/hooks/useEmailValidator';
 import useLoginValidator from '@/hooks/useLoginValidator';
-import { UserModelView } from '@/models/userViews/UserModelView';
+import { UserModelViewObject } from '@/models/userViews/UserModelView';
+import { UserFormData } from './UserProfileForm';
 
 interface PersonalInfoFormProps {
-  user: UserModelView | undefined;
+  user: UserModelViewObject  | undefined;
   right: string;
-  onSubmit: (formData: any, event: React.FormEvent<HTMLFormElement>) => void;
+  onSubmit: (formData: UserFormData, event: React.FormEvent<HTMLFormElement>) => void;
 }
 
 const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
@@ -22,6 +23,7 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
 }) => {
   const [formData, setFormData] = useState({
     UserId: user?.user.userId || 0,
+    UserUuid: user?.user.userUuid || '',
     UserFirstname: user?.user.userFirstname || '',
     UserLastname: user?.user.userLastname || '',
     UserLogin: user?.user.userLogin || '',
@@ -44,6 +46,7 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
     if (user) {
       setFormData({
         UserId: user.user.userId,
+        UserUuid: user.user.userUuid,
         UserFirstname: user.user.userFirstname,
         UserLastname: user.user.userLastname,
         UserLogin: user.user.userLogin,

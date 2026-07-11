@@ -1,5 +1,6 @@
 import CustomButton from '@/components/common/Button';
 import Input from '@/components/common/Input';
+import { withNoSSR } from '@/components/common/withNoSSR';
 import { sendResetPasswordEmail } from '@/features/users/passwordSlice';
 import { AppDispatch, RootState } from '@/redux/store';
 import { Alert, AlertColor, Box, Snackbar, Typography } from '@mui/material';
@@ -12,18 +13,18 @@ const FormWrapper = styled.div`
 `;
 
 const ForgotPasswordPage: React.FC = () => {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState<string>('');
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
   const [alertSeverity, setAlertSeverity] = useState<AlertColor>('success');
   const dispatch = useDispatch<AppDispatch>();
   const status = useSelector((state: RootState) => state.passwords.confirmationStatus);
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!email) return;
 
     try {
-      await dispatch(sendResetPasswordEmail({email: email})).unwrap();
+      dispatch(sendResetPasswordEmail({ Email: email })).unwrap();
       setAlertMessage('Check your email for the reset link.');
       setAlertSeverity('success');
     } catch (err) {
@@ -80,4 +81,4 @@ const ForgotPasswordPage: React.FC = () => {
   );
 };
 
-export default ForgotPasswordPage;
+export default withNoSSR(ForgotPasswordPage);

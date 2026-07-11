@@ -20,7 +20,6 @@ import { selectUserModelViews } from '../userViews/userViewSelectors';
 import { setUserViews } from '../userViews/userViewSlice';
 import { selectUserRightStatus } from '../userRights/userRightSelector';
 import { fetchUserRightsAsync } from '../userRights/UserRightSlice';
-import { UserModelView } from '@/models/userViews/UserModelView';
 
 const UserList: React.FC = () => {
   const userStatus = useSelector(selectUserStatus);
@@ -41,7 +40,7 @@ const UserList: React.FC = () => {
       dispatch(fetchUsersAsync());
       dispatch(fetchUserRightsAsync());
     }
-  }, [userStatus]);
+  }, [userStatus, dispatch]);
 
   const { right } = useMemo(() => {
     if (session?.user?.encryptedSession) {
@@ -67,7 +66,7 @@ const UserList: React.FC = () => {
       if (allSucceeded && userViews.length > 0) {
         dispatch(setUserViews(userViews));
       }
-    }, [userStatus, rightStatus, userViews]);
+    }, [userStatus, rightStatus, userViews, dispatch]);
   
 
   const handleEdit = (user: User) => {
@@ -99,7 +98,7 @@ const UserList: React.FC = () => {
     setSelectedUser(null);
   };
 
-  const rows = userViews.map((user: UserModelView) => ({
+  const rows = userViews.map((user) => ({
     ...user.user,
     id: user.user.userId,
     userRight: user.right.userRightName

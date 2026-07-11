@@ -1,5 +1,6 @@
 import CustomButton from '@/components/common/Button';
 import Input from '@/components/common/Input';
+import { withNoSSR } from '@/components/common/withNoSSR';
 import { resetPassword } from '@/features/users/passwordSlice';
 import useConfirmPasswordValidator from '@/hooks/useConfirmPasswordValidator';
 import usePasswordValidator from '@/hooks/usePasswordValidator';
@@ -61,7 +62,8 @@ const ResetPasswordPage: React.FC = () => {
     }));
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     if (!token || !formData.newPassword) return;
 
     try {
@@ -99,7 +101,8 @@ const ResetPasswordPage: React.FC = () => {
       <Box className='flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8'>
         <Box className='sm:mx-auto sm:w-full sm:max-w-sm'>
           <Typography
-            variant='h1'
+            component='h1'
+            variant='h4'
             className='mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-primary-dark'
           >
             Réinitialiser votre mot de passe
@@ -205,4 +208,4 @@ const ResetPasswordPage: React.FC = () => {
   );
 };
 
-export default ResetPasswordPage;
+export default withNoSSR(ResetPasswordPage);

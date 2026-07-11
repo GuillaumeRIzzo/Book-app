@@ -1,3 +1,4 @@
+import { withNoSSR } from "@/components/common/withNoSSR";
 import UserForm from "@/features/users/UserForm"
 
 const SignIn: React.FC = () => {
@@ -8,4 +9,4 @@ const SignIn: React.FC = () => {
   );
 };
 
-export default SignIn;
+export default withNoSSR(SignIn);
