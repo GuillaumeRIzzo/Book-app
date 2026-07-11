@@ -6,6 +6,7 @@ import { getPreference, getPreferences, addPreference, updatePreference } from '
 import { Preference } from '@/models/preference/preference';
 import { PreferenceState } from '@/models/preference/PreferenceState';
 import { decryptPayload, EncryptedPayload } from '@/utils/encryptUtils';
+import { AxiosError } from 'axios';
 
 export const fetchPreferencesAsync = createAsyncThunk('preferences/getPreferences', async () => {
   try {
@@ -32,6 +33,12 @@ export const fetchPreferencesAsync = createAsyncThunk('preferences/getPreference
   }
 });
 
+interface DecryptedPreferenceData {
+  preferenceId: string;
+  preferenceUuid: string;
+  [key: string]: unknown;
+}
+
 export const fetchPreferenceById = createAsyncThunk(
   'preferences/getPreference',
   async (preferenceUuid: string) => {
@@ -41,12 +48,12 @@ export const fetchPreferenceById = createAsyncThunk(
       const encryptedData = response.data.encryptedData as string;
       const iv = response.data.iv as string;
 
-      const decryptedData = decryptPayload(encryptedData, iv);
+      const decryptedData = decryptPayload<DecryptedPreferenceData>(encryptedData, iv);
 
       // Parse decrypted data as a Preference object
       const preference = {
         ...camelCaseKeys(decryptedData, { deep: true }),
-        preferenceId: (decryptedData as any).id, // manually set the preferenceUuid
+        preferenceId: decryptedData.id, // manually set the preferenceUuid
       } as Preference;
 
       return preference;
@@ -63,8 +70,12 @@ export const createPreference = createAsyncThunk(
     try {
       const response = await addPreference(payload);
       return response.data;
-    } catch (error: any) {
-      return rejectWithValue(error.response.data);
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response) {
+        return rejectWithValue(axiosError.response.data);
+      }
+      return rejectWithValue('Erreur inconnue');
     }
   }
 );
@@ -81,8 +92,11 @@ export const updatePreferenceAsync = createAsyncThunk(
       await updatePreference(preferenceUuid, payload);
       
       return { preferenceUuid, decryped : decryptPayload(payload.encryptedData, payload.iv) };
-    } catch (error: any) {
-      console.error('Failed to update preference:', error);
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response) {
+        console.error('Failed to update preference:', error);
+      }
       // Throw error to handle it in UI
       throw error; 
     }
