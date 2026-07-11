@@ -9,4 +9,4 @@ export const getPublisher = (publisherId: string): AxiosPromise<EncryptedPayload
 
 export const addPublisher = (payload: EncryptedPayload): AxiosPromise => apiClient.post('Publishers', payload);
 
-export const updatePublisher = (publisherId: Number, payload: EncryptedPayload): AxiosPromise => apiClient.put(`Publishers/${publisherId}`, payload);
+export const updatePublisher = (publisherId: number, payload: EncryptedPayload): AxiosPromise => apiClient.put(`Publishers/${publisherId}`, payload);
