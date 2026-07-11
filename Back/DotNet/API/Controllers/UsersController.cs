@@ -1,4 +1,4 @@
-﻿using API.Services;
+using API.Services;
 using API.Data;
 using API.Models;
 using API.Utils;
@@ -48,8 +48,7 @@ namespace API.Controllers
                     UpdatedAt = x.UpdatedAt,
                     UserRightUuid = x.UserRightUuid,
                     GenderUuid = x.GenderUuid,
-                    UserEmail = x.UserEmailsUu?
-                        .FirstOrDefault(e => e.IsPrimary)?.EmailAddress // optional logic
+                    UserEmail = x.UserEmailsUu?.FirstOrDefault(e => e.IsPrimary)?.EmailAddress // optional logic
                 }).ToList();
 
                 var encryptedData = EncryptionHelper.EncryptData(JsonSerializer.Serialize(model));
@@ -234,6 +233,9 @@ namespace API.Controllers
                     return BadRequest(errorResponse);
                 }
 
+                var userRight = await _context.UserRights.FirstOrDefaultAsync(r => r.UserRightName == "User");
+                if (userRight == null) return NoContent();
+
                 var user = new User()
                 {
                     UserFirstname = model.UserFirstname,
@@ -242,7 +244,7 @@ namespace API.Controllers
                     IsDeleted = false,
                     CreatedAt = DateTimeOffset.UtcNow,
                     UpdatedAt = DateTimeOffset.UtcNow,
-                    UserRightUuid = model.UserRightUuid,
+                    UserRightUuid = userRight.UserRightUuid,
                     GenderUuid = model.GenderUuid,
                 };
                 _context.Users.Add(user);
@@ -272,6 +274,10 @@ namespace API.Controllers
                     CreatedAt = DateTimeOffset.UtcNow,
                 };
                 _context.UserEmails.Add(userEmail);
+
+                // 🔔 Envoi email de validation
+                var confirmationLink = $"localhost:3000/validate-email?token={token}";
+                await _emailService.SendEmailAsync(model.UserEmail, "Validation de votre email", $"Cliquez ici pour valider : <a href='{confirmationLink}'>");
 
                 await _context.SaveChangesAsync();
 

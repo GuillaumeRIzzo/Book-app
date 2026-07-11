@@ -1,4 +1,4 @@
-﻿using API.Data;
+using API.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Data;
@@ -96,8 +96,8 @@ public partial class BookDbContext : DbContext
 
     public virtual DbSet<WishlistBook> WishlistBooks { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseSqlServer("Server=localhost\\SQLEXPRESS;Database=BookDB;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=True;");
+    // protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    //     => optionsBuilder.UseSqlServer("Server=localhost\\SQLEXPRESS;Database=BookDB;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

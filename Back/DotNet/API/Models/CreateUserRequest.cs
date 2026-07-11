@@ -8,7 +8,6 @@
         public string UserEmail { get; set; } = null!;
         public string UserPassword { get; set; } = null!;
         public DateOnly? UserBirthDate { get; set; }
-        public Guid UserRightUuid { get; set; }
         public Guid? GenderUuid { get; set; }
     }
 }
