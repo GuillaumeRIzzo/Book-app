@@ -53,7 +53,6 @@ builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwa
 builder.Services.AddSingleton<IAuthorizationHandler, RequiresCustomClaimAttributeHandler>();
 
 builder.Services.AddTransient<UsersController>();
-builder.Services.AddTransient<CategoryListsController>();
 
 builder.Services.AddAuthentication(x =>
 {

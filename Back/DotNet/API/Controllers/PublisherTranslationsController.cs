@@ -90,7 +90,7 @@ namespace API.Controllers
                 if (model == null)
                     return BadRequest("Invalid data.");
 
-                // Vérifier doublon sur PublisherUuid + LanguageUuid
+                // V?rifier doublon sur PublisherUuid + LanguageUuid
                 var exists = await _context.PublisherTranslations.AnyAsync(t =>
                     t.PublisherUuid == model.PublisherUuid && t.LanguageUuid == model.LanguageUuid);
 
@@ -150,7 +150,7 @@ namespace API.Controllers
                 if (translation == null)
                     return NotFound();
 
-                // Vérifier doublon si PublisherUuid ou LanguageUuid changent
+                // V?rifier doublon si PublisherUuid ou LanguageUuid changent
                 var duplicateExists = await _context.PublisherTranslations.AnyAsync(t =>
                     t.PublisherUuid == model.PublisherUuid &&
                     t.LanguageUuid == model.LanguageUuid &&

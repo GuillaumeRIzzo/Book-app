@@ -22,13 +22,18 @@ public partial class BookTranslation
     [Column("language_uuid")]
     public Guid LanguageUuid { get; set; }
 
-    [Column("title")]
+    [Column("book_title")]
     [StringLength(255)]
     [Unicode(false)]
-    public string? Title { get; set; }
+    public string? BookTitle { get; set; }
 
-    [Column("summary", TypeName = "text")]
-    public string? Summary { get; set; }
+    [Column("book_subtitle")]
+    [StringLength(255)]
+    [Unicode(false)]
+    public string? BookSubtitle { get; set; }
+
+    [Column("book_description", TypeName = "text")]
+    public string? BookDescription { get; set; }
 
     [Column("created_at")]
     public DateTimeOffset? CreatedAt { get; set; }

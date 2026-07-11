@@ -19,15 +19,9 @@
         public List<Guid> AuthorUuids { get; set; } = new();
         public List<Guid> CategoryUuids { get; set; } = new();
         public List<Guid> PublisherUuids { get; set; } = new();
-<<<<<<< HEAD
-        public List<Guid> TagUuids { get; set; } = new();
-
-        public List<Guid>? ImageUuids { get; set; } = new();
-=======
         public List<Guid> TagUuids { get; set; } = new();
 
         public List<BookImageDto>? Images { get; set; } = new();
->>>>>>> f571f8d (chore: save current work before project cleanup)
         public List<Guid>? LanguageUuids { get; set; } = new();
         public List<Guid>? BookTranslationUuids { get; set; } = new();
     }

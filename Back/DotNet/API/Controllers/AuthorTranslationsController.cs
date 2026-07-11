@@ -92,7 +92,7 @@ namespace API.Controllers
                 if (model == null)
                     return BadRequest("Invalid data");
 
-                // Optionnel : vérifier qu'on a pas déjà une traduction pour cet auteur + langue
+                // Optionnel : v?rifier qu'on a pas d?j? une traduction pour cet auteur + langue
                 var exists = await _context.AuthorTranslations.AnyAsync(t =>
                     t.AuthorUuid == model.AuthorUuid &&
                     t.LanguageUuid == model.LanguageUuid);
@@ -113,7 +113,7 @@ namespace API.Controllers
                 _context.AuthorTranslations.Add(translation);
                 await _context.SaveChangesAsync();
 
-                // Retourner la traduction créée (non chiffrée ici mais on peut chiffrer)
+                // Retourner la traduction cr??e (non chiffr?e ici mais on peut chiffrer)
                 model.AuthorTranslationId = translation.AuthorTranslationId;
                 model.AuthorTranslationUuid = translation.AuthorTranslationUuid;
                 model.CreatedAt = translation.CreatedAt;
