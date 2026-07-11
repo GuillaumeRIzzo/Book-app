@@ -8,7 +8,6 @@ import { Box, Fab } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 
 import { AppDispatch } from '@redux/store';
-import { BookModelView } from '@/models/bookViews/BookModelView';
 import Loading from '@/components/common/Loading';
 import { fetchBooksAsync } from './bookSlice';
 import { fetchAuthorsAsync } from '../authors/AuthorSlice';
@@ -17,7 +16,11 @@ import { fetchCategoriesAsync } from '../categories/categorySlice';
 import { fetchUsersAsync } from '../users/UserSlice';
 import { fetchImagesAsync } from '../images/imageSlice';
 import { decryptPayload } from '@/utils/encryptUtils';
-import { selectAllBooks, selectBookError, selectBookStatus } from './bookSelectors';
+import {
+  selectAllBooks,
+  selectBookError,
+  selectBookStatus,
+} from './bookSelectors';
 import { selectBookModelViews } from '../bookViews/bookViewSelectors';
 import { selectAuthorStatus } from '../authors/authorSelector';
 import { selectCategoriesStatus } from '../categories/categoriesSelector';
@@ -35,6 +38,7 @@ import { selectThemeStatus } from '../themes/themeSelector';
 import { selectLanguageStatus } from '../languages/languageSelector';
 import { selectPreferenceStatus } from '../preferences/preferenceSelector';
 import { fetchPreferencesAsync } from '../preferences/PreferenceSlice';
+import Image from 'next/image';
 
 const BookList: React.FC = () => {
   const books = useSelector(selectAllBooks);
@@ -60,15 +64,17 @@ const BookList: React.FC = () => {
       const { encryptedData, iv } = session.user.encryptedSession;
       try {
         // Explicitly cast the decrypted data to the expected type
-        const decryptedData = decryptPayload<{ right: string }>(encryptedData, iv);
+        const decryptedData = decryptPayload<{ right: string }>(
+          encryptedData,
+          iv,
+        );
         return { right: decryptedData.right };
       } catch (error) {
         console.error('Failed to decrypt session data:', error);
       }
     }
-    return { right: ''};
+    return { right: '' };
   }, [session]);
-  
 
   useEffect(() => {
     if (bookStatus === 'idle') {
@@ -78,30 +84,31 @@ const BookList: React.FC = () => {
       dispatch(fetchPublishersAsync());
       dispatch(fetchCategoriesAsync());
     }
-  }, [bookStatus]);
+  }, [bookStatus, dispatch]);
 
   const modelViews = useSelector(selectBookModelViews);
 
   useEffect(() => {
-  const allSucceeded = [
+    const allSucceeded = [
+      bookStatus,
+      authorStatus,
+      categoryStatus,
+      publisherStatus,
+      imageStatus,
+    ].every(status => status === 'succeeded');
+
+    if (allSucceeded && modelViews.length > 0) {
+      dispatch(setBookViews(modelViews));
+    }
+  }, [
     bookStatus,
     authorStatus,
     categoryStatus,
     publisherStatus,
     imageStatus,
-  ].every(status => status === 'succeeded');
-
-  if (allSucceeded && modelViews.length > 0) {
-    dispatch(setBookViews(modelViews));
-  }
-}, [
-  bookStatus,
-  authorStatus,
-  categoryStatus,
-  publisherStatus,
-  imageStatus,
-  modelViews,
-]);
+    modelViews,
+    dispatch,
+  ]);
 
   useEffect(() => {
     if (session) {
@@ -111,9 +118,9 @@ const BookList: React.FC = () => {
         languageStatus,
         themesStatus,
         colorStatus,
-        preprefrenceStatus
+        preprefrenceStatus,
       ].every(status => status === 'idle');
-      
+
       if (allSucceeded) {
         dispatch(fetchUsersAsync());
         dispatch(fetchUserRightsAsync());
@@ -123,7 +130,16 @@ const BookList: React.FC = () => {
         dispatch(fetchPreferencesAsync());
       }
     }
-  }, [session, userStatus, userRightStatus, languageStatus, themesStatus, colorStatus]);
+  }, [
+    session,
+    userStatus,
+    userRightStatus,
+    languageStatus,
+    themesStatus,
+    colorStatus,
+    preprefrenceStatus,
+    dispatch,
+  ]);
 
   if (bookStatus === 'loading' || !books) {
     return <Loading />;
@@ -152,15 +168,19 @@ const BookList: React.FC = () => {
         </Box>
       )}
       <div className='flex justify-around my-20 flex-wrap'>
-        {modelViews.map((book: BookModelView) => (
+        {modelViews.map(book => (
           <Link key={book.book.bookId} href={`book/${book.book.bookUuid}`}>
-            <img
-              loading='lazy'
-              className='h-56 hover:transition-transform 0.2s hover:scale-125 cursor-pointer'
-              key={book.book.bookUuid}
-              src={book.images[0]?.imageUrl}
-              alt={book.book.bookTitle}
-            />
+            <Box
+              className='relative h-56 w-32 m-2 overflow-hidden'
+            >
+              <Image
+                loading='lazy'
+                src={book.images[0]?.imageUrl}
+                alt={book.book.bookTitle}
+                fill
+                className='hover:transition-transform duration-200 hover:scale-125 cursor-pointer object-cover'
+              />
+            </Box>
           </Link>
         ))}
       </div>

@@ -2,7 +2,7 @@ import { Fragment, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
 
-import { Autocomplete, Box } from '@mui/material';
+import { Box } from '@mui/material';
 import Stepper from '@mui/material/Stepper';
 import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
@@ -10,7 +10,6 @@ import styled from 'styled-components';
 
 import { AppDispatch, RootState } from '@redux/store';
 import { Book } from '@/models/book/Book';
-import { Category } from '@/models/book-category/Category';
 
 import Input from '@/components/common/Input';
 import CustomButton from '@/components/common/Button';
@@ -19,8 +18,6 @@ import { fetchAuthorsAsync } from '../authors/AuthorSlice';
 import { fetchPublishersAsync } from '../publishers/PublisherSlice';
 import { fetchCategoriesAsync } from '../categories/categorySlice';
 import { EncryptedPayload, encryptPayload } from '@/utils/encryptUtils';
-
-import imageUrlRegex from '@hooks/imgValidator';
 
 import { ArrowLeftIcon } from '@heroicons/react/24/solid';
 import { ArrowRightIcon } from '@heroicons/react/24/solid';
@@ -38,17 +35,17 @@ const BookForm: React.FC = () => {
     state.books.books.find((b: Book) => b.bookId === Number(id)),
   );
 
-  const Categories = useSelector(
-    (state: RootState) => state.categoryries.categoryries,
-  );
+  // const Categories = useSelector(
+  //   (state: RootState) => state.categories.categories,
+  // );
   const categosStatus = useSelector(
-    (state: RootState) => state.categoryries.status,
+    (state: RootState) => state.categories.status,
   );
-  const authors = useSelector((state: RootState) => state.authors.authors);
+  // const authors = useSelector((state: RootState) => state.authors.authors);
   const authorsStatus = useSelector((state: RootState) => state.authors.status);
-  const publishers = useSelector(
-    (state: RootState) => state.publishers.publishers,
-  );
+  // const publishers = useSelector(
+  //   (state: RootState) => state.publishers.publishers,
+  // );
   const publishersStatus = useSelector(
     (state: RootState) => state.publishers.status,
   );
@@ -63,7 +60,7 @@ const BookForm: React.FC = () => {
     if (publishersStatus === 'idle') {
       dispatch(fetchPublishersAsync());
     }
-  }, [categosStatus, authorsStatus, publishersStatus]);
+  }, [categosStatus, authorsStatus, publishersStatus, dispatch]);
 
   const [activeStep, setActiveStep] = useState(0);
   const steps = [
@@ -74,33 +71,25 @@ const BookForm: React.FC = () => {
 
   const [formData, setFormData] = useState({
     BookId: book?.bookId || 0,
+    BookUuid: book?.bookUuid || '',
     BookTitle: book?.bookTitle || '',
-    BookDescription: book?.bookDescription || '',
+    BookDescription: book?.bookDescription || ''/* ,
     BookPublishDate: book?.bookPublishDate || new Date(),
-    BookPageCount: book?.bookPageCount || 0,
-    BookAverageRating: book?.bookAverageRating || 0,
-    BookRatingCount: book?.bookRatingCount || 0,
-    BookImageLink: book?.bookImageLink || '',
-    BookLanguage: book?.bookLanguage || '',
-    PublisherId: book?.publisherId || 0,
-    AuthorId: book?.authorId || 0,
-    Read: book?.read || false,
-    InList: book?.inList || false,
-    Categories: book?.categories ?? ([] as Category[]),
+    BookPageCount: book?.bookPageCount || 0, */
   });
 
-  const isValidImageUrl = imageUrlRegex.test(formData.BookImageLink.trim());
+  // const isValidImageUrl = imageUrlRegex.test(formData.BookImageLink.trim());
 
   const [touched, setTouched] = useState({
     BookTitle: false,
-    BookDescription: false,
-    BookPublishDate: false,
-    BookPageCount: false,
-    BookImageLink: false,
-    BookLanguage: false,
-    PublisherId: false,
-    AuthorId: false,
-    Categories: false,
+    BookDescription: false
+    // BookPublishDate: false,
+    // BookPageCount: false,
+    // BookImageLink: false,
+    // BookLanguage: false,
+    // PublisherId: false,
+    // AuthorId: false,
+    // Categories: false,
   });
 
   const handleNext = (event?: React.FormEvent<HTMLFormElement>) => {
@@ -123,23 +112,23 @@ const BookForm: React.FC = () => {
     // Step 0: Basic informations
     if (
       !formData.BookTitle.trim() ||
-      !formData.BookDescription.trim() ||
+      !formData.BookDescription.trim()/*  ||
       !formData.BookPublishDate ||
-      formData.BookPageCount < 1 ||
+      formData.BookPageCount < 1  *//* ||
       !isValidImageUrl ||
-      !formData.BookLanguage.trim()
+      !formData.BookLanguage.trim() */
     ) {
       errors.add(0);
     }
 
     // Step 1: Author, publisher, Categories
-    if (
-      !formData.AuthorId ||
-      !formData.PublisherId ||
-      formData.Categories.length < 1
-    ) {
-      errors.add(1);
-    }
+    // if (
+    //   !formData.AuthorId ||
+    //   !formData.PublisherId ||
+    //   formData.Categories.length < 1
+    // ) {
+    //   errors.add(1);
+    // }
 
     return errors;
   };
@@ -187,13 +176,13 @@ const BookForm: React.FC = () => {
       } else {
         dispatch(
           updateBookAsync({
-            bookId: formData.BookId,
+            bookUuid: formData.BookUuid,
             payload: encryptedPayload,
           }),
         ).unwrap();
         router.push(`/book/${formData.BookId}`);
       }
-    } catch (error: any) {}
+    } catch (error) {}
   };
 
   const [headerHeight, setHeaderHeight] = useState(0);
@@ -203,20 +192,20 @@ const BookForm: React.FC = () => {
     if (!header) return;
 
     const observer = new ResizeObserver(entries => {
-      for (let entry of entries) {
+      for (const entry of entries) {
         setHeaderHeight(entry.contentRect.height);
       }
     });
 
-    if (
-      formData.BookPublishDate &&
-      typeof formData.BookPublishDate === 'string'
-    ) {
-      setFormData(prev => ({
-        ...prev,
-        BookPublishDate: new Date(prev.BookPublishDate),
-      }));
-    }
+    // if (
+    //   formData.BookPublishDate &&
+    //   typeof formData.BookPublishDate === 'string'
+    // ) {
+    //   setFormData(prev => ({
+    //     ...prev,
+    //     BookPublishDate: new Date(prev.BookPublishDate),
+    //   }));
+    // }
 
     observer.observe(header);
 
@@ -282,7 +271,7 @@ const BookForm: React.FC = () => {
                     onBlur={handleBlur}
                     error={touched.BookDescription && !formData.BookDescription}
                   />
-                  <StyledInput
+                  {/* <StyledInput
                     required
                     type='date'
                     label='Date de publication'
@@ -307,8 +296,8 @@ const BookForm: React.FC = () => {
                     onChange={handleChange}
                     onBlur={handleBlur}
                     error={touched.BookPageCount && !formData.BookPageCount}
-                  />
-                  <StyledInput
+                  /> */}
+                  {/* <StyledInput
                     label="Lien de l'image"
                     type='url'
                     name='BookImageLink'
@@ -317,8 +306,8 @@ const BookForm: React.FC = () => {
                     onBlur={handleBlur}
                     error={touched.BookImageLink && !isValidImageUrl}
                     required
-                  />
-                  <StyledInput
+                  /> */}
+                  {/* <StyledInput
                     required
                     label='Langue'
                     name='BookLanguage'
@@ -326,13 +315,13 @@ const BookForm: React.FC = () => {
                     onChange={handleChange}
                     onBlur={handleBlur}
                     error={touched.BookLanguage && !formData.BookLanguage}
-                  />
+                  /> */}
                 </Fragment>
               )}
 
               {activeStep === 1 && (
                 <Fragment>
-                  <Autocomplete
+                  {/* <Autocomplete
                     className='mb-12'
                     options={authors}
                     getOptionLabel={option => option.authorFullName}
@@ -413,7 +402,7 @@ const BookForm: React.FC = () => {
                       />
                     )}
                     onBlur={handleBlur}
-                  />
+                  /> */}
                 </Fragment>
               )}
 
@@ -425,7 +414,7 @@ const BookForm: React.FC = () => {
                   <p>
                     <strong>Description :</strong> {formData.BookDescription}
                   </p>
-                  <p>
+                  {/* <p>
                     <strong>Date de publication :</strong>{' '}
                     {new Date(formData.BookPublishDate).toLocaleDateString(
                       'fr-FR',
@@ -438,13 +427,12 @@ const BookForm: React.FC = () => {
                   </p>
                   <p>
                     <strong>Nombre de pages :</strong> {formData.BookPageCount}
-                  </p>
-                  <p>
+                  </p> */}
+                  {/* <p>
                     <strong>Langue :</strong> {formData.BookLanguage}
                   </p>
                   <p>
                     <strong>Lien image :</strong>{' '}
-                    <img src={formData.BookImageLink} alt='' />
                   </p>
 
                   <p>
@@ -465,7 +453,7 @@ const BookForm: React.FC = () => {
                           ', ',
                         )
                       : 'Aucune'}
-                  </p>
+                  </p> */}
                 </Fragment>
               )}
             </Box>

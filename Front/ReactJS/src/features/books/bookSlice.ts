@@ -7,6 +7,7 @@ import { BookState } from '@/models/book/BookState';
 import { getBook, getBooks, addBook, updateBook, delBook } from '@/api/bookApi';
 import { decryptPayload, EncryptedPayload } from '@/utils/encryptUtils';
 import { mapIdToCustomKeys, ModelType } from '@/utils/mapIdToCustomKeys';
+import { AxiosError } from 'axios';
 
 export const fetchBooksAsync = createAsyncThunk('books/getBooks', async () => {
   try {
@@ -42,6 +43,13 @@ export const fetchBooksAsync = createAsyncThunk('books/getBooks', async () => {
   }
 });
 
+interface DecryptedBookData {
+  bookId: string;
+  bookUuid: string;
+  bookTitle: string;
+  [key: string]: unknown;
+}
+
 export const fetchBookById = createAsyncThunk(
   'books/getBook',
   async (bookUuid: string) => {
@@ -52,12 +60,12 @@ export const fetchBookById = createAsyncThunk(
       const iv = response.data.iv as string;
 
       // Decrypt data
-      const decryptedData = decryptPayload(encryptedData, iv);
+      const decryptedData = decryptPayload<DecryptedBookData>(encryptedData, iv);
 
       // DecryptedData is a single Book object here
       const book = {
         ...camelCaseKeys(decryptedData, { deep: true }),
-        bookId: (decryptedData as any).id, // manually set the bookUuid
+        bookId: decryptedData.id, // manually set the bookId
       } as Book;
 
       return book;
@@ -68,15 +76,18 @@ export const fetchBookById = createAsyncThunk(
   }
 );
 
-
 export const createBook = createAsyncThunk(
   'books/createBook',
   async (payload: EncryptedPayload, { rejectWithValue }) => {
     try {
       const response = await addBook(payload);
       return response.data;
-    } catch (error: any) {
-      return rejectWithValue(error.response.data);
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response) {
+        return rejectWithValue(axiosError.response.data);
+      }
+      return rejectWithValue('Erreur inconnue');
     }
   }
 );
@@ -93,8 +104,11 @@ export const updateBookAsync = createAsyncThunk(
       await updateBook(bookUuid, payload);
       
       return { bookUuid, decryped : decryptPayload(payload.encryptedData, payload.iv) };
-    } catch (error: any) {
-      console.error('Failed to update book:', error);
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response) {
+        console.error('Failed to update book:', error);
+      }
       // Throw error to handle it in UI
       throw error; 
     }

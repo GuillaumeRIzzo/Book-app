@@ -37,3 +37,5 @@ export class BookModelView {
     };
   }
 }
+
+export type BookModelViewObject = ReturnType<BookModelView['toPlainObject']>;

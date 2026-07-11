@@ -1,9 +1,10 @@
 import styled from 'styled-components';
 import tw from 'twin.macro';
+import Image from 'next/image';
 
-import { Image } from '@/models/images/images';
+import { Image as ImageModel } from '@/models/images/images';
 import { useState } from 'react';
-import { IconButton } from '@mui/material';
+import { Box, IconButton } from '@mui/material';
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 
 const BookImageWrapper = styled.div`
@@ -14,7 +15,7 @@ const BookImageWrapper = styled.div`
 `;
 
 type BookImageProps = {
-  images: Image[];
+  images: ImageModel[];
 };
 
 const BookImage: React.FC<BookImageProps> = ({ images }) => {
@@ -32,15 +33,14 @@ const BookImage: React.FC<BookImageProps> = ({ images }) => {
 
   return (
     <BookImageWrapper>
-      <div className='w-full md:w-1/2 mx-auto flex flex-col items-center gap-4'>
+      <Box className='w-full md:w-1/2 mx-auto flex flex-col items-center gap-4'>
         {/* Main Image */}
-        <div className='relative w-full'>
-          <img
+        <Box className='relative w-full h-[300px]'>
+          <Image
             src={images[currentIndex].imageUrl}
-            alt={
-              images[currentIndex].imageAlt || `Book image ${currentIndex + 1}`
-            }
-            className='w-full h-auto object-cover rounded-xl shadow-lg'
+            alt={images[currentIndex].imageAlt || `Book image ${currentIndex + 1}`}
+            className='object-cover rounded-xl shadow-lg'
+            fill
           />
           {images.length > 1 && (
             <>
@@ -60,11 +60,11 @@ const BookImage: React.FC<BookImageProps> = ({ images }) => {
               </IconButton>
             </>
           )}
-        </div>
+        </Box>
 
         {/* Thumbnail Strip */}
         {images.length > 1 && (
-          <div className='flex overflow-x-auto gap-2 w-full py-2 px-1'>
+          <Box className='flex overflow-x-auto gap-2 w-full py-2 px-1'>
             {images.map((img, index) => (
               <button
                 key={index}
@@ -75,16 +75,18 @@ const BookImage: React.FC<BookImageProps> = ({ images }) => {
                     : 'border-transparent'
                 }`}
               >
-                <img
+                <Image
                   src={img.imageUrl}
                   alt={img.imageAlt || `Thumbnail ${index + 1}`}
+                  width={80}
+                  height={80}
                   className='object-cover w-full h-full'
                 />
               </button>
             ))}
-          </div>
+          </Box>
         )}
-      </div>
+      </Box>
     </BookImageWrapper>
   );
 };
