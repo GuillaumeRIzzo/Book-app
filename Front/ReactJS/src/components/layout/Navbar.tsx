@@ -26,7 +26,6 @@ const Navbar: React.FC = () => {
   let token = '';
   let right = '';
   let email = '';
-  let uuid = '';
 
   if (session && session.user && session.user.encryptedSession) {
     try {
@@ -36,18 +35,15 @@ const Navbar: React.FC = () => {
         token: decryptedToken,
         right: decryptedRight,
         email: decryptedEmail,
-        uuid: decryptedUuid,
       } = decryptedSessionData as {
         token: string;
         right: string;
         email: string;
-        uuid: string;
       };
 
       token = decryptedToken;
       right = decryptedRight;
       email = decryptedEmail;
-      uuid = decryptedUuid;
     } catch (error) {
       console.error('Failed to decrypt session data:', error);
     }
