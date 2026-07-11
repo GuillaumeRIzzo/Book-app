@@ -1,0 +1,19 @@
+{
+  "title": "Your account",
+  "profile": {
+    "title": "Your profile",
+    "description": "Edit your personal information"
+  },
+  "preferences": {
+    "title": "Your preferences",
+    "description": "Edit your preferences"
+  },
+  "order": {
+    "title": "Your orders",
+    "description": "Order history"
+  },
+  "address": {
+    "title": "Your addresses",
+    "description": "Edit addresses and order delivery preferences"
+  }
+}

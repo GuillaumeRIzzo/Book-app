@@ -1,0 +1,10 @@
+{
+  "firstnameRequired": "First name is required",
+  "lastnameRequired": "Last name is required",
+  "uppercaseMissing": "At least one uppercase letter is required",
+  "lowercaseMissing": "At least one lowercase letter is required",
+  "numberMissing": "At least one number is required",
+  "specialCharMissing": "At least one special character is required",
+  "minLength": "At least 8 characters",
+  "passwordsNotMatching": "Passwords do not match"
+}

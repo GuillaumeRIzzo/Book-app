@@ -1,0 +1,12 @@
+{
+  "firstname": "First name",
+  "lastname": "Last name",
+  "login": "Login",
+  "email": "Email",
+  "password": "Password",
+  "confirmPassword": "Confirm password",
+  "birthDate": "Date of birth",
+  "gender": "Gender",
+  "selectGender": "Select a gender",
+  "submit": "Confirm"
+}

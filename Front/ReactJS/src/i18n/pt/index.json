@@ -1,0 +1,81 @@
+{
+  "languages": {
+    "pt-PT": "Português (Portugal)",
+    "pt-BR": "Português (Brasil)"
+  },
+  "theme": {
+    "Light": "Claro",
+    "Dark": "Escuro",
+    "System": "Sistema"
+  },
+  "navbar": {
+    "home": "Início",
+    "categories": "Categorias",
+    "authors": "Autores",
+    "publishers": "Editoras",
+    "users": "Utilizadores",
+    "yourAccount": "Sua conta",
+    "logout": "Sair",
+    "signup": "Registrar",
+    "login": "Entrar"
+  },
+  "search": {
+    "placeholder": "Pesquisar: livros / autores / categorias / editoras",
+    "types": {
+      "book": "Livro",
+      "author": "Autor",
+      "publisher": "Editora",
+      "category": "Categoria",
+      "history": "Histórico"
+    },
+    "noResults": "Nenhum resultado encontrado",
+    "seeAll": "Todos os resultados para \"{{term}}\"",
+    "seeAllHint": "Clique aqui ou pressione ENTER para ver mais detalhes."
+  },
+  "book": {
+    "title": "Título",
+    "subtitle": "Subtítulo",
+    "authors": "Autor(es)",
+    "publishers": "Editora(s)",
+    "series": "Série",
+    "description": "Descrição",
+    "categories": "Categorias",
+    "isbn": "ISBN",
+    "price": "Preço",
+    "pages": "{{count}} páginas",
+    "publishedOn": "Publicado em",
+    "tags": "Etiquetas"
+  },
+  "account": {
+    "title": "Sua conta",
+    "profile": {
+      "title": "Seu perfil",
+      "description": "Alterar informações pessoais"
+    },
+    "preferences": {
+      "title": "Suas preferências",
+      "description": "Alterar preferências"
+    },
+    "order": {
+      "title": "Seus pedidos",
+      "description": "Histórico de pedidos"
+    },
+    "address": {
+      "title": "Seus endereços",
+      "description": "Alterar endereços e preferências de entrega"
+    }
+  },
+  "preferences": {
+    "title": "Suas preferências",
+    "language": "Escolha um idioma",
+    "theme": "Tema",
+    "color": {
+      "text": "Cor do texto",
+      "button": "Cor dos botões"
+    },
+    "buttons": {
+      "save": "Guardar",
+      "reset": "Repor"
+    }
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "resend_failed": "Failed to send confirmation email.",
+  "invalid_link": "Invalid or expired link.",
+  "notReceived": "Didn't receive the email? Check your spam or junk folder."
+}
