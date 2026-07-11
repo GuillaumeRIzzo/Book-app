@@ -1,9 +1,10 @@
 services:
   sqlserver:
+    container_name: sqlserver
     image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
       - ACCEPT_EULA=Y
-      - SA_PASSWORD=YourStrong!Passw0rd
+      - SA_PASSWORD=${SQL_PASSWORD}
     ports:
       - 1433:1433
     volumes:
@@ -12,42 +13,7 @@ services:
       - ./scripts/sqlserver/entrypoint.sh:/usr/local/bin/entrypoint.sh
     entrypoint: ["/bin/bash", "/usr/local/bin/entrypoint.sh"]
     networks:
-      - sqlnetwork
-
-  postgres:
-    image: postgres:15
-    container_name: postgres
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_DB: strapi
-      POSTGRES_USER: strapi
-      POSTGRES_PASSWORD: strapi
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-      - ./scripts/postgres/entrypoint.sh:/usr/local/bin/entrypoint.sh
-      - ./scripts/postgres/backup.sh:/usr/local/bin/backup.sh
-      - ./data/postgresql:/var/backups
-    entrypoint: ["/bin/bash", "/usr/local/bin/entrypoint.sh"]
-    networks:
-      - sqlnetwork
-      
-  strapi:
-    build:
-      context: ./Back/Strapi
-      dockerfile: Dockerfile
-    container_name: strapi
-    ports:
-      - "1337:1337"
-    env_file:
-      - .env
-    depends_on:
-      - postgresql
-    volumes:
-      - ./Back/StrapiCMS:/opt/app
-      - /app/node_modules
-    networks:
-      - sqlnetwork
+      - book-network
 
   api:
     build:
@@ -64,37 +30,10 @@ services:
     depends_on:
       - sqlserver
     networks:
-      - sqlnetwork
+      - book-network
     volumes:
       - ./Back:/src/API
     command: dotnet watch run --urls http://0.0.0.0:80
-
-
-  # angular-dev:
-  #   build:
-  #     context: ./Front/Angular
-  #     dockerfile: Dockerfile.dev
-  #   container_name: angular-dev
-  #   ports:
-  #     - "4200:4200"
-  #   volumes:
-  #     - ./Front/Angular:/app:delegated
-  #   depends_on:
-  #     - api
-  #   networks:
-  #     - sqlnetwork
-
-  # angular-prod:
-  #   build:
-  #     context: ./Front/Angular
-  #     dockerfile: Dockerfile.nginx
-  #   container_name: angular-prod
-  #   ports:
-  #     - "80:80"
-  #   depends_on:
-  #     - api
-  #   networks:
-  #     - sqlnetwork
 
   react:
     build:
@@ -112,24 +51,8 @@ services:
     depends_on:
       - api
     networks:
-      - sqlnetwork
+      - book-network
     command: sh -c "node /scripts/sync-react-env.js && npm run dev"
 
-
-  # jenkins:
-  #   image: jenkins/jenkins:lts-jdk17
-  #   container_name: jenkins
-  #   ports:
-  #     - "8080:8080"
-  #     - "50000:50000"
-  #   volumes:
-  #     - jenkins_home:/var/jenkins_home
-  #   networks:
-  #     - sqlnetwork
-
 networks:
-  sqlnetwork:
-
-volumes:
-  jenkins_home:
-  pgdata:
+  book-network:
