@@ -14,6 +14,7 @@ import {
   NoResults,
   ResultsFooter
 } from './StyledComponents';
+import Image from 'next/image';
 
 interface SearchItemProps {
   isOpen: boolean;
@@ -31,8 +32,8 @@ interface SearchItemProps {
   deleteRecentSearches: (index: number) => void;
   resultImage: (result: SearchResult) => string;
   goToSearch: (index: number) => void;
-  selectHistoryItem: (item: any) => void;
-  setHistory: (item: any) => void;
+  selectHistoryItem: (item: string) => void;
+  setHistory: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
 const SearchItem: React.FC<SearchItemProps> = ({
@@ -54,6 +55,39 @@ const SearchItem: React.FC<SearchItemProps> = ({
   selectHistoryItem,
   setHistory
 }) => {
+    const getTitle = (result: SearchResult): string => {
+    switch (result.type) {
+      case 'Livre': return result.item.bookTitle;
+      case 'Auteur': return result.item.authorFullName;
+      case 'Éditeur': return result.item.publisherName;
+      case 'Catégorie': return result.item.categoryName;
+      case 'History': return result.item;
+    }
+<<<<<<< HEAD
+  }
+=======
+  };
+
+  const { t } = useTranslation(['search']);
+
+  const getTypeLabelKey = (type: SearchResult['type']): string => {
+    switch (type) {
+      case 'Livre':
+        return 'types.book';
+      case 'Auteur':
+        return 'types.author';
+      case 'Éditeur':
+        return 'types.publisher';
+      case 'Catégorie':
+        return 'types.category';
+      case 'History':
+        return 'types.history';
+      default:
+        return type;
+    }
+  };
+
+>>>>>>> f571f8d (chore: save current work before project cleanup)
   return (
     <Box>
       <SearchContainer $isOpen={isOpen} ref={searchBarRef}>
@@ -73,7 +107,11 @@ const SearchItem: React.FC<SearchItemProps> = ({
               }}
               onKeyDown={handleKeyDown}
               autoFocus={true}
+<<<<<<< HEAD
               placeholder='Recherche : livres / auteurs / catégories / éditeurs'
+=======
+              placeholder={t('placeholder')}
+>>>>>>> f571f8d (chore: save current work before project cleanup)
               className='text-primary-dark'
             />
             <CloseButton
@@ -86,6 +124,93 @@ const SearchItem: React.FC<SearchItemProps> = ({
                 ❌
               </span>
             </CloseButton>
+<<<<<<< HEAD
+=======
+
+            {/* ⬇️ ICI : on place l’Overlay dans le SearchContainer */}
+            <Overlay ref={overlayRef}>
+              {combinedResults.length > 0 ? (
+                <>
+                  {combinedResults.map((result, index) => (
+                    <ResultItem
+                      key={index}
+                      $isSelected={index === selectedIndex}
+                      onClick={() => {
+                        if (result.type === 'History') {
+                          selectHistoryItem(result.item);
+                          handleSearch(result.item);
+                        } else {
+                          setSearchTerm(getTitle(result));
+                          setHistory(prev => [
+                            ...new Set([searchTerm, ...prev]),
+                          ]);
+                          goToSearch(index);
+                        }
+                      }}
+                    >
+                      <Box
+                        display='flex'
+                        alignItems='center'
+                        justifyContent='space-between'
+                      >
+                        <Box display='flex'>
+                          <p className='mr-2 text-primary-dark'>
+                            <strong>{t(getTypeLabelKey(result.type))}:</strong>
+                          </p>
+                          {result.type === 'History' ? (
+                            <p className='w-96 text-primary-dark'>
+                              {result.item}
+                            </p>
+                          ) : (
+                            <p className='text-primary-dark'>
+                              {getTitle(result)}
+                            </p>
+                          )}
+                        </Box>
+                        {result.type === 'History' && (
+                          <DeleteButton
+                            onClick={e => {
+                              e.stopPropagation();
+                              deleteRecentSearches(index);
+                            }}
+                          >
+                            <TrashIcon className='block h-6 w-6' />
+                          </DeleteButton>
+                        )}
+                      </Box>
+                      <Image
+                        src={resultImage(result)}
+                        width={30}
+                        height={30}
+                        alt={
+                          result.type === 'Livre'
+                            ? result.item.bookTitle
+                            : result.type === 'Auteur'
+                            ? result.item.authorFullName
+                            : result.type === 'Éditeur'
+                            ? result.item.publisherName
+                            : result.type === 'Catégorie'
+                            ? result.item.categoryName
+                            : result.item // pour History
+                        }
+                      />
+                    </ResultItem>
+                  ))}
+                  <ResultsFooter onClick={() => goToSearch(0)}>
+                    <span role='img' aria-label='search'>
+                      🔍
+                    </span>
+                    <h3>{t('seeAll', { term: searchTerm })}</h3>
+                    <span className='text-primary-dark'>
+                      {t('seeAllHint')}
+                    </span>
+                  </ResultsFooter>
+                </>
+              ) : (
+                <NoResults>{t('noResults')}</NoResults>
+              )}
+            </Overlay>
+>>>>>>> f571f8d (chore: save current work before project cleanup)
           </>
         )}
       </SearchContainer>
@@ -102,13 +227,8 @@ const SearchItem: React.FC<SearchItemProps> = ({
             selectHistoryItem(result.item);
             handleSearch(result.item);
           } else {
-            setSearchTerm(
-              result.item.bookTitle ||
-                result.item.authorFullName ||
-                result.item.publisherName ||
-                result.item.categoryName,
-            );
-            setHistory((prev: any) => [...new Set([searchTerm, ...prev])]);
+            setSearchTerm(getTitle(result));
+            setHistory((prev) => [...new Set([searchTerm, ...prev])]);
             goToSearch(index);
           }
         }}
@@ -122,10 +242,7 @@ const SearchItem: React.FC<SearchItemProps> = ({
               <p className='w-96 text-primary-dark'>{result.item}</p>
             ) : (
               <p className='text-primary-dark'>
-              {result.item.bookTitle ||
-              result.item.authorFullName ||
-              result.item.publisherName ||
-              result.item.categoryName}
+              {getTitle(result)}
               </p>
             )}
           </Box>
@@ -140,13 +257,18 @@ const SearchItem: React.FC<SearchItemProps> = ({
             </DeleteButton>
           )}
         </Box>
-        <img src={resultImage(result)} width={30} />
+        <Image
+          src={resultImage(result)}
+          width={30}
+          height={30}
+          alt={`Résultat ${index}`}
+        />
       </ResultItem>
     ))}
     {/* New Section Styled as Row and Clickable */}
     <ResultsFooter onClick={() => goToSearch(0)}>
       <span role="img" aria-label="search">🔍</span>
-      <h3>Tous les résultats pour "{searchTerm}"</h3>
+      <h3>Tous les résultats pour &quot;{searchTerm}&quot;</h3>
       <span className='text-primary-dark'>Cliquez <strong>ici</strong> ou <br />appuyez sur <strong>ENTRER</strong> <br /> pour voir plus de détails.</span>
     </ResultsFooter>
   </>
