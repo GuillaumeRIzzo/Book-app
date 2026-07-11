@@ -16,3 +16,4 @@ export class UserModelView {
     };
   }
 }
+export type UserModelViewObject = ReturnType<UserModelView['toPlainObject']>;
