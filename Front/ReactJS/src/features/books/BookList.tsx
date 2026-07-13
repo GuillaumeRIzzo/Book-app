@@ -14,7 +14,7 @@ import { fetchAuthorsAsync } from '../authors/AuthorSlice';
 import { fetchPublishersAsync } from '../publishers/PublisherSlice';
 import { fetchCategoriesAsync } from '../categories/categorySlice';
 import { fetchUsersAsync } from '../users/UserSlice';
-import { fetchImagesAsync } from '../images/imageSlice';
+import { fetchBookImagessAsync } from '../bookImages/bookImageSlice';
 import { decryptPayload } from '@/utils/encryptUtils';
 import {
   selectAllBooks,
@@ -22,11 +22,6 @@ import {
   selectBookStatus,
 } from './bookSelectors';
 import { selectBookModelViews } from '../bookViews/bookViewSelectors';
-import { selectAuthorStatus } from '../authors/authorSelector';
-import { selectCategoriesStatus } from '../categories/categoriesSelector';
-import { selectPublisherStatus } from '../publishers/publisherSelector';
-import { selectImageStatus } from '../images/imageSelectors';
-import { setBookViews } from '../bookViews/bookViewSlice';
 import { fetchLanguagesAsync } from '../languages/LanguageSlice';
 import { fetchThemesAsync } from '../themes/ThemeSlice';
 import { fetchColorsAsync } from '../colors/ColorSlice';
@@ -39,15 +34,12 @@ import { selectLanguageStatus } from '../languages/languageSelector';
 import { selectPreferenceStatus } from '../preferences/preferenceSelector';
 import { fetchPreferencesAsync } from '../preferences/PreferenceSlice';
 import Image from 'next/image';
+import { fetchTagsAsync } from '../tags/TagSlice';
 
 const BookList: React.FC = () => {
   const books = useSelector(selectAllBooks);
   const bookStatus = useSelector(selectBookStatus);
   const error = useSelector(selectBookError);
-  const authorStatus = useSelector(selectAuthorStatus);
-  const categoryStatus = useSelector(selectCategoriesStatus);
-  const publisherStatus = useSelector(selectPublisherStatus);
-  const imageStatus = useSelector(selectImageStatus);
   const userStatus = useSelector(selectUserStatus);
   const userRightStatus = useSelector(selectUserRightStatus);
   const languageStatus = useSelector(selectLanguageStatus);
@@ -79,43 +71,22 @@ const BookList: React.FC = () => {
   useEffect(() => {
     if (bookStatus === 'idle') {
       dispatch(fetchBooksAsync());
-      dispatch(fetchImagesAsync());
+      dispatch(fetchBookImagessAsync());
       dispatch(fetchAuthorsAsync());
       dispatch(fetchPublishersAsync());
       dispatch(fetchCategoriesAsync());
+      fetchTagsAsync()
+      fetchLanguagesAsync()
     }
   }, [bookStatus, dispatch]);
 
   const modelViews = useSelector(selectBookModelViews);
 
   useEffect(() => {
-    const allSucceeded = [
-      bookStatus,
-      authorStatus,
-      categoryStatus,
-      publisherStatus,
-      imageStatus,
-    ].every(status => status === 'succeeded');
-
-    if (allSucceeded && modelViews.length > 0) {
-      dispatch(setBookViews(modelViews));
-    }
-  }, [
-    bookStatus,
-    authorStatus,
-    categoryStatus,
-    publisherStatus,
-    imageStatus,
-    modelViews,
-    dispatch,
-  ]);
-
-  useEffect(() => {
     if (session) {
       const allSucceeded = [
         userStatus,
         userRightStatus,
-        languageStatus,
         themesStatus,
         colorStatus,
         preprefrenceStatus,
@@ -124,7 +95,6 @@ const BookList: React.FC = () => {
       if (allSucceeded) {
         dispatch(fetchUsersAsync());
         dispatch(fetchUserRightsAsync());
-        dispatch(fetchLanguagesAsync());
         dispatch(fetchThemesAsync());
         dispatch(fetchColorsAsync());
         dispatch(fetchPreferencesAsync());
@@ -175,9 +145,10 @@ const BookList: React.FC = () => {
             >
               <Image
                 loading='lazy'
-                src={book.images[0]?.imageUrl}
+                src={book.bookImage[0]?.imageUrl}
+                height={100}
+                width={200}
                 alt={book.book.bookTitle}
-                fill
                 className='hover:transition-transform duration-200 hover:scale-125 cursor-pointer object-cover'
               />
             </Box>

@@ -2,14 +2,15 @@ import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
 import camelCaseKeys from 'camelcase-keys';
 
-import { Image } from '@/models/images/images';
-import { ImagesState } from '@/models/images/imagesState';
+import { BookImage } from '@/models/bookImages/bookImages';
+import { BookImagesState } from '@/models/bookImages/bookImagesState';
 import { getImages, getImage, addImage, updateImage, delImage } from '@/api/bookImagesApi';
 import { decryptPayload, EncryptedPayload } from '@/utils/encryptUtils';
 import { mapIdToCustomKeys, ModelType } from '@/utils/mapIdToCustomKeys';
 import { AxiosError } from 'axios';
 
-export const fetchImagesAsync = createAsyncThunk('images/getImages', async () => {
+
+export const fetchBookImagessAsync = createAsyncThunk('bookImages/getImages', async () => {
   try {
     const response = await getImages();
 
@@ -18,16 +19,16 @@ export const fetchImagesAsync = createAsyncThunk('images/getImages', async () =>
     
     const decryptedData = decryptPayload<typeof response.data>(encryptedData, iv);
 
-    let images: Image[];
+    let bookImages: BookImage[];
 
     try {
       if (Array.isArray(decryptedData)) {
-        images = mapIdToCustomKeys(
-          camelCaseKeys(decryptedData, { deep: true }) as unknown as Image[],
+        bookImages = mapIdToCustomKeys(
+          camelCaseKeys(decryptedData, { deep: true }) as unknown as BookImage[],
           ModelType.Book
         );
       } else {
-        console.error('Decrypted data is not an array of images:', decryptedData);
+        console.error('Decrypted data is not an array of bookImages:', decryptedData);
         throw new Error('Decrypted data is not valid Book[]');
       }
     } catch (error) {
@@ -35,22 +36,22 @@ export const fetchImagesAsync = createAsyncThunk('images/getImages', async () =>
       throw new Error('Decrypted data is not valid JSON');
     }
 
-    return images;
+    return bookImages;
 
   } catch (error) {
-    console.error('Failed to fetch images:', error);
+    console.error('Failed to fetch bookImages:', error);
     throw error;
   }
 });
 
-interface DecryptedImageData {
+interface DecryptedBookImageData {
   imageId: string;
   imageUuid: string;
   [key: string]: unknown;
 }
 
-export const fetchImageByUuid = createAsyncThunk(
-  'images/getImage',
+export const fetchBookImagesByUuid = createAsyncThunk(
+  'bookImages/getImage',
   async (imageUuid: string) => {
     try {
       const response = await getImage(imageUuid);
@@ -59,13 +60,13 @@ export const fetchImageByUuid = createAsyncThunk(
       const iv = response.data.iv as string;
 
       // Decrypt data
-      const decryptedData = decryptPayload<DecryptedImageData>(encryptedData, iv);
+      const decryptedData = decryptPayload<DecryptedBookImageData>(encryptedData, iv);
 
       // DecryptedData is a single Book object here
       const book = {
         ...camelCaseKeys(decryptedData, { deep: true }),
         imageId: decryptedData.id, // manually set the imageUuid
-      } as Image;
+      } as BookImage;
 
       return book;
     } catch (error) {
@@ -75,9 +76,8 @@ export const fetchImageByUuid = createAsyncThunk(
   }
 );
 
-
 export const createImage = createAsyncThunk(
-  'images/createImage',
+  'bookImages/createImage',
   async (payload: EncryptedPayload, { rejectWithValue }) => {
     try {
       const response = await addImage(payload);
@@ -97,7 +97,7 @@ type UpdateBookImagesParams = {
 };
 
 export const updateImageAsync = createAsyncThunk(
-  'images/updateImage',
+  'bookImages/updateImage',
   async ({ imageUuid, payload }: UpdateBookImagesParams) => {
     try {
       await updateImage(imageUuid, payload);
@@ -115,7 +115,7 @@ export const updateImageAsync = createAsyncThunk(
 );
 
 export const deleteImageAsync = createAsyncThunk(
-  'images/deleteImage',
+  'bookImages/deleteImage',
   async (imageId: number) => {
     try {
       await delImage(imageId);
@@ -128,23 +128,23 @@ export const deleteImageAsync = createAsyncThunk(
   }
 );
 
-const initialState: ImagesState = {
-  images: [],
+const initialState: BookImagesState = {
+  bookImages: [],
   status: 'idle',
   error: null,
 };
 
-const imagesSlice = createSlice({
-  name: 'images',
+const bookImagesSlice = createSlice({
+  name: 'bookImages',
   initialState,
   reducers: {
-    addBookImageLocal: (state, action: PayloadAction<Image>) => {
-      state.images.push(action.payload);
+    addBookImageLocal: (state, action: PayloadAction<BookImage>) => {
+      state.bookImages.push(action.payload);
     },
-    setBookImages: (state, action: PayloadAction<Image[]>) => {
-      state.images = action.payload;
+    setBookImages: (state, action: PayloadAction<BookImage[]>) => {
+      state.bookImages = action.payload;
     },
-    setStatus: (state, action: PayloadAction<ImagesState['status']>) => {
+    setStatus: (state, action: PayloadAction<BookImagesState['status']>) => {
       state.status = action.payload;
     },
     setError: (state, action: PayloadAction<string | null>) => {
@@ -153,39 +153,39 @@ const imagesSlice = createSlice({
   },
   extraReducers: builder => {
     builder
-      // Fetch all
-      .addCase(fetchImagesAsync.pending, state => {
+    // Fetch all
+      .addCase(fetchBookImagessAsync.pending, state => {
         state.status = 'loading';
       })
-      .addCase(fetchImagesAsync.fulfilled, (state, action) => {
+      .addCase(fetchBookImagessAsync.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.images = action.payload;
+        state.bookImages = action.payload;
       })
-      .addCase(fetchImagesAsync.rejected, (state, action) => {
+      .addCase(fetchBookImagessAsync.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message || null;
       })
 
       // Fetch one
-      .addCase(fetchImageByUuid.pending, state => {
+      .addCase(fetchBookImagesByUuid.pending, (state) => {
         state.status = 'loading';
       })
-      .addCase(fetchImageByUuid.fulfilled, (state, action) => {
+      .addCase(fetchBookImagesByUuid.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.images.push(action.payload);
+        state.bookImages.push(action.payload);
       })
-      .addCase(fetchImageByUuid.rejected, (state, action) => {
+      .addCase(fetchBookImagesByUuid.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message || null;
       })
-
+    
       // Create
       .addCase(createImage.pending, state => {
         state.status = 'loading';
       })
       .addCase(createImage.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.images.push(action.payload);
+        state.bookImages.push(action.payload);
       })
       .addCase(createImage.rejected, (state, action) => {
         state.status = 'failed';
@@ -199,10 +199,10 @@ const imagesSlice = createSlice({
       .addCase(updateImageAsync.fulfilled, (state, action) => {
         state.status = 'succeeded';
         const { imageUuid, decryped } = action.payload;
-        const index = state.images.findIndex(book => book.imageUuid === imageUuid);
+        const index = state.bookImages.findIndex(book => book.imageUuid === imageUuid);
         if (index !== -1) {
-          state.images[index] = {
-            ...state.images[index],
+          state.bookImages[index] = {
+            ...state.bookImages[index],
             ...decryped
           };
         }
@@ -218,7 +218,7 @@ const imagesSlice = createSlice({
       })
       .addCase(deleteImageAsync.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.images = state.images.filter(book => book.imageId !== action.payload);
+        state.bookImages = state.bookImages.filter(book => book.imageId !== action.payload);
       })
       .addCase(deleteImageAsync.rejected, (state, action) => {
         state.status = 'failed';
@@ -227,6 +227,6 @@ const imagesSlice = createSlice({
   },
 });
 
-export const { addBookImageLocal, setBookImages, setStatus, setError } = imagesSlice.actions;
+export const { addBookImageLocal, setBookImages, setStatus, setError } = bookImagesSlice.actions;
 
-export default imagesSlice.reducer;
+export default bookImagesSlice.reducer;

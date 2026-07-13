@@ -1,4 +1,4 @@
-export class Image {
+export class BookImage {
   imageId: number;
   imageUuid: string;
   bookUuid: string;

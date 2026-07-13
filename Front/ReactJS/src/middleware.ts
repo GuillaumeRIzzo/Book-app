@@ -63,6 +63,8 @@ export const config = {
     '/publisher/:id*/edit',
     '/publisher/add',
     '/users',
+    '/user/account',
+    '/user/preferences',
     '/user/:id',
     '/login',
     '/signin'

@@ -15,28 +15,51 @@ const BookInfoWrapper = styled.div`
 
 type BookInfoProps = {
   book: Book;
-  authors: Author;
-  publishers: Publisher;
-  categories: Category[]
+  authors: Author[];
+  publishers: Publisher[];
+  categories: Category[];
 };
 
-const BookInfo: React.FC<BookInfoProps> = ({ book, authors, publishers, categories }) => {
+const BookInfo: React.FC<BookInfoProps> = ({
+  book,
+  authors,
+  publishers,
+  categories,
+}) => {
   return (
     <BookInfoWrapper>
       <Typography variant='h4' component='h1' className='text-primary'>
         {book.bookTitle}
       </Typography>
-      <Typography variant='subtitle1' component='p' className='text-primary-light'>
-        <strong>Auteur:</strong> {authors.authorFullName}
+      <Typography
+        variant='subtitle1'
+        component='p'
+        className='text-primary-light'
+      >
+        <strong>Auteur:</strong>{' '}
+        {authors.map(author => (
+          <span key={author.authorUuid}>{author.authorFullName}</span>
+        ))}
       </Typography>
-      <Typography variant='subtitle1' component='p' className='text-primary-light'>
-        <strong>Éditeur:</strong> {publishers.publisherName}
+      <Typography
+        variant='subtitle1'
+        component='p'
+        className='text-primary-light'
+      >
+        <strong>Éditeur:</strong>{' '}
+        {publishers.map(publisher => (
+          <span key={publisher.publisherUuid}>{publisher.publisherName}</span>
+        ))}
       </Typography>
       <Typography variant='body1' component='p' className='text-primary-light'>
         {book.bookDescription}
       </Typography>
       <Box>
-        <Typography variant='subtitle1' component='p' className='text-primary-light'>
+        <Typography
+          variant='subtitle1'
+          component='p'
+          className='text-primary-light'
+        >
           <strong>Catégories:</strong>{' '}
           {categories.map((category, index) => (
             <Fragment key={category.categoryId}>
@@ -48,10 +71,18 @@ const BookInfo: React.FC<BookInfoProps> = ({ book, authors, publishers, categori
           ))}
         </Typography>
       </Box>
-      <Typography variant='subtitle1' component='p' className='text-primary-light'>
+      <Typography
+        variant='subtitle1'
+        component='p'
+        className='text-primary-light'
+      >
         <strong>{book.bookPageCount} pages</strong>
       </Typography>
-      <Typography variant='subtitle1' component='p' className='text-primary-light'>
+      <Typography
+        variant='subtitle1'
+        component='p'
+        className='text-primary-light'
+      >
         <strong>Publié le:</strong>{' '}
         {new Date(book.bookPublishDate).toLocaleDateString('fr-FR', {
           day: '2-digit',

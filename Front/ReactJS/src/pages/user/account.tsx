@@ -1,164 +1,3 @@
-<<<<<<< HEAD
-import { withNoSSR } from '@/components/common/withNoSSR';
-import { decryptPayload } from '@/utils/encryptUtils';
-import {
-  Box,
-  Card,
-  CardActionArea,
-  CardContent,
-  CardMedia,
-  Typography,
-} from '@mui/material';
-import { useSession } from 'next-auth/react';
-import Link from 'next/link';
-import { useRouter } from 'next/router';
-import { useEffect, useMemo, useState } from 'react';
-
-const Account: React.FC = () => {
-  const { data: session } = useSession();
-  const [headerHeight, setHeaderHeight] = useState(0);
-  const router = useRouter();
-
-  useEffect(() => {
-    const header = document.getElementById('app-header');
-    if (!header) return;
-
-    const observer = new ResizeObserver(entries => {
-      for (const entry of entries) {
-        setHeaderHeight(entry.contentRect.height);
-      }
-    });
-
-    observer.observe(header);
-
-    return () => observer.disconnect();
-  }, []);
-
-  const { uuid } = useMemo(() => {
-    if (session?.user?.encryptedSession) {
-      const { encryptedData, iv } = session.user.encryptedSession;
-      try {
-        // Explicitly cast the decrypted data to the expected type
-        const decryptedData = decryptPayload<{ uuid: string }>(
-          encryptedData,
-          iv,
-        );
-        return { uuid: decryptedData.uuid };
-      } catch (error) {
-        console.error('Failed to decrypt session data:', error);
-      }
-    }
-    return { uuid: '' };
-  }, [session]);
-
-    useEffect(() => {
-      if (!uuid) {
-        if (typeof window !== 'undefined') {
-            router.replace('/');
-          }
-      }
-    }, [uuid, router]);
-    
-  const cards = [
-    {
-      title: 'Votre profile',
-      description:
-        "Modifier l'adresse e-mail, le nom et le numéro de téléphone mobile",
-      link: `/user/${uuid}`,
-    },
-    {
-      title: 'Préférences',
-      description: 'Modifier vos préférences',
-      link: `/user/preferences`,
-    },
-    {
-      title: 'Vos commandes',
-      description: 'Historique de vos commandes',
-      link: `/user/orders`,
-    },
-    {
-      title: 'Adresses',
-      description:
-        'Modifier les adresses et les préférences de livraison des commandes',
-      link: `/user/address`,
-    },
-  ];
-  return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        marginX: '18rem',
-        padding: '2rem',
-      }}
-      height={`calc(100vh - ${headerHeight}px - 24px)`}
-    >
-      <Typography variant='h1' fontSize={24} component='h1' className='text-primary-dark'>
-        Votre compte
-      </Typography>
-      <Box
-        sx={{
-          paddingY: '2rem',
-          display: 'flex',
-          gap: 4,
-          alignSelf: 'center',
-        }}
-      >
-        {cards.map((card, index) => (
-          <Card
-            key={index}
-            sx={{
-              width: '33%',
-              backgroundColor: 'var(--background)',
-              borderColor: 'var(--border)',
-              borderWidth: '1px'
-            }}
-          >
-            <CardActionArea sx={{ height: '100%' }}>
-              <Link 
-                href={card.link}>
-                <CardContent sx={{ display: 'flex', height: '140px' }}>
-                  <CardMedia
-                    component='img'
-                    image='https://m.media-amazon.com/images/G/08/x-locale/cs/help/images/gateway/self-service/order._CB659956101_.png'
-                    alt='test order'
-                    sx={{
-                      height: '50px',
-                      width: '50px',
-                    }}
-                  ></CardMedia>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      marginLeft: '2rem',
-                    }}
-                  >
-                    <Typography variant='h5' component='h2' className='text-primary'>
-                      {card.title}
-                    </Typography>
-                    <Typography
-                      variant='body2'
-                      sx={{
-                        lineBreak: 'auto',
-                      }}
-                      className='text-primary-light'
-                    >
-                      {card.description}
-                    </Typography>
-                  </Box>
-                </CardContent>
-              </Link>
-            </CardActionArea>
-          </Card>
-        ))}
-      </Box>
-    </Box>
-  );
-};
-
-export default withNoSSR(Account);
-=======
 import { withNoSSR } from '@/components/common/withNoSSR';
 import { decryptPayload } from '@/utils/encryptUtils';
 import {
@@ -183,7 +22,7 @@ const Account: React.FC = () => {
   const { data: session } = useSession();
   const [headerHeight, setHeaderHeight] = useState(0);
   const router = useRouter();
-  
+
   const { t } = useTranslation('account');
 
   useEffect(() => {
@@ -218,40 +57,40 @@ const Account: React.FC = () => {
     return { uuid: '' };
   }, [session]);
 
-    useEffect(() => {
-      if (!uuid) {
-        if (typeof window !== 'undefined') {
-            router.replace('/');
-          }
+  useEffect(() => {
+    if (!uuid) {
+      if (typeof window !== 'undefined') {
+        router.replace('/');
       }
-    }, [uuid, router]);
-    
+    }
+  }, [uuid, router]);
+
   const cards = [
-  {
-    title: t('profile.title'),
-    description: t('profile.description'),
-    link: `/user/${uuid}`,
-    image: ProfileSvg
-  },
-  {
-    title: t('preferences.title'),
-    description: t('preferences.description'),
-    link: `/user/preferences`,
-    image: PreferencesSvg
-  },
-  {
-    title: t('order.title'),
-    description: t('order.description'),
-    link: `/user/orders`,
-    image: OrderSvg
-  },
-  {
-    title: t('address.title'),
-    description: t('address.description'),
-    link: `/user/address`,
-    image: AddressSvg
-  },
-];
+    {
+      title: t('profile.title'),
+      description: t('profile.description'),
+      link: `/user/${uuid}`,
+      image: ProfileSvg,
+    },
+    {
+      title: t('preferences.title'),
+      description: t('preferences.description'),
+      link: `/user/preferences`,
+      image: PreferencesSvg,
+    },
+    {
+      title: t('order.title'),
+      description: t('order.description'),
+      link: `/user/orders`,
+      image: OrderSvg,
+    },
+    {
+      title: t('address.title'),
+      description: t('address.description'),
+      link: `/user/address`,
+      image: AddressSvg,
+    },
+  ];
 
   return (
     <Box
@@ -263,7 +102,12 @@ const Account: React.FC = () => {
       }}
       height={`calc(100vh - ${headerHeight}px - 24px)`}
     >
-      <Typography variant='h1' fontSize={24} component='h1' className='text-primary-dark self-center'>
+      <Typography
+        variant='h1'
+        fontSize={24}
+        component='h1'
+        className='text-primary-dark self-center'
+      >
         {t('title')}
       </Typography>
       <Box
@@ -276,71 +120,71 @@ const Account: React.FC = () => {
         }}
       >
         {cards.map((card, index) => {
-        const SvgIcon = card.image;
-        return (
-          <Card
-            key={index}
-            sx={{
-              width: {
-                xs: '100%',
-                sm: '48%',
-                md: '30%',
-              },
-              minWidth: '280px',
-              backgroundColor: 'var(--background)',
-              borderColor: 'var(--border)',
-              borderWidth: '1px',
-            }}
-          >
-            <CardActionArea sx={{ height: '100%' }}>
-              <Link href={card.link}>
-                <CardContent sx={{ display: 'flex', height: '200px' }}>
-                <Box 
-                  width={150}
-                  height={150}
-                  display='flex'
-                  alignItems='center'
-                  justifyContent='center'
-                >
-                  <SvgIcon
-                    style={{
-                      height: 150,
-                      width: 150,
-                      color: 'var(--color-secondary-main)'
-                    }}
-                    aria-label={card.title}
-                    />
+          // const SvgIcon = card.image;
+          return (
+            <Card
+              key={index}
+              sx={{
+                width: {
+                  xs: '100%',
+                  sm: '48%',
+                  md: '30%',
+                },
+                minWidth: '280px',
+                backgroundColor: 'var(--background)',
+                borderColor: 'var(--border)',
+                borderWidth: '1px',
+              }}
+            >
+              <CardActionArea sx={{ height: '100%' }}>
+                <Link href={card.link}>
+                  <CardContent sx={{ display: 'flex', height: '200px' }}>
+                    <Box
+                      width={150}
+                      height={150}
+                      display='flex'
+                      alignItems='center'
+                      justifyContent='center'
+                    >
+                      {/* <SvgIcon
+                        style={{
+                          height: 150,
+                          width: 150,
+                          color: 'var(--color-secondary-main)',
+                        }}
+                        aria-label={card.title}
+                      /> */}
                     </Box>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      marginLeft: '2rem',
-                    }}
-                  >
-                    <Typography
-                      variant='h5'
-                      component='h2'
-                      className='text-primary'
-                    >
-                      {card.title}
-                    </Typography>
-                    <Typography
-                      variant='body1'
-                      component='p'
+                    <Box
                       sx={{
-                        lineBreak: 'auto',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        marginLeft: '2rem',
                       }}
-                      className='text-primary-light'
                     >
-                      {card.description}
-                    </Typography>
-                  </Box>
-                </CardContent>
-              </Link>
-            </CardActionArea>
-          </Card>
-        );
+                      <Typography
+                        variant='h5'
+                        component='h2'
+                        className='text-primary'
+                      >
+                        {card.title}
+                      </Typography>
+                      <Typography
+                        variant='body1'
+                        component='p'
+                        sx={{
+                          lineBreak: 'auto',
+                        }}
+                        className='text-primary-light'
+                      >
+                        {card.description}
+                      </Typography>
+                    </Box>
+                  </CardContent>
+                </Link>
+              </CardActionArea>
+            </Card>
+          );
         })}
       </Box>
     </Box>
@@ -348,4 +192,3 @@ const Account: React.FC = () => {
 };
 
 export default withNoSSR(Account);
->>>>>>> f571f8d (chore: save current work before project cleanup)

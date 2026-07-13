@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import tw from 'twin.macro';
 import Image from 'next/image';
 
-import { Image as ImageModel } from '@/models/images/images';
+import { BookImage as ImageModel } from '@/models/bookImages/bookImages';
 import { useState } from 'react';
 import { Box, IconButton } from '@mui/material';
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
@@ -15,20 +15,20 @@ const BookImageWrapper = styled.div`
 `;
 
 type BookImageProps = {
-  images: ImageModel[];
+  bookImages: ImageModel[];
 };
 
-const BookImage: React.FC<BookImageProps> = ({ images }) => {
+const BookImage: React.FC<BookImageProps> = ({ bookImages }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  if (images.length === 0) return null;
+  if (bookImages.length === 0) return null;
 
   const handlePrev = () => {
-    setCurrentIndex(prev => (prev === 0 ? images.length - 1 : prev - 1));
+    setCurrentIndex(prev => (prev === 0 ? bookImages.length - 1 : prev - 1));
   };
 
   const handleNext = () => {
-    setCurrentIndex(prev => (prev === images.length - 1 ? 0 : prev + 1));
+    setCurrentIndex(prev => (prev === bookImages.length - 1 ? 0 : prev + 1));
   };
 
   return (
@@ -37,12 +37,12 @@ const BookImage: React.FC<BookImageProps> = ({ images }) => {
         {/* Main Image */}
         <Box className='relative w-full h-[300px]'>
           <Image
-            src={images[currentIndex].imageUrl}
-            alt={images[currentIndex].imageAlt || `Book image ${currentIndex + 1}`}
+            src={bookImages[currentIndex].imageUrl}
+            alt={bookImages[currentIndex].imageAlt || `Book image ${currentIndex + 1}`}
             className='object-cover rounded-xl shadow-lg'
             fill
           />
-          {images.length > 1 && (
+          {bookImages.length > 1 && (
             <>
               <IconButton
                 onClick={handlePrev}
@@ -63,9 +63,9 @@ const BookImage: React.FC<BookImageProps> = ({ images }) => {
         </Box>
 
         {/* Thumbnail Strip */}
-        {images.length > 1 && (
+        {bookImages.length > 1 && (
           <Box className='flex overflow-x-auto gap-2 w-full py-2 px-1'>
-            {images.map((img, index) => (
+            {bookImages.map((img, index) => (
               <button
                 key={index}
                 onClick={() => setCurrentIndex(index)}

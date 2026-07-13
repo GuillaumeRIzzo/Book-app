@@ -1,8 +1,10 @@
+import { BookImage } from "../bookImages/bookImages";
+
 export class Book {
   bookId: number;
   bookUuid: string;
   bookTitle: string;
-  bookSubtitle: string
+  bookSubtitle: string;
   bookDescription: string;
   bookPageCount: number;
   bookPublishDate: Date;
@@ -12,28 +14,36 @@ export class Book {
   createdAt: Date;
   updatedAt: Date;
   bookSeriesUuid: string;
-  authorUuids: string;
-  categoryUuids: string;
-  publisherUuids: string;
-  imageUuids: string;
+
+  authorUuids: string[];
+  categoryUuids: string[];
+  publisherUuids: string[];
+  tagUuids: string[];
+  languageUuids: string[];
+
+  bookImage: BookImage[];
 
   constructor() {
     this.bookId = 0;
     this.bookUuid = '';
     this.bookTitle = '';
+    this.bookSubtitle = '';
     this.bookDescription = '';
     this.bookPageCount = 0;
     this.bookPublishDate = new Date();
-    this.bookSubtitle = '';
     this.bookIsbn = '';
     this.bookPrice = 0;
     this.isDeleted = false;
     this.createdAt = new Date();
     this.updatedAt = new Date();
     this.bookSeriesUuid = '';
-    this.authorUuids = '';
-    this.categoryUuids = '';
-    this.publisherUuids = '';
-    this.imageUuids = '';
+
+    this.authorUuids = [];
+    this.categoryUuids = [];
+    this.publisherUuids = [];
+    this.tagUuids = [];
+    this.languageUuids = [];
+
+    this.bookImage = [];
   }
 }

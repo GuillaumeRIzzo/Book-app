@@ -21,19 +21,19 @@ export const fetchPublishersAsync = createAsyncThunk('publishers/getPublishers',
     let publishers: Publisher[];
 
     try {
-          if (Array.isArray(decryptedData)) {
-            publishers = mapIdToCustomKeys(
-              camelCaseKeys(decryptedData, { deep: true }) as unknown as Publisher[],
-              ModelType.Publisher
-            );
-          } else {
-            console.error('Decrypted data is not an array of publishers:', decryptedData);
-            throw new Error('Decrypted data is not valid Publisher[]');
-          }
-        } catch (error) {
-          console.error('Failed to parse decrypted data:', decryptedData);
-          throw new Error('Decrypted data is not valid JSON');
-        }
+      if (Array.isArray(decryptedData)) {
+        publishers = mapIdToCustomKeys(
+          camelCaseKeys(decryptedData, { deep: true }) as unknown as Publisher[],
+          ModelType.Publisher
+        );
+      } else {
+        console.error('Decrypted data is not an array of publishers:', decryptedData);
+        throw new Error('Decrypted data is not valid Publisher[]');
+      }
+    } catch (error) {
+      console.error('Failed to parse decrypted data:', decryptedData);
+      throw new Error('Decrypted data is not valid JSON');
+    }
 
     return publishers;
 
@@ -56,13 +56,13 @@ export const fetchPublisherById = createAsyncThunk(
       // Call API to fetch encrypted publisher data
       const response = await getPublisher(publisherId);
 
-       // Ensure data types for encrypted payload
-       const encryptedData = response.data.encryptedData as string;
-       const iv = response.data.iv as string;
+      // Ensure data types for encrypted payload
+      const encryptedData = response.data.encryptedData as string;
+      const iv = response.data.iv as string;
 
-       // Decrypt the data
-       const decryptedData = decryptPayload<DecryptedPublicherData>(encryptedData, iv);
- 
+      // Decrypt the data
+      const decryptedData = decryptPayload<DecryptedPublicherData>(encryptedData, iv);
+
       const publisher = {
         ...camelCaseKeys(decryptedData, { deep: true }),
         publisherId: decryptedData.id, // manually set the publisherId
@@ -103,7 +103,7 @@ export const updatePublisherAsync = createAsyncThunk(
     // PUT doesn't return anything, so just call and return what you already know
     try {
       await updatePublisher(publisherId, payload);
-      
+
       return { publisherId, decrypted: decryptPayload(payload.encryptedData, payload.iv) };
     }
     catch (error) {
@@ -112,7 +112,7 @@ export const updatePublisherAsync = createAsyncThunk(
         console.error('Failed to update publisher:', error);
       }
       // Throw error to handle it in UI
-      throw error; 
+      throw error;
     }
   }
 );
@@ -161,7 +161,14 @@ const publishersSlice = createSlice({
       })
       .addCase(fetchPublisherById.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.publishers.push(action.payload);
+
+        const exists = state.publishers.some(
+          a => a.publisherUuid === action.payload.publisherUuid
+        );
+
+        if (!exists) {
+          state.publishers.push(action.payload);
+        }
       })
       .addCase(fetchPublisherById.rejected, (state, action) => {
         state.status = 'failed';
@@ -180,7 +187,7 @@ const publishersSlice = createSlice({
         state.status = 'failed';
         state.error = action.error.message || null;
       })
-      
+
       // Update
       .addCase(updatePublisherAsync.pending, state => {
         state.status = 'loading';
@@ -189,7 +196,7 @@ const publishersSlice = createSlice({
         state.status = 'succeeded';
         const { publisherId, decrypted } = action.payload;
         const index = state.publishers.findIndex((publisher: { publisherId: number; }) => publisher.publisherId === publisherId);
-        
+
         if (index !== -1) {
           state.publishers[index] = {
             ...state.publishers[index],

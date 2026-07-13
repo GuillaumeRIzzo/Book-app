@@ -62,12 +62,12 @@ export const fetchAuthorById = createAsyncThunk(
 
       // Decrypt the data
       const decryptedData = decryptPayload<DecryptedAuthorData>(encryptedData, iv);
-      
+
       const author = {
         ...camelCaseKeys(decryptedData, { deep: true }),
         authorId: decryptedData.id, // manually set the authorId
       } as Author;
-      
+
       return author;
     } catch (error) {
       console.error('Failed to fetch author:', error);
@@ -162,7 +162,14 @@ const authorsSlice = createSlice({
       })
       .addCase(fetchAuthorById.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.authors.push(action.payload);
+
+        const exists = state.authors.some(
+          a => a.authorUuid === action.payload.authorUuid
+        );
+
+        if (!exists) {
+          state.authors.push(action.payload);
+        }
       })
       .addCase(fetchAuthorById.rejected, (state, action) => {
         state.status = 'failed';

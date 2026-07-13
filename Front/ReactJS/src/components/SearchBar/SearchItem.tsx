@@ -1,5 +1,6 @@
 import { Box } from '@mui/material';
 import { TrashIcon } from '@heroicons/react/24/solid';
+import { useTranslation } from 'react-i18next';
 
 import { SearchResult } from './SearchBar';
 
@@ -63,9 +64,6 @@ const SearchItem: React.FC<SearchItemProps> = ({
       case 'Catégorie': return result.item.categoryName;
       case 'History': return result.item;
     }
-<<<<<<< HEAD
-  }
-=======
   };
 
   const { t } = useTranslation(['search']);
@@ -87,7 +85,6 @@ const SearchItem: React.FC<SearchItemProps> = ({
     }
   };
 
->>>>>>> f571f8d (chore: save current work before project cleanup)
   return (
     <Box>
       <SearchContainer $isOpen={isOpen} ref={searchBarRef}>
@@ -107,11 +104,7 @@ const SearchItem: React.FC<SearchItemProps> = ({
               }}
               onKeyDown={handleKeyDown}
               autoFocus={true}
-<<<<<<< HEAD
-              placeholder='Recherche : livres / auteurs / catégories / éditeurs'
-=======
               placeholder={t('placeholder')}
->>>>>>> f571f8d (chore: save current work before project cleanup)
               className='text-primary-dark'
             />
             <CloseButton
@@ -124,8 +117,6 @@ const SearchItem: React.FC<SearchItemProps> = ({
                 ❌
               </span>
             </CloseButton>
-<<<<<<< HEAD
-=======
 
             {/* ⬇️ ICI : on place l’Overlay dans le SearchContainer */}
             <Overlay ref={overlayRef}>
@@ -210,7 +201,6 @@ const SearchItem: React.FC<SearchItemProps> = ({
                 <NoResults>{t('noResults')}</NoResults>
               )}
             </Overlay>
->>>>>>> f571f8d (chore: save current work before project cleanup)
           </>
         )}
       </SearchContainer>

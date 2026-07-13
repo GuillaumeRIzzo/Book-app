@@ -1,4 +1,4 @@
-import { selectAllPreferences } from '@/features/preferences/preferenceSelector';
+import { selectPreference } from '@/features/preferences/preferenceSelector';
 import { selectAllThemes } from '@/features/themes/themeSelector';
 import { decryptPayload } from '@/utils/encryptUtils';
 import { useSession } from 'next-auth/react';
@@ -35,7 +35,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const { data: session } = useSession();
-  const userTheme = useSelector(selectAllPreferences);
+  const userTheme = useSelector(selectPreference);
   const themes = useSelector(selectAllThemes);
 
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
