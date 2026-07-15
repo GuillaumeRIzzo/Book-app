@@ -17,6 +17,7 @@ const nextConfig = {
       'm.media-amazon.com',
       'upload.wikimedia.org',
       'images.epagine.fr',
+      'flagcdn.com'
     ], // ✅ Ici tu ajoutes tous les domaines autorisés
   },
   webpack: (config, { isServer }) => {

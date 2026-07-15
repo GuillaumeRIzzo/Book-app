@@ -32,7 +32,7 @@ import { selectColorStatus } from '../colors/colorSelector';
 import { selectThemeStatus } from '../themes/themeSelector';
 import { selectLanguageStatus } from '../languages/languageSelector';
 import { selectPreferenceStatus } from '../preferences/preferenceSelector';
-import { fetchPreferencesAsync } from '../preferences/PreferenceSlice';
+import {fetchUserPreference } from '../preferences/PreferenceSlice';
 import Image from 'next/image';
 import { fetchTagsAsync } from '../tags/TagSlice';
 
@@ -51,21 +51,21 @@ const BookList: React.FC = () => {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
 
-  const { right } = useMemo(() => {
+  const { right, uuid } = useMemo(() => {
     if (session?.user?.encryptedSession) {
       const { encryptedData, iv } = session.user.encryptedSession;
       try {
         // Explicitly cast the decrypted data to the expected type
-        const decryptedData = decryptPayload<{ right: string }>(
+        const decryptedData = decryptPayload<{ right: string, uuid: string }>(
           encryptedData,
           iv,
         );
-        return { right: decryptedData.right };
+        return { right: decryptedData.right, uuid: decryptedData.uuid };
       } catch (error) {
         console.error('Failed to decrypt session data:', error);
       }
     }
-    return { right: '' };
+    return { right: '', uuid: '' };
   }, [session]);
 
   useEffect(() => {
@@ -75,8 +75,8 @@ const BookList: React.FC = () => {
       dispatch(fetchAuthorsAsync());
       dispatch(fetchPublishersAsync());
       dispatch(fetchCategoriesAsync());
-      fetchTagsAsync()
-      fetchLanguagesAsync()
+      dispatch(fetchTagsAsync());
+      dispatch(fetchLanguagesAsync());
     }
   }, [bookStatus, dispatch]);
 
@@ -97,7 +97,7 @@ const BookList: React.FC = () => {
         dispatch(fetchUserRightsAsync());
         dispatch(fetchThemesAsync());
         dispatch(fetchColorsAsync());
-        dispatch(fetchPreferencesAsync());
+        dispatch(fetchUserPreference(uuid));
       }
     }
   }, [
@@ -108,6 +108,7 @@ const BookList: React.FC = () => {
     themesStatus,
     colorStatus,
     preprefrenceStatus,
+    uuid,
     dispatch,
   ]);
 
