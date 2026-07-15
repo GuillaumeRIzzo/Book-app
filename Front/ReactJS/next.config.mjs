@@ -12,11 +12,12 @@ const nextConfig = {
   },
   images: {
     domains: [
-      'www.babelio.com', 
+      'www.babelio.com',
       'images-na.ssl-images-amazon.com',
       'm.media-amazon.com',
       'upload.wikimedia.org',
-      'images.epagine.fr'], // ✅ Ici tu ajoutes tous les domaines autorisés
+      'images.epagine.fr',
+    ], // ✅ Ici tu ajoutes tous les domaines autorisés
   },
   webpack: (config, { isServer }) => {
     if (!isServer) {
@@ -28,6 +29,30 @@ const nextConfig = {
         perf_hooks: false,
       };
     }
+    const fileLoaderRule = config.module.rules.find(
+      rule => rule.test && rule.test.test && rule.test.test('.svg'),
+    );
+
+    if (fileLoaderRule) {
+      fileLoaderRule.exclude = /\.svg$/i;
+    }
+
+    config.module.rules.push({
+      test: /\.svg$/i,
+      issuer: /\.[jt]sx?$/,
+      use: [
+        {
+          loader: '@svgr/webpack',
+          options: {
+            svgo: true,
+            svgoConfig: {
+              plugins: [],
+            },
+          },
+        },
+      ],
+    });
+
     config.infrastructureLogging = { level: 'warn' };
     return config;
   },
