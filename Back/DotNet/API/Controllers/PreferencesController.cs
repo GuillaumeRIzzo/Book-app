@@ -52,11 +52,11 @@ namespace API.Controllers
             return NoContent();
         }
 
-        // GET: api/Preferences/5
-        [HttpGet("{uuid}")]
-        public async Task<ActionResult<EncryptedPayload>> GetPreference(Guid uuid)
+        [HttpGet("{userUuid}")]
+        public async Task<ActionResult<EncryptedPayload>> GetPreference(Guid userUuid)
         {
-            var preference = await _context.Preferences.FirstOrDefaultAsync(p => p.PreferenceUuid == uuid);
+            var preference = await _context.Preferences
+                .FirstOrDefaultAsync(p => p.UserUuid == userUuid);
 
             if (preference == null)
             {
@@ -76,8 +76,9 @@ namespace API.Controllers
                 UpdatedAt = preference.UpdatedAt,
             };
 
-            // Encrypt the list of preferences
-            var encryptedData = EncryptionHelper.EncryptData(JsonSerializer.Serialize(model));
+            var encryptedData = EncryptionHelper.EncryptData(
+                JsonSerializer.Serialize(model)
+            );
 
             return Ok(new EncryptedPayload
             {

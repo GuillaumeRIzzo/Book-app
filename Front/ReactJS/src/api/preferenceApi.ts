@@ -6,7 +6,7 @@ import { EncryptedPayload } from '@/utils/encryptUtils';
 
 export const getPreferences = (): AxiosPromise<EncryptedPayload> => apiClient.get<EncryptedPayload>('Preferences');
 
-export const getPreference = (preferenceUuid: string): AxiosPromise<EncryptedPayload> => apiClient.get<EncryptedPayload>(`Preferences/${preferenceUuid}`);
+export const getPreferenceByUser = (userUuid: string): AxiosPromise<EncryptedPayload> => apiClient.get<EncryptedPayload>(`Preferences/${userUuid}`);
 
 export const addPreference = (payload: EncryptedPayload) => apiClient.post<Preference>('Preferences', payload );
 

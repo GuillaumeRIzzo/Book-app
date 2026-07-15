@@ -2,13 +2,13 @@ import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
 import camelCaseKeys from 'camelcase-keys';
 
-import { getPreference, getPreferences, addPreference, updatePreference } from '@/api/preferenceApi';
+import { getPreferenceByUser, getPreferences, addPreference, updatePreference } from '@/api/preferenceApi';
 import { Preference } from '@/models/preference/preference';
 import { PreferenceState } from '@/models/preference/PreferenceState';
 import { decryptPayload, EncryptedPayload } from '@/utils/encryptUtils';
 import { AxiosError } from 'axios';
 
-export const fetchPreferencesAsync = createAsyncThunk('preferences/getPreferences', async () => {
+export const fetchPreferencesAsync = createAsyncThunk('preference/getPreferences', async () => {
   try {
     const response = await getPreferences();
 
@@ -17,48 +17,43 @@ export const fetchPreferencesAsync = createAsyncThunk('preferences/getPreference
 
     const decryptedData = decryptPayload(encryptedData, iv);
 
-    let preferences: Preference[];
+    let preference: Preference[];
     try {
-      preferences = camelCaseKeys(decryptedData, { deep: true }) as unknown as Preference[];
+      preference = camelCaseKeys(decryptedData, { deep: true }) as unknown as Preference[];
 
     } catch (error) {
       console.error('Failed to parse decrypted data:', decryptedData);
       throw new Error('Decrypted data is not valid JSON');
     }
 
-    return preferences;
+    return preference;
   } catch (error) {
-    console.error('Failed to fetch preferences:', error);
+    console.error('Failed to fetch preference:', error);
     throw error;
   }
 });
 
-interface DecryptedPreferenceData {
-  preferenceId: string;
-  preferenceUuid: string;
-  [key: string]: unknown;
-}
-
-export const fetchPreferenceById = createAsyncThunk(
-  'preferences/getPreference',
-  async (preferenceUuid: string) => {
+export const fetchUserPreference = createAsyncThunk(
+  'preference/getUserPreference',
+  async (userUuid: string) => {
     try {
-      const response = await getPreference(preferenceUuid);
+      const response = await getPreferenceByUser(userUuid);
 
-      const encryptedData = response.data.encryptedData as string;
-      const iv = response.data.iv as string;
+      const decryptedData = decryptPayload(
+        response.data.encryptedData,
+        response.data.iv
+      );
 
-      const decryptedData = decryptPayload<DecryptedPreferenceData>(encryptedData, iv);
+      return camelCaseKeys(
+        decryptedData,
+        { deep: true }
+      ) as unknown as Preference;
 
-      // Parse decrypted data as a Preference object
-      const preference = {
-        ...camelCaseKeys(decryptedData, { deep: true }),
-        preferenceId: decryptedData.id, // manually set the preferenceUuid
-      } as Preference;
-
-      return preference;
     } catch (error) {
-      console.error('Failed to fetch preference by ID:', error);
+      console.error(
+        'Failed to fetch user preference:',
+        error
+      );
       throw error;
     }
   }
@@ -86,25 +81,25 @@ type UpdatePreferenceParams = {
 };
 
 export const updatePreferenceAsync = createAsyncThunk(
-  'preferences/updatePreference',
+  'preference/updatePreference',
   async ({ preferenceUuid, payload }: UpdatePreferenceParams) => {
     try {
       await updatePreference(preferenceUuid, payload);
-      
-      return { preferenceUuid, decryped : decryptPayload(payload.encryptedData, payload.iv) };
+
+      return { preferenceUuid, decryped: decryptPayload(payload.encryptedData, payload.iv) };
     } catch (error) {
       const axiosError = error as AxiosError;
       if (axiosError.response) {
         console.error('Failed to update preference:', error);
       }
       // Throw error to handle it in UI
-      throw error; 
+      throw error;
     }
   }
 );
 // Initial state setup
 const initialState: PreferenceState = {
-  preferences: [],
+  preference: null,
   status: 'idle',
   error: null,
 };
@@ -113,11 +108,11 @@ const preferencesSlice = createSlice({
   name: 'preference',
   initialState,
   reducers: {
-    addPreferenceLocal: (state, action: PayloadAction<Preference>) => {
-      state.preferences.push(action.payload);
+    addPreferenceLocal: (state, action: PayloadAction<Preference | null>) => {
+      state.preference = (action.payload);
     },
-    setPreferences: (state, action: PayloadAction<Preference[]>) => {
-      state.preferences = action.payload;
+    setPreferences: (state, action: PayloadAction<Preference | null>) => {
+      state.preference = action.payload;
     },
     setStatus: (state, action: PayloadAction<PreferenceState['status']>) => {
       state.status = action.payload;
@@ -125,34 +120,34 @@ const preferencesSlice = createSlice({
     setError: (state, action: PayloadAction<string | null>) => {
       state.error = action.payload;
     },
-    updatePreferenceInState: (state, action: PayloadAction<Preference>) => {
-      const index = state.preferences.findIndex(u => u.preferenceId === action.payload.preferenceId);
-      if (index !== -1) {
-        state.preferences[index] = action.payload;
-      }
-    },
+    updatePreferenceInState: (
+      state,
+      action: PayloadAction<Preference>
+    ) => {
+      state.preference = action.payload;
+    }
   },
   extraReducers: builder => {
     builder
-      .addCase(fetchPreferencesAsync.pending, state => {
+      // .addCase(fetchPreferencesAsync.pending, state => {
+      //   state.status = 'loading';
+      // })
+      // .addCase(fetchPreferencesAsync.fulfilled, (state, action: PayloadAction<Preference>) => {
+      //   state.status = 'succeeded';
+      //   state.preference = action.payload;
+      // })
+      // .addCase(fetchPreferencesAsync.rejected, (state, action) => {
+      //   state.status = 'failed';
+      //   state.error = action.error.message || null;
+      // })
+      .addCase(fetchUserPreference.pending, (state) => {
         state.status = 'loading';
       })
-      .addCase(fetchPreferencesAsync.fulfilled, (state, action: PayloadAction<Preference[]>) => {
+      .addCase(fetchUserPreference.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.preferences = action.payload;
+        state.preference = (action.payload);
       })
-      .addCase(fetchPreferencesAsync.rejected, (state, action) => {
-        state.status = 'failed';
-        state.error = action.error.message || null;
-      })
-      .addCase(fetchPreferenceById.pending, (state) => {
-        state.status = 'loading';
-      })
-      .addCase(fetchPreferenceById.fulfilled, (state, action: PayloadAction<Preference>) => {
-        state.status = 'succeeded';
-        state.preferences.push(action.payload);
-      })
-      .addCase(fetchPreferenceById.rejected, (state, action) => {
+      .addCase(fetchUserPreference.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message || null;
       })
@@ -163,7 +158,7 @@ const preferencesSlice = createSlice({
       })
       .addCase(createPreference.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.preferences.push(action.payload);
+        state.preference = (action.payload);
       })
       .addCase(createPreference.rejected, (state, action) => {
         state.status = 'failed';
@@ -172,12 +167,7 @@ const preferencesSlice = createSlice({
 
       .addCase(updatePreferenceAsync.fulfilled, (state, action) => {
         const decrypted = camelCaseKeys(action.payload.decryped, { deep: true }) as unknown as Preference;
-        const index = state.preferences.findIndex(p => p.preferenceUuid === action.payload.preferenceUuid);
-        if (index !== -1) {
-          state.preferences[index] = decrypted;
-        } else {
-          state.preferences.push(decrypted);
-        }
+        state.preference = decrypted;
       });
   },
 });
