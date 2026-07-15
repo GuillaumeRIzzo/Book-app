@@ -120,7 +120,7 @@ const Account: React.FC = () => {
         }}
       >
         {cards.map((card, index) => {
-          // const SvgIcon = card.image;
+          const SvgIcon = card.image;
           return (
             <Card
               key={index}
@@ -146,14 +146,14 @@ const Account: React.FC = () => {
                       alignItems='center'
                       justifyContent='center'
                     >
-                      {/* <SvgIcon
+                      <SvgIcon
                         style={{
                           height: 150,
                           width: 150,
                           color: 'var(--color-secondary-main)',
                         }}
                         aria-label={card.title}
-                      /> */}
+                      />
                     </Box>
                     <Box
                       sx={{
