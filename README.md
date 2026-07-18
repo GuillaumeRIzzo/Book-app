@@ -1,11 +1,11 @@
-book-app
+Codivellum
 
 Full-stack modular book management platform built with .NET Core, React and Docker.
 Designed with scalability, extensibility and clean architecture principles.
 
 🚀 Project Overview
 
-book-app simulates a production-oriented book management platform.
+codivellum simulates a production-oriented book management platform.
 The goal of this project is to design and implement a scalable full-stack application from scratch, with a strong focus on:
 Clean backend architecture
 Modular REST API design
@@ -87,7 +87,7 @@ Docker Compose
 
 📁 Project Structure
 
-book-app/
+codivellum/
 ├─ Back/
 │  ├─ DotNet/API
 │  └─ Strapi/
@@ -101,8 +101,8 @@ book-app/
 
 Clone the repository:
 
-git clone https://github.com/GuillaumeRIzzo/Book-app.git
-cd book-app
+git clone https://github.com/GuillaumeRizzo/codivellum.git
+cd codivellum
 
 Start the full environment:
 docker-compose up --build
